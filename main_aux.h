@@ -28,6 +28,8 @@
  *
  */
 
+void printCannotGenerateBoardWithErrors();
+void printNotEnoughEmptyCells(int, int);
 void printChangeInBoard(Cell* cell, int from, int to);
 void printNumOfSolution(int numOfSolution);
 void printSolutionIsErroneous();
@@ -59,7 +61,7 @@ void printSeparatorRow();
 void printExiting();
 void printInvalidCommand();
 void checkNoInput();
-void printMallocFailed();
+void printMallocFailedAndExit();
 
 #endif
 

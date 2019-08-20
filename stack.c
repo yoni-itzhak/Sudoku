@@ -8,13 +8,13 @@
 Stack* newStack(int capacity){
     Stack *stack = (Stack*)malloc(sizeof(Stack));
     if (stack == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     stack->maxsize = capacity;
     stack->top = -1;
     stack->items = (StackItem*)malloc(sizeof(StackItem) * capacity);
     if (stack->items == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     return stack;
 }

@@ -86,7 +86,7 @@ int exhaustiveBacktracking(Sudoku* sudoku, int x, int y){
     Cell* nextEmptyCell = (Cell*)malloc(sizeof(Cell));
     Cell* currentEmptyCell = (Cell*)malloc(sizeof(Cell));
     if(stackItem == NULL || nextEmptyCell == NULL || currentEmptyCell == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
 
     stackItem->board = copyBoard(sudoku->currentState, total_size);
@@ -133,7 +133,7 @@ void deleteDigitFromArr(SudokuCell*** board, int x, int y, int dig) {
     int* tmpArr = board[x][y]->optionalDigits;
     int* newArr = (int*) malloc(len * sizeof(int));
     if(newArr == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     for (i = 0; i < len + 1; i++) {
         if (dig != tmpArr[i]) {
@@ -154,7 +154,7 @@ void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y)
     int is_valid;
     int* cellArr = (int*)malloc(row*column* sizeof(int));
     if(cellArr == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     free(board[x][y]->optionalDigits);
     board[x][y]->optionalDigits = cellArr;
@@ -180,20 +180,20 @@ void createEmptyBoard(SudokuCell*** board, int total_size){
     for(i=0; i<total_size; i++){
         board[i] = (SudokuCell**)malloc(total_size*sizeof(SudokuCell*));
         if(board[i] == NULL){
-            printMallocFailed();
+            printMallocFailedAndExit();
         }
         for(j=0; j<total_size;j++){
             board[i][j] = (SudokuCell*)malloc(sizeof(SudokuCell));
             if(board[i][j] == NULL){
-                printMallocFailed();
+                printMallocFailedAndExit();
             }
             board[i][j]->digit=0;
             board[i][j]->is_fixed=0;
-            board[i][j]->is_erroneous=0;
+            board[i][j]->cnt_erroneous=0;
             board[i][j]->numOfOptionalDigits=total_size;
             board[i][j]->optionalDigits=(int*)malloc(total_size* sizeof(int));
             if(board[i][j]->optionalDigits == NULL){
-                printMallocFailed();
+                printMallocFailedAndExit();
             }
         }
     }
@@ -340,15 +340,15 @@ HasSolution boardSolver(Sudoku* sudoku, int isRandom){
     Cell* firstEmptyCell;
     deterSudoku = (DeterSudoku*)malloc(sizeof(DeterSudoku));
     if(deterSudoku == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     fixedBoard = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
     if(fixedBoard == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     firstEmptyCell = (Cell*)malloc(sizeof(Cell));
     if(firstEmptyCell == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     createEmptyBoard(fixedBoard,total_size);
     currentStateToFixed(sudoku, fixedBoard, total_size);/*copy the sudoku.currentState to fixedBoard*/
@@ -415,11 +415,11 @@ void createSudoku(Sudoku* sudoku,int row, int column, int num_of_cells) {
     SudokuCell*** sol;
     tmp = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
     if(tmp == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     sol = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
     if(sol == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     createEmptyBoard(tmp, total_size);
     createEmptyBoard(sol, total_size);

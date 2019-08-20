@@ -5,6 +5,15 @@
 #include "solver.h"
 #include "game.h"
 
+void printNotEnoughEmptyCells(int x, int numOfEmptyCells){
+    printf("Error: The number of empty cells is smaller then %d, please choose a smaller number than "
+           "%d\n", x, numOfEmptyCells);
+}
+
+void printCannotGenerateBoardWithErrors(){
+    printf("Error: The function 'generate' can't receive a board with erroneous cells\n");
+}
+
 void _printAllowedCommands(Mode mode){
     Command i, is_first=1;
     for(i=1; i<19;++i){
@@ -213,7 +222,7 @@ void checkNoInput(){
 /*
  * The function gets called when memory allocation from malloc was failed and prints appropriate message.
  */
-void printMallocFailed(){
+void printMallocFailedAndExit(){
     printf("Error: 'malloc' has failed/n");
     exit(0);
 }

@@ -23,11 +23,12 @@ int main() {
     State current_state;
     Sudoku* sudoku;
     char input[257];
+    srand(time(0)); /* TODO: make sure the seed is fine */
     while (1) {
         current_state = STATE_LOOP;
         sudoku = (Sudoku*)malloc(sizeof(Sudoku));
         if(sudoku == NULL){
-            printMallocFailed();
+            printMallocFailedAndExit();
         }
         /*
         createSudoku(sudoku,ROW,COLUMN,num_of_cells);

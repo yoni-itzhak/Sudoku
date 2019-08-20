@@ -26,7 +26,7 @@ State readCommand(Sudoku *sudoku, char *input){
     Mode current_mode = sudoku->mode;
     int* cmd = (int*)malloc(4* sizeof(int)); /* [command, param_x, param_y, param_z] */
     if(cmd == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     ptr_cnt = &cnt;
     _parseCommand(input, cmd, path, current_mode, ptr_cnt);
@@ -251,7 +251,7 @@ int _commandGenerate(int* cmd, char* token, int* cnt, Mode mode){
     if (_isTooManyParams(cmd, cnt, 2, mode)){
         return 0;
     }
-    if (val<=1 || val>= BOARD_SIZE){
+    if (val<0 || val> BOARD_SIZE){/*TODO: make sure y is in range */
         err = *cnt+3;
         handleInputError(GENERATE, err, mode);
         cmd[0] = 0;
@@ -261,7 +261,7 @@ int _commandGenerate(int* cmd, char* token, int* cnt, Mode mode){
     return 1;
 }
 
-int _commandHint(int* cmd, char* token, int* cnt, Mode mode){/* hint ang guess_hint */
+int _commandHint(int* cmd, char* token, int* cnt, Mode mode){/* hint and guess_hint */
     Error err;
     int val = stringToInt(token);
     if (_isTooManyParams(cmd, cnt, 2, mode)){

@@ -10,7 +10,7 @@
 List* getNewList(){
     List* newList = (List*)malloc(sizeof(List));
     if (newList==NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     newList->head = NULL;
     newList->last = NULL;
@@ -21,7 +21,7 @@ List* getNewList(){
 struct Node* getNewNode(Move** arrMove, int arrSize) {
     struct Node* newNode = (struct Node*) malloc(sizeof(struct Node));
     if (newNode==NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     newNode->arrMove = arrMove;
     newNode->arrSize=arrSize;
@@ -34,7 +34,7 @@ Move* getNewMove(int x, int y, int beforeValue, int afterValue, int beforeErrone
     Cell* cell = (Cell*)malloc(sizeof(Cell));
     Move* newMove = (Move*)malloc(sizeof(Move));
     if (newMove==NULL || cell==NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     cell->x = x;
     cell->y = y;

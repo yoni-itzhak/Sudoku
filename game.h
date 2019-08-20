@@ -5,6 +5,7 @@
 
 
 #include "solver.h"
+#include "parser.h"
 #include "doubly_linked_list.h"
 
 
@@ -45,8 +46,10 @@ typedef enum{
 
 
 
+void addArrMoveToList(Sudoku*, Move**, int);
+int fillXCells(SudokuCell***, int, Cell**, int, int, int);
+int createEmptyCellsArr(Sudoku*, Cell**);
 int isContainsValue(Sudoku* sudoku, int x, int y);
-int isThereXEmptyCells(Sudoku* sudoku, int x);
 int isFilled(Sudoku* sudoku);
 int isErroneous(Sudoku* sudoku);
 SET_STATUS lastCellToBeFilled(Sudoku* sudoku);
@@ -58,7 +61,7 @@ void addOneMoveToList(Sudoku *sudoku, int x, int y, int value, int z);
 SET_STATUS set(Sudoku* sudoku, int x, int y, int z);
 void validate(Sudoku* sudoku);
 void guess(Sudoku* sudoku, float x);
-void generate(Sudoku* sudoku, int x, int y);
+State generate(Sudoku* sudoku, int x, int y);
 int hasMoveToUndo(Sudoku* sudoku);
 void setPointerToPreviousMove(Sudoku* sudoku);
 void updateTheBoard(Sudoku* sudoku, Move* move, Command command);

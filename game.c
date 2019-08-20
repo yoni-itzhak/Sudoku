@@ -1,15 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "game.h"
 #include "solver.h"
 #include "main_aux.h"
 #include "doubly_linked_list.h"
-
-
-#define DEFAULT_ROW = 3
-#define DEFAULT_COLUMN = 3
-#define DEFAULT_NUMBER_OF_CELLS = 81
 
 /* TODO: 1. take care of erroneous cells when adding a move to undo\redo list (if the cell has changed and became erroneous - and vice versa)
  *       2. take care of undo\redo list with "generate" or "guess"
@@ -18,8 +14,6 @@
 int ILP_Validation(SudokuCell*** tmpBoard);
 void LP_Guesses(Sudoku* sudoku, float x);
 void fillCellsWithScoreX(Sudoku* sudoku,float x);
-int fillXCells(SudokuCell*** tmpBoard, int x);
-void keepYCells(SudokuCell*** tmpBoard, int y);
 int LP_Validation(Sudoku* sudoku);
 int checkIfBoardIsSolvable();
 
@@ -29,6 +23,92 @@ void freeMemory(Sudoku* sudoku){
     freeBoard (sudoku->solution, sudoku->total_size);
     freeList(sudoku->list);
     free(sudoku);
+}
+
+void updateSudoku(Sudoku* sudoku, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell, int newCntErroneousCells);
+
+void loadBoardFromPath(Sudoku* sudoku, char* X);
+
+int createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
+    int  i=0, j=0, index=0;
+    for(;i<sudoku->row; ++i){
+        for (;j<sudoku->column;++j){
+            if (sudoku->currentState[i][j]->digit == 0){
+                emptyCellsArr[index]->x = i;
+                emptyCellsArr[index]->y = j;
+                ++index;
+            }
+        }
+    }
+}
+
+int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmptyCells, int row, int column){
+    int empty_cell_index, rand_dig_index, num_of_optional_digits;
+    Cell* empty_cell_coordinates;
+    SudokuCell* chosen_cell;
+    for(;x>0;--x){
+        empty_cell_index = rand()%numOfEmptyCells;
+        empty_cell_coordinates = emptyCellsArr[empty_cell_index];
+        findThePossibleArray(tmpBoard, row, column, empty_cell_coordinates->x, empty_cell_coordinates->y);
+        chosen_cell = tmpBoard[empty_cell_coordinates->x][empty_cell_coordinates->y];
+        num_of_optional_digits = chosen_cell->numOfOptionalDigits;
+        if (num_of_optional_digits>0){
+            rand_dig_index = rand()%(num_of_optional_digits);
+        }
+        else{
+            return 0;
+        }
+        chosen_cell->digit = chosen_cell->optionalDigits[rand_dig_index];
+        emptyCellsArr[empty_cell_index] = emptyCellsArr[numOfEmptyCells-1];
+        numOfEmptyCells--;
+    }
+    return 1;
+}
+
+void makeAllCellsUnfixed(SudokuCell*** tmpBoard, int row, int column){
+    int i=0, j=0;
+    for(;i<row;++i){
+        for(;j<column;++j){
+            tmpBoard[i][j]->is_fixed=0;
+        }
+    }
+}
+
+void emptyUnfixedCells(SudokuCell*** tmpBoard, int row, int column){
+    int i=0, j=0;
+    for(;i<row;++i){
+        for(;j<column;++j){
+            if(tmpBoard[i][j]->is_fixed==0){
+                tmpBoard[i][j]->digit=0;
+            }
+        }
+    }
+}
+
+void keepYCells(SudokuCell*** tmpBoard, int y, int row, int column){
+    int i=0, row_index=0, column_index=0, num_of_available_cells = row*column, chosen_cell_index;
+    Cell chosen_cell;
+    Cell* all_available_cells = (Cell*)malloc(sizeof(Cell)*num_of_available_cells);
+    if(all_available_cells==NULL){
+        printMallocFailedAndExit();
+    }
+    for(;row_index<row; ++row_index){
+        for(;column_index<column; ++column_index){
+            all_available_cells[i].x = row_index;
+            all_available_cells[i].y = column_index;
+            ++i;
+        }
+    }
+    makeAllCellsUnfixed(tmpBoard, row, column);
+    for(;y>0;--y) {
+        chosen_cell_index = rand() % num_of_available_cells;
+        chosen_cell = all_available_cells[chosen_cell_index];
+        tmpBoard[chosen_cell.x][chosen_cell.y]->is_fixed = 1;
+        all_available_cells[chosen_cell_index] = all_available_cells[num_of_available_cells-1];
+        --num_of_available_cells;
+    }
+    emptyUnfixedCells(tmpBoard, row, column);
+    free(all_available_cells);
 }
 
 int areOnlyWhitespacesLeft(FILE* file, char* X){
@@ -139,7 +219,7 @@ void fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
     int total_size, num, row, column, numOfCells, cntFilledCell=0, cntErroneousCells=0;
     SudokuCell*** board = (SudokuCell***)malloc(sizeof(SudokuCell**));
     if (board == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
 
     scanRowAndColumn(file, X, &row, &column); /*find m & n*/
@@ -198,7 +278,7 @@ void editWithoutPath(Sudoku* sudoku){
 
     SudokuCell*** emptyBoard = (SudokuCell***)malloc(sizeof(SudokuCell**));
     if (emptyBoard == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     createEmptyBoard(emptyBoard, 9); /* for empty 9X9 board*/
     updateSudoku(sudoku,EDIT, emptyBoard, 3, 3, 0);
@@ -234,22 +314,7 @@ void updateSudoku(Sudoku* sudoku, Mode mode, SudokuCell*** newCurrentState, int 
 int isContainsValue(Sudoku* sudoku, int x, int y){
     return sudoku->currentState[x][y]!=0;
 }
-int isThereXEmptyCells(Sudoku* sudoku, int x){
-    int total_cells = sudoku->total_size*sudoku->total_size;
-    int empty_cells = total_cells - sudoku->cntFilledCell;
-    if (empty_cells >= x){
-        return 1;
-    }
-    return 0;
-}
 
-/*
- * @params - function receives pointer to the main Sudoku.
- *
- * The function checks if the board is filled according to the sudoku's filledCell counter.
- *
- * @return - 1 if filled, 0 otherwise.
- */
 int isFilled(Sudoku* sudoku){
     int total_cells = sudoku->total_size*sudoku->total_size;
     if (sudoku->cntFilledCell==total_cells){
@@ -373,7 +438,7 @@ int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int val
     int dig, i, j, isValid = 1, cntNeighborsErroneous, beforeErroneous, afterErroneous;
     Cell* head=(Cell*)malloc(sizeof(Cell));
     if(head == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     findHeadBlock(head,row, column,x,y);
     for (i=0;i<row;i++){
@@ -552,40 +617,84 @@ void guess(Sudoku* sudoku, float x){
 }
 
 void backToOriginalState(SudokuCell*** originalBoard, SudokuCell*** invalidBoard, int total_size){
-
     copyBoardValues(originalBoard, invalidBoard, total_size); /*fromBoard, toBoard, size*/
 }
 
-void generate(Sudoku* sudoku, int x, int y){
-    int isSolvable, legalValue;
-    int cntNoSolution=0;
+int createGenerateMovesArr(Move** arrMove, Sudoku* sudoku, SudokuCell*** tmpBoard, int row, int column){
+    int i=0, j=0, numOfMoves=0; /*TODO: should numOfMoves start from 0 or 1 */
+    for (;i<row; ++i){
+        for(;j<column;++j){
+            if(sudoku->currentState[i][j]->digit != tmpBoard[i][j]->digit){
+                addMoveToArrMove(arrMove, numOfMoves, i, j, sudoku->currentState[i][j]->digit, tmpBoard[i][j]->digit, 0, 0);
+                ++numOfMoves;
+            }
+        }
+    }
+    return numOfMoves;
+}
+
+void generateBoardAndCreateMovesArr(Move** arrMove, Sudoku* sudoku, SudokuCell*** tmpBoard, int y){
+    int numOfMoves;
+    keepYCells(tmpBoard, y, sudoku->row, sudoku->column);
+    numOfMoves = createGenerateMovesArr(arrMove, sudoku, tmpBoard, sudoku->row, sudoku->column);
+    freeBoard(sudoku->currentState, sudoku->total_size);
+    sudoku->currentState = copyBoard(tmpBoard, sudoku->total_size);
+    addArrMoveToList(sudoku, arrMove, numOfMoves);
+}
+
+State generate(Sudoku* sudoku, int x, int y){
+    int isSolvable, areXCellsFilled, numOfEmptyCells, isValid=1, cntNoSolution=0;
+    int total_cells = sudoku->total_size*sudoku->total_size;
     SudokuCell*** tmpBoard = copyBoard(sudoku->currentState, sudoku->total_size); /*save the original board for cases that "fillXCells" or "ILP_Validation" will fail*/
-    if (sudoku->mode!=EDIT){
-        /*print appropriate massage*/
+    numOfEmptyCells = total_cells - sudoku->cntFilledCell;
+    if(numOfEmptyCells < x){
+        printNotEnoughEmptyCells(x, numOfEmptyCells);
+        isValid=0;
     }
-    else if(isThereXEmptyCells(sudoku,x)==0){
-        /*print that there are less then X empty cells*/
+    else if(isErroneous(sudoku)==1){
+        printCannotGenerateBoardWithErrors();
+        isValid=0;
     }
-    else{ /*in Edit mode AND there are X empty cells*/
+    else{ /*in Edit mode AND there are at least X empty cells AND the board has no errors*/
+        Cell** emptyCellsArr = (Cell**)malloc(numOfEmptyCells*sizeof(Cell*));
+        if (emptyCellsArr == NULL){
+            printMallocFailedAndExit();
+        }
+        createEmptyCellsArr(sudoku, emptyCellsArr);
         while (cntNoSolution<1000){
-            legalValue = fillXCells(tmpBoard, x);
-            if (legalValue==0){
+            areXCellsFilled = fillXCells(tmpBoard, x, emptyCellsArr, numOfEmptyCells,
+                    sudoku->row, sudoku->column);
+            if (areXCellsFilled==0){
                 cntNoSolution++;
                 backToOriginalState(sudoku->currentState,tmpBoard, sudoku->total_size);
                 continue;
             }
-            isSolvable = ILP_Validation(tmpBoard);
+            isSolvable = ILP_Validation(tmpBoard);/* should fill out the board */
             if (isSolvable==0){
                 cntNoSolution++;
                 backToOriginalState(sudoku->currentState,tmpBoard, sudoku->total_size);
                 continue;
             }
-            /*arrive here when BOTH "fillXCells" and "ILP_Validation" were succeed*/
+            /*arrive here when BOTH "fillXCells" and "ILP_Validation" succeed*/
             break;
         }
-        keepYCells(tmpBoard, y);
+        free(emptyCellsArr);
+        if(cntNoSolution<1000){
+            Move** arrMove = (Move**)malloc(total_cells* sizeof(Move*));
+            if (arrMove == NULL) {
+                printMallocFailedAndExit();
+            }
+            generateBoardAndCreateMovesArr(arrMove, sudoku, tmpBoard, y);
+        }
+        else{
+            isValid=0;
+        }
     }
     freeBoard(tmpBoard, sudoku->total_size);
+    if(y==total_cells && isValid){
+        return STATE_SOLVED;
+    }
+    return STATE_LOOP;
 }
 
 int hasMoveToUndo(Sudoku* sudoku){
@@ -793,7 +902,7 @@ void num_solutions(Sudoku* sudoku){
     else{ /*in Solve mode AND not erroneous*/
         firstEmptyCell = (Cell*)malloc(sizeof(Cell));
         if(firstEmptyCell == NULL){
-            printMallocFailed();
+            printMallocFailedAndExit();
         }
         createEmptyBoard(fixedBoard,total_size);
         currentStateToFixed(sudoku, fixedBoard, total_size);/*copy the sudoku.currentState to fixedBoard*/
@@ -835,7 +944,7 @@ int hasSingleLegalValue(Sudoku* sudoku, int i, int j){
     Move* newMove = getNewMove(x,y,value,z);
     Move** arrMove = (Move**)malloc(sizeof(Move*));
     if (arrMove == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     arrMove[0]=newMove;
     insertAtTail(sudoku->list, newMove,1);
@@ -852,7 +961,7 @@ void fillObviousValues(Sudoku* sudoku){
     int total_cells = sudoku->total_size*sudoku->total_size;
     Move** arrMove = (Move**)malloc(total_cells*(sizeof(Move*)));
     if (arrMove == NULL){
-        printMallocFailed();
+        printMallocFailedAndExit();
     }
     markSingleLegalValue(sudoku);
     int i,j, total_size = sudoku->total_size;
