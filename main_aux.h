@@ -40,6 +40,14 @@ void printOpenFileFailed(char* path);
 void printCloseFileFailed(char* path);
 void printWriteToFileFailed(char* path);
 
+void printLoadedFileLengthNotValid(char* path);
+void printLoadedFileEOF(char* path);
+void printLoadedFileFirstLineNotValid(char* path);
+void printLoadedFileCellNotValid(char* path);
+void printLoadedFileNotSolvable(char* path);
+
+
+
 void printSolved();
 void printFixed();
 void printInvalidValue();

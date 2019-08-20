@@ -34,7 +34,7 @@ int main() {
         generateBoard(sudoku);
         randomDeletingCells(sudoku, num_of_cells);
         printSudoku(sudoku);*/
-        sudoku->mode = INIT; /* TODO: verify the sudoko board creation */
+        sudoku->mode = INIT; /* TODO: verify the sudoku board creation */
         printEnterCommand();
         while(fgets(input,257, stdin)!=NULL){
             if (strlen(input)>256){

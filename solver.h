@@ -45,10 +45,10 @@ typedef enum{
 typedef struct{
     int digit;
     int is_fixed;
-    int is_erroneous; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+    int cnt_erroneous; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
     int* optionalDigits;
     int numOfOptionalDigits; /*initialized to total_size and will save the length of the "optionalDigits" array*/
-    int hasSingleLegalValue; /*only for "autofill" command. initialized to 0. will be 1 if the cell has only single legal value*/
+    /*int hasSingleLegalValue; only for "autofill" command. initialized to 0. will be 1 if the cell has only single legal value*/
 }SudokuCell;
 
 typedef enum{

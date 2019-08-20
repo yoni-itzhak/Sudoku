@@ -30,7 +30,7 @@ struct Node* getNewNode(Move** arrMove, int arrSize) {
     return newNode;
 }
 /*Creates a new Move and returns pointer to it.*/
-Move* getNewMove(int x, int y, int value, int z){
+Move* getNewMove(int x, int y, int beforeValue, int afterValue, int beforeErroneous, int afterErroneous){
     Cell* cell = (Cell*)malloc(sizeof(Cell));
     Move* newMove = (Move*)malloc(sizeof(Move));
     if (newMove==NULL || cell==NULL){
@@ -39,8 +39,10 @@ Move* getNewMove(int x, int y, int value, int z){
     cell->x = x;
     cell->y = y;
     newMove->cell = cell;
-    newMove->before = value;
-    newMove->after = z;
+    newMove->beforeValue = beforeValue;
+    newMove->afterValue = afterValue;
+    newMove->beforeErroneous = beforeErroneous;
+    newMove->afterErroneous = afterErroneous;
     return newMove;
 }
 

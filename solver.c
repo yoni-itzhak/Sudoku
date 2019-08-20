@@ -189,7 +189,6 @@ void createEmptyBoard(SudokuCell*** board, int total_size){
             }
             board[i][j]->digit=0;
             board[i][j]->is_fixed=0;
-            board[i][j]->hasSingleLegalValue=0;
             board[i][j]->is_erroneous=0;
             board[i][j]->numOfOptionalDigits=total_size;
             board[i][j]->optionalDigits=(int*)malloc(total_size* sizeof(int));
@@ -318,64 +317,6 @@ void currentStateToFixed(Sudoku* sudoku, SudokuCell*** board, int total_size){
     }
 }
 
-/*
- * @params - function receives DeterSudoku*, the Sudoku size and the appropriate cell's indexes.
- * Also, it receives "isRandom" that indicates if the backtracking algorithm should rum deterministically (isRandom=0) or randomly (isRandom=1).
- *
- * The function is recursive.
- *
- * The function visits all empty cells from left to right, then top to bottom,
- * filling in digits sequentially, or backtracking when the number is found to be not valid.
- *
- * the function maintains an array for cell[x][y] that contains the legal digits for each one of the board's cells.
- *
- * @return - SOLUTION ("HasSolution" enum) if there is one, NO_SOLUTION otherwise.
- */
-
-HasSolution Backtracking(DeterSudoku* deterSudoku,int isRandom, int total_size, int x, int y){
-    int dig=0, numOfOptionalDigits;
-    HasSolution hasSolution;
-    int* tmpArr;
-    Cell* nextEmptyCell = (Cell*)malloc(sizeof(Cell));
-    if(nextEmptyCell == NULL){
-        printMallocFailed();
-    }
-    deterSudoku->tmpBoard[x][y]->numOfOptionalDigits=total_size;
-    findThePossibleArray(deterSudoku->tmpBoard,deterSudoku->row, deterSudoku->column, x, y);
-    /*calculate the valid array and update to the array of cell[x][y]*/
-
-    while (deterSudoku->tmpBoard[x][y]->numOfOptionalDigits>0) { /*while the optional array isn't empty*/
-
-        tmpArr = deterSudoku->tmpBoard[x][y]->optionalDigits;
-        numOfOptionalDigits = deterSudoku->tmpBoard[x][y]->numOfOptionalDigits;
-
-        if (isRandom == 1) {
-            dig = pickRandomNumberFromTheArray(tmpArr, numOfOptionalDigits); /*pick random digit*/
-        } else {
-            dig = tmpArr[0];
-        }
-        deterSudoku->tmpBoard[x][y]->numOfOptionalDigits -= 1;
-        deleteDigitFromArr(deterSudoku, x, y, dig); /*delete the number from the array*/
-        deterSudoku->tmpBoard[x][y]->digit = dig; /*update the board with the chosen digit*/
-        findNextEmptyCell(deterSudoku->tmpBoard, total_size, nextEmptyCell, x, y); /*search for the next empty cell*/
-        if (nextEmptyCell->x == -1 && nextEmptyCell->y == -1) { /* -1 if there are no more empty cells = board is full*/
-            free(nextEmptyCell);
-            return SOLUTION;
-        }
-        /*will arrive here if we found is another empty cell*/
-        /*now we go recursively with the empty cell that was found*/
-        hasSolution = Backtracking(deterSudoku, isRandom, total_size, nextEmptyCell->x, nextEmptyCell->y);
-        if (hasSolution == NO_SOLUTION) { /*returned to cell [x][y] with no solution -> we'll try the next digit.*/
-            deterSudoku->tmpBoard[x][y]->digit = 0;
-            continue;
-        } else if (hasSolution == SOLUTION) { /*find a solution*/
-            free(nextEmptyCell);
-            return SOLUTION;
-        }
-    }
-    free(nextEmptyCell);
-    return NO_SOLUTION; /*the scan was finished without a solution*/
-}
 
 /*
  * @params - function receives pointer to the main Sudoku.

@@ -32,6 +32,19 @@ typedef enum{
     SOLVED
 }SET_STATUS;
 
+typedef enum{
+    MARK,
+    UNMARK
+}MarkErroneous;
+
+typedef enum{
+    NEIGHBORS_WITH_DIG,
+    NEIGHBORS_WITH_Z,
+    NEIGHBORS_WITH_LOAD_FILE
+}NeighborsType;
+
+
+
 int isContainsValue(Sudoku* sudoku, int x, int y);
 int isThereXEmptyCells(Sudoku* sudoku, int x);
 int isFilled(Sudoku* sudoku);
@@ -48,7 +61,7 @@ void guess(Sudoku* sudoku, float x);
 void generate(Sudoku* sudoku, int x, int y);
 int hasMoveToUndo(Sudoku* sudoku);
 void setPointerToPreviousMove(Sudoku* sudoku);
-void updateTheBoard(Sudoku* sudoku, Move* move, int command);
+void updateTheBoard(Sudoku* sudoku, Move* move, Command command);
 void undoMove(Sudoku* sudoku);
 void undo(Sudoku* sudoku);
 void setPointerToNextMove(Sudoku* sudoku);
@@ -69,6 +82,22 @@ void reset(Sudoku* sudoku);
 void exitProgram(Sudoku* sudoku);
 
 
+int isRowValid(SudokuCell*** board, int row, int column, int x, int y,  int value , Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);
+int isColumnValid(SudokuCell*** board, int row, int column, int x, int y, int value ,Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);
+int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int value ,Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);
+int isValueValid(SudokuCell*** board, int row, int column, int x, int y, int value, Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);
+void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize);
+SET_STATUS set(Sudoku* sudoku, int x, int y, int z);
+
+void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode);
+void updateSudoku(Sudoku* sudoku, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+void findErroneousCells(Sudoku* sudoku);
+void addMoveToArrMove(Move** arrMove, int* p_arrSize, int x, int y, int beforeValue, int afterValue, int beforeErroneous, int afterErroneous);
+void updateSudokuCntErroneousCells(int* p_cnt, int beforeErroneous, int afterErroneous);
+void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize);
+
+
+
 /****************************************************************************
  * **************************************************************************
  * **************************************************************************
@@ -76,9 +105,9 @@ void exitProgram(Sudoku* sudoku);
  * **************************************************************************
  * **************************************************************************/
 
-int isFixed(Sudoku* sudoku, int x, int y);
+int isFixed(SudokuCell*** board, int x, int y);
 void findHeadBlock(Cell* head,int row,int column, int x, int y);
-int isZValid(SudokuCell*** board, int row, int column, int x, int y, int z);
+/*int isZValid(SudokuCell*** board, int row, int column, int x, int y, int z);
 int isSolved(Sudoku* sudoku);
 int isRowValid(SudokuCell*** board ,int x, int y, int z);
 int isColumnValid(SudokuCell*** board, int x, int y, int z);
@@ -87,7 +116,7 @@ void resetCell(Sudoku* sudoku, int x, int y);
 void setCell(Sudoku* sudoku, int x, int y, int z);
 SET_STATUS set1(Sudoku* sudoku, int x, int y, int z);
 void hint1(Sudoku* sudoku, int x, int y);
-void validate1(Sudoku* sudoku);
+void validate1(Sudoku* sudoku);*/
 
 
 #endif

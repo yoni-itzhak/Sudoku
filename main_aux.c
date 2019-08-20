@@ -239,6 +239,24 @@ void printWriteToFileFailed(char* path){
     printf("Error: 'fprintf' has failed to write to %s/n", path);
 }
 
+void printLoadedFileLengthNotValid(char* path){
+    printf("Error: file %s is not in valid length/n", path);
+}
+void printLoadedFileEOF(char* path){
+    printf("Error: file %s has reached EOF/n", path);
+}
+void printLoadedFileFirstLineNotValid(char* path){
+    printf("Error: the first line (row & column) in file %s is not valid/n", path);
+}
+void printLoadedFileCellNotValid(char* path){
+    printf("Error: one of the cells in file %s is not valid/n", path);
+}
+void printLoadedFileNotSolvable(char* path){
+    printf("Error: the board in file %s is not solvable/n", path);
+}
+
+
+
 /*
  * The function prints that the command is invalid.
  */
