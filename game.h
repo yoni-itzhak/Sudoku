@@ -53,8 +53,8 @@ int isContainsValue(Sudoku* sudoku, int x, int y);
 int isFilled(Sudoku* sudoku);
 int isErroneous(Sudoku* sudoku);
 SET_STATUS lastCellToBeFilled(Sudoku* sudoku);
-void solve(); /*path*/
-void edit(); /*path*/
+void solve(Sudoku*, char*);
+void edit(Sudoku*, char*);
 void mark_errors(Sudoku* sudoku,int x);
 void print_board(Sudoku* sudoku);
 void addOneMoveToList(Sudoku *sudoku, int x, int y, int value, int z);
@@ -71,7 +71,7 @@ void setPointerToNextMove(Sudoku* sudoku);
 int hasMoveToRedo(Sudoku* sudoku);
 void redoMove(Sudoku* sudoku);
 void redo(Sudoku* sudoku);
-void save();/*path*/
+void save(Sudoku*, char*);
 void hint(Sudoku* sudoku, int x, int y);
 void guess_hint(Sudoku* sudoku, int x, int y);
 void num_solutions(Sudoku* sudoku);
@@ -95,7 +95,8 @@ SET_STATUS set(Sudoku* sudoku, int x, int y, int z);
 void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode);
 void updateSudoku(Sudoku* sudoku, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
 void findErroneousCells(Sudoku* sudoku);
-void addMoveToArrMove(Move** arrMove, int* p_arrSize, int x, int y, int beforeValue, int afterValue, int beforeErroneous, int afterErroneous);
+void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
+                                      int beforeErroneous, int afterErroneous);
 void updateSudokuCntErroneousCells(int* p_cnt, int beforeErroneous, int afterErroneous);
 void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize);
 

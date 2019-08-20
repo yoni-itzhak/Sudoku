@@ -47,14 +47,17 @@ void printLoadedFileEOF(char* path);
 void printLoadedFileFirstLineNotValid(char* path);
 void printLoadedFileCellNotValid(char* path);
 void printLoadedFileNotSolvable(char* path);
+void printErroneousBoard();
+void printErrorInPuzzleGenerator();
 
-
+void printNoMovesToUndo();
+void printNoMovesToRedo();
 
 void printSolved();
 void printFixed();
 void printInvalidValue();
-void printSolvable();
-void printUnsolvable();
+void printSolvableBoard();
+void printUnsolvableBoard();
 void printHint(int cell);
 void printSudoku(Sudoku *sudoku);
 void printSeparatorRow();

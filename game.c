@@ -17,7 +17,6 @@ void fillCellsWithScoreX(Sudoku* sudoku,float x);
 int LP_Validation(Sudoku* sudoku);
 int checkIfBoardIsSolvable();
 
-
 void freeMemory(Sudoku* sudoku){
     freeBoard (sudoku->currentState, sudoku->total_size);
     freeBoard (sudoku->solution, sudoku->total_size);
@@ -25,21 +24,28 @@ void freeMemory(Sudoku* sudoku){
     free(sudoku);
 }
 
-void updateSudoku(Sudoku* sudoku, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell, int newCntErroneousCells);
-
-void loadBoardFromPath(Sudoku* sudoku, char* X);
-
 int createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
     int  i=0, j=0, index=0;
-    for(;i<sudoku->row; ++i){
-        for (;j<sudoku->column;++j){
+    for(;i<sudoku->total_size; ++i){
+        for (;j<sudoku->total_size;++j){
             if (sudoku->currentState[i][j]->digit == 0){
+                emptyCellsArr[index] = (Cell*)malloc(sizeof(Cell));
+                if(emptyCellsArr[index] == NULL){
+                    printMallocFailedAndExit();
+                }
                 emptyCellsArr[index]->x = i;
                 emptyCellsArr[index]->y = j;
                 ++index;
             }
         }
     }
+}
+
+void swapArrayCells(Cell** cellsArr, int index_1, int index_2){
+    Cell* tmp;
+    tmp = cellsArr[index_1];
+    cellsArr[index_1] = cellsArr[index_2];
+    cellsArr[index_2] = tmp;
 }
 
 int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmptyCells, int row, int column){
@@ -49,8 +55,9 @@ int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmp
     for(;x>0;--x){
         empty_cell_index = rand()%numOfEmptyCells;
         empty_cell_coordinates = emptyCellsArr[empty_cell_index];
-        findThePossibleArray(tmpBoard, row, column, empty_cell_coordinates->x, empty_cell_coordinates->y);
         chosen_cell = tmpBoard[empty_cell_coordinates->x][empty_cell_coordinates->y];
+        chosen_cell->numOfOptionalDigits = row*column;
+        findThePossibleArray(tmpBoard, row, column, empty_cell_coordinates->x, empty_cell_coordinates->y);
         num_of_optional_digits = chosen_cell->numOfOptionalDigits;
         if (num_of_optional_digits>0){
             rand_dig_index = rand()%(num_of_optional_digits);
@@ -59,56 +66,52 @@ int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmp
             return 0;
         }
         chosen_cell->digit = chosen_cell->optionalDigits[rand_dig_index];
-        emptyCellsArr[empty_cell_index] = emptyCellsArr[numOfEmptyCells-1];
+        swapArrayCells(emptyCellsArr, empty_cell_index, numOfEmptyCells-1);
         numOfEmptyCells--;
     }
     return 1;
 }
 
-void makeAllCellsUnfixed(SudokuCell*** tmpBoard, int row, int column){
-    int i=0, j=0;
-    for(;i<row;++i){
-        for(;j<column;++j){
-            tmpBoard[i][j]->is_fixed=0;
-        }
+void freeCellsArray(Cell **arr, int arr_size){
+    int i=0;
+    for(;i<arr_size;++i){
+        free(arr[i]);
+    }
+    free(arr);
+}
+
+void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells){
+    int i=0;
+    for(;i<numOfCells;++i){
+        board[cellsArr[i]->x][cellsArr[i]->y]->digit=0;
     }
 }
 
-void emptyUnfixedCells(SudokuCell*** tmpBoard, int row, int column){
-    int i=0, j=0;
-    for(;i<row;++i){
-        for(;j<column;++j){
-            if(tmpBoard[i][j]->is_fixed==0){
-                tmpBoard[i][j]->digit=0;
-            }
-        }
-    }
-}
-
-void keepYCells(SudokuCell*** tmpBoard, int y, int row, int column){
-    int i=0, row_index=0, column_index=0, num_of_available_cells = row*column, chosen_cell_index;
-    Cell chosen_cell;
-    Cell* all_available_cells = (Cell*)malloc(sizeof(Cell)*num_of_available_cells);
+void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku){
+    int i=0, j=0, row_index=0, column_index=0, num_of_available_cells = sudoku->total_size*sudoku->total_size, chosen_cell_index;
+    Cell** all_available_cells = (Cell**)malloc(sizeof(Cell*)*num_of_available_cells);
     if(all_available_cells==NULL){
         printMallocFailedAndExit();
     }
-    for(;row_index<row; ++row_index){
-        for(;column_index<column; ++column_index){
-            all_available_cells[i].x = row_index;
-            all_available_cells[i].y = column_index;
+    for(;row_index<sudoku->total_size; ++row_index){
+        for(;column_index<sudoku->total_size; ++column_index){
+            all_available_cells[i] = (Cell*)malloc(sizeof(Cell));
+            if(all_available_cells[i]==NULL){
+                printMallocFailedAndExit();
+            }
+            all_available_cells[i]->x = row_index;
+            all_available_cells[i]->y = column_index;
             ++i;
         }
     }
-    makeAllCellsUnfixed(tmpBoard, row, column);
+    /*makeAllCellsUnfixed(tmpBoard, sudoku->total_size);*/
     for(;y>0;--y) {
-        chosen_cell_index = rand() % num_of_available_cells;
-        chosen_cell = all_available_cells[chosen_cell_index];
-        tmpBoard[chosen_cell.x][chosen_cell.y]->is_fixed = 1;
-        all_available_cells[chosen_cell_index] = all_available_cells[num_of_available_cells-1];
+        chosen_cell_index = rand()%num_of_available_cells;
+        swapArrayCells(all_available_cells, chosen_cell_index, num_of_available_cells-1);
         --num_of_available_cells;
     }
-    emptyUnfixedCells(tmpBoard, row, column);
-    free(all_available_cells);
+    resetCells(tmpBoard, all_available_cells, num_of_available_cells);
+    freeCellsArray(all_available_cells, num_of_available_cells);
 }
 
 int areOnlyWhitespacesLeft(FILE* file, char* X){
@@ -156,7 +159,7 @@ void scanRowAndColumn(FILE* file, char* X, int* p_row, int* p_column){
  *
  *      7 */
 void scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_size, int* p_cntFilledCell){
-    int i,j, scan, dig, fixed, valid;
+    int i,j, scan, dig, fixed=0, valid;
     char c;
     for (i=0; i<total_size; i++){
         for (j=0; j<total_size; j++){
@@ -164,7 +167,7 @@ void scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_si
             if (scan == EOF){
                 printLoadedFileEOF(X);
             }
-            if (scan!=1){
+            if (scan!=1){/*if for example there is a char */
                 printLoadedFileCellNotValid(X);
             }
             if ((c=fgetc(file)) != EOF){
@@ -193,7 +196,7 @@ void scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_si
             if ( (dig == 0 && fixed ==1) || (mode == EDIT && fixed == 0) ){
                 printLoadedFileCellNotValid(X);
             }
-            if (mode == EDIT){ /*in EDIT mode, no cel is considered fixed*/
+            if (mode == EDIT){ /*in EDIT mode, no cell is considered fixed*/
                 fixed = 0;
             }
             board[i][j]->digit = dig;
@@ -216,51 +219,42 @@ void scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_si
 }
 
 void fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
-    int total_size, num, row, column, numOfCells, cntFilledCell=0, cntErroneousCells=0;
+    int total_size, row, column, cntFilledCell=0;
     SudokuCell*** board = (SudokuCell***)malloc(sizeof(SudokuCell**));
     if (board == NULL){
         printMallocFailedAndExit();
     }
-
     scanRowAndColumn(file, X, &row, &column); /*find m & n*/
     if (row * column > 99 || row <=0 || column<=0){
         printLoadedFileFirstLineNotValid(X);
     }
     total_size = row * column;
     createEmptyBoard(board, total_size); /* for empty board*/
-
     /*scan cells and check if all valid and solvable*/
     scanCells(file, X, board, mode, total_size, &cntFilledCell);
-
     updateSudoku(sudoku, mode, board,row ,column, cntFilledCell);
-
 }
 
 void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode){
-
     FILE* file;
-    int isClosed;
-
+    /*int isClosed;*/
     file = fopen(X,"r");
     if (file == NULL){
         printOpenFileFailed(X);
+        return;
     }
-
-    fileToSudoku(sudoku, file,X, mode);
+    fileToSudoku(sudoku, file, X, mode);
     /*createSudoku(sudoku, row, column, numOfCells);
     loadBoardFromPath(sudoku, X);*/
-
     fclose(file);
     if (feof(file)){
         printCloseFileFailed(X);
     }
-
     /* 'fclose' has faild* - maybe should be -1 @@@@@@@@@@@@@@@*/
     /*isClosed = fclose(file);
     if (isClosed == EOF){
         printCloseFileFailed(X);
     }*/
-
 }
 
 /*TODO: check about clause b. in this command - what should we do with the unsaved current game board*/
@@ -281,34 +275,36 @@ void editWithoutPath(Sudoku* sudoku){
         printMallocFailedAndExit();
     }
     createEmptyBoard(emptyBoard, 9); /* for empty 9X9 board*/
-    updateSudoku(sudoku,EDIT, emptyBoard, 3, 3, 0);
+    updateSudoku(sudoku, EDIT, emptyBoard, 3, 3, 0);
+}
 
+void edit(Sudoku* sudoku, char* X){
+    if (X == NULL){
+        editWithoutPath(sudoku);
+    }
+    else{
+        editWithPath(sudoku, X);
+    }
 }
 
 void updateSudoku(Sudoku* sudoku, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell){
-
     freeBoard(sudoku->currentState, sudoku->total_size);
     freeBoard(sudoku->solution, sudoku->total_size); /*check if we should calculate the new SOLUTION board* @@@@@@@@@@@@@@@@@@@@@@@@ */
-
     sudoku->currentState = newCurrentState;
     sudoku->row=newRow;
     sudoku->column=newColumn;
     sudoku->total_size = newRow * newColumn;
     sudoku->cntFilledCell = newCntFilledCell;
-
     freeList(sudoku->list);
     sudoku->list = getNewList();
     /*sudoku->markError remain the same*/
     sudoku->mode = mode;
-
     if (mode == SOLVE){
         findErroneousCells(sudoku);
-
     }
     else{
         sudoku->cntErroneousCells = 0;
     }
-
 }
 
 int isContainsValue(Sudoku* sudoku, int x, int y){
@@ -348,15 +344,11 @@ SET_STATUS lastCellToBeFilled(Sudoku* sudoku){
 }
 
 void mark_errors(Sudoku* sudoku,int x){
-    if (sudoku->mode != SOLVE){ /*not in Solve mode*/
-        /*print appropriate massage*/
-    }
-    else{ /*in Solve mode*/
-        sudoku->markErrors = x;
-    }
+    sudoku->markErrors = x;
 }
 
-void addMoveToArrMove(Move** arrMove, int* p_arrSize, int x, int y, int beforeValue, int afterValue, int beforeErroneous, int afterErroneous){
+void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
+                                      int beforeErroneous, int afterErroneous){
     Move* newMove;
     newMove = getNewMove(x, y, beforeValue, afterValue, beforeErroneous, afterErroneous);
     arrMove[*p_arrSize] = newMove;
@@ -379,7 +371,7 @@ void valueValidationAmongNeighbors(SudokuCell*** board, int i, int j, int dig, M
         updateSudokuCntErroneousCells(p_cntTotalErroneousCells, beforeErroneous, afterErroneous);
 
         if (neighborsType != NEIGHBORS_WITH_LOAD_FILE){
-            addMoveToArrMove(arrMove, p_arrSize, i, j, dig, dig, beforeErroneous, afterErroneous);
+            addMoveToArrMoveAndIncrementSize(arrMove, p_arrSize, i, j, dig, dig, beforeErroneous, afterErroneous);
         }
     }
 }
@@ -394,17 +386,19 @@ void setCntNeighborsErroneous(SudokuCell*** board, int x, int y, NeighborsType n
 }
 
 /* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-int isRowValid(SudokuCell*** board, int row, int column, int x, int y,  int value , Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells){
-    int dig, i, isValid = 1, cntNeighborsErroneous=0, beforeErroneous, afterErroneous;
+int isRowValid(SudokuCell*** board, int row, int column, int x, int y,
+        int value, Move** arrMove, int* p_arrSize, NeighborsType neighborsType,
+        int* p_cntTotalErroneousCells){
+    int dig, i, isValid = 1, cntNeighborsErroneous=0;
     for(i = 0;i < column;i++){
         dig = board[row][i]->digit;
         if (dig == value && (x != row || y != i)) { /*same digit but not same cell*/
-            valueValidationAmongNeighbors(board, row, i, dig, arrMove, p_arrSize, neighborsType, p_cntTotalErroneousCells, &cntNeighborsErroneous);
+            valueValidationAmongNeighbors(board, row, i, dig, arrMove, p_arrSize,
+                    neighborsType, p_cntTotalErroneousCells, &cntNeighborsErroneous);
             isValid = 0;
         }
     }
     setCntNeighborsErroneous(board, x, y, neighborsType, cntNeighborsErroneous); /*updating <X,Y>'s cnt_erroneous*/
-
     return isValid;
 }
 
@@ -459,7 +453,6 @@ int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int val
 }
 
 int isValueValid(SudokuCell*** board, int row, int column, int x, int y, int value, Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells) {
-
     int r, c, b;
     r = isRowValid(board, x, row * column, x, y, value, arrMove, p_arrSize, neighborsType, p_cntTotalErroneousCells);
     c = isColumnValid(board, row * column, y, x, y, value, arrMove, p_arrSize, neighborsType, p_cntTotalErroneousCells);
@@ -471,7 +464,6 @@ int isValueValid(SudokuCell*** board, int row, int column, int x, int y, int val
 }
 
 void updateSudokuCntErroneousCells(int* p_cnt, int beforeErroneous, int afterErroneous){
-
     if( beforeErroneous == 0 && afterErroneous > 0){
         (*p_cnt)++;
     }
@@ -481,9 +473,7 @@ void updateSudokuCntErroneousCells(int* p_cnt, int beforeErroneous, int afterErr
 }
 
 void neighborsWithLoadFile(Sudoku* sudoku, int x, int y, int dig){
-
     isValueValid(sudoku->currentState ,sudoku->row, sudoku->column, x, y, dig, NULL, NULL, NEIGHBORS_WITH_LOAD_FILE, &sudoku->cntErroneousCells);
-
 }
 
 void neighborsWithZ(Sudoku* sudoku, int x, int y, int dig, Move** arrMove, int* p_arrSize){
@@ -500,11 +490,13 @@ void neighborsWithDig(Sudoku* sudoku, int x, int y, int dig, Move** arrMove, int
 
 
 void neighborsErroneous(Sudoku* sudoku, int x, int y, int dig, int z, Move** arrMove, int* p_arrSize) {
-
-    neighborsWithDig(sudoku, x, y, dig, arrMove, p_arrSize);
+    if (dig!=0) {
+        neighborsWithDig(sudoku, x, y, dig, arrMove, p_arrSize);
+    }
     sudoku->currentState[x][y]->cnt_erroneous=0; /*reset the erroneous of the cell*/
-    neighborsWithZ(sudoku, x, y, z, arrMove, p_arrSize);
-
+    if (z!=0){
+        neighborsWithZ(sudoku, x, y, z, arrMove, p_arrSize);
+    }
 }
 
 /*count and mark all the erroneous cells*/
@@ -519,87 +511,61 @@ void findErroneousCells(Sudoku* sudoku){
 
 void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize){
     int beforeErroneous, afterErroneous;
-    Move* newMove;
     int dig = sudoku->currentState[x][y]->digit;
-
     beforeErroneous = sudoku->currentState[x][y]->cnt_erroneous;
     neighborsErroneous(sudoku, x, y, dig, z, arrMove, p_arrSize);
-
     if (dig == 0){
         sudoku->cntFilledCell++;
     }
     if (z == 0){
         sudoku->cntFilledCell--;
-        /*sudoku->currentState[x][y]->is_erroneous=0;*/
     }
     sudoku->currentState[x][y]->digit=z;
-
-    /*if (sudoku->currentState[x][y]->cnt_erroneous > 0) {
-        changedErroneous = 1;
-    }*/
     afterErroneous = sudoku->currentState[x][y]->cnt_erroneous;
-    updateSudokuCntErroneousCells(sudoku, beforeErroneous, afterErroneous);
-
-    addMoveToArrMove(arrMove, p_arrSize, x, y, dig, z, beforeErroneous, afterErroneous);
+    updateSudokuCntErroneousCells(&sudoku->cntErroneousCells, beforeErroneous, afterErroneous);
+    addMoveToArrMoveAndIncrementSize(arrMove, p_arrSize, x, y, dig, z, beforeErroneous, afterErroneous);
 
     /*deleteDigitFromArr(sudoku->currentState, x,y, z);*/
-    /*addArrMoveToList(sudoku, arrMove, *p_arrSize);*/
 }
 
 SET_STATUS set(Sudoku* sudoku, int x, int y, int z){
-    int zValid, fixed, dig;
+    int fixed, dig;
     int arrSize=0, total_cells = sudoku->total_size*sudoku->total_size;
-    Move* newMove;
     Move** arrMove = (Move**)malloc(total_cells*(sizeof(Move*)));
-    if (sudoku->mode == INIT){ /* in Init mode*/
-        /*print appropriate massage*/
+    if (arrMove == NULL){
+        printMallocFailedAndExit();
     }
-    else{ /*in Solve/Edit mode*/
-        if (arrMove == NULL){
-            printMallocFailed();
-        }
-        fixed = isFixed(sudoku->currentState,x,y);
-        if (fixed && sudoku->mode==SOLVE){ /*in Solve mode fixed cells can't be updated (unlike in Edit mode) @@@@@@@@@@@@@@@@@@@@@@@@@@@@ check if we should make all cells in EDIT non-fixed*/
-            printFixed();
-            return UNSOLVED;
-        }
-        /*arrive here when changing the cell is legal*/
-        dig = sudoku->currentState[x][y]->digit;
-        if (z != dig) {
-
-            setCell(sudoku, x, y, z, arrMove, &arrSize);
-            addArrMoveToList(sudoku, arrMove, arrSize);
-
-            print_board(sudoku);
-            return lastCellToBeFilled(sudoku);
-        }
+    fixed = isFixed(sudoku->currentState,x,y);
+    if (fixed && sudoku->mode==SOLVE){ /*in Solve mode fixed cells can't be updated (unlike in Edit mode) @@@@@@@@@@@@@@@@@@@@@@@@@@@@ check if we should make all cells in EDIT non-fixed*/
+        printFixed();
+        return UNSOLVED;
+    }
+    /*arrive here when changing the cell is legal*/
+    dig = sudoku->currentState[x][y]->digit;
+    if (z != dig) {
+        setCell(sudoku, x, y, z, arrMove, &arrSize);
+        addArrMoveToList(sudoku, arrMove, arrSize);
+        print_board(sudoku);
+        return lastCellToBeFilled(sudoku);
     }
     return UNSOLVED;
 }
 
 void print_board(Sudoku* sudoku){
-    if (sudoku->mode == INIT){ /* in Init mode*/
-        /*print appropriate massage*/
-    }
-    else{ /*in Solve/Edit mode*/
-        printSudoku(sudoku);
-    }
+    printSudoku(sudoku);
 }
 void validate(Sudoku* sudoku){
     int isSolvable;
-    if (sudoku->mode == INIT){ /* in Init mode*/
-        /*print appropriate massage*/
-    }
-    else if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        /*print an error message and the command is not executed*/
+    if (isErroneous(sudoku)==1){ /*board is erroneous*/
+        printErroneousBoard();
     }
     else{ /*in Solve/Edit mode AND not erroneous*/
         isSolvable = ILP_Validation(sudoku);
         if (isSolvable==0){ /*board is unsolvable*/
-            /*print that the board is UNSOLVABLE*/
+            printUnsolvableBoard();
         }
         else{ /*board is solvable*/
-            /*print that the board is SOLVABLE*/
+            printSolvableBoard();
         }
     }
 }
@@ -620,33 +586,30 @@ void backToOriginalState(SudokuCell*** originalBoard, SudokuCell*** invalidBoard
     copyBoardValues(originalBoard, invalidBoard, total_size); /*fromBoard, toBoard, size*/
 }
 
-int createGenerateMovesArr(Move** arrMove, Sudoku* sudoku, SudokuCell*** tmpBoard, int row, int column){
-    int i=0, j=0, numOfMoves=0; /*TODO: should numOfMoves start from 0 or 1 */
-    for (;i<row; ++i){
-        for(;j<column;++j){
+int createGenerateMovesArr(Move** arrMove, Sudoku* sudoku, SudokuCell*** tmpBoard, int* ptrNumOfMoves){
+    int i=0, j=0;
+    for (;i<sudoku->total_size; ++i){
+        for(;j<sudoku->total_size;++j){
             if(sudoku->currentState[i][j]->digit != tmpBoard[i][j]->digit){
-                addMoveToArrMove(arrMove, numOfMoves, i, j, sudoku->currentState[i][j]->digit, tmpBoard[i][j]->digit, 0, 0);
-                ++numOfMoves;
+                addMoveToArrMoveAndIncrementSize(arrMove, ptrNumOfMoves, i, j, sudoku->currentState[i][j]->digit,
+                                                 tmpBoard[i][j]->digit, 0, 0);
             }
         }
     }
-    return numOfMoves;
 }
 
-void generateBoardAndCreateMovesArr(Move** arrMove, Sudoku* sudoku, SudokuCell*** tmpBoard, int y){
-    int numOfMoves;
-    keepYCells(tmpBoard, y, sudoku->row, sudoku->column);
-    numOfMoves = createGenerateMovesArr(arrMove, sudoku, tmpBoard, sudoku->row, sudoku->column);
-    freeBoard(sudoku->currentState, sudoku->total_size);
-    sudoku->currentState = copyBoard(tmpBoard, sudoku->total_size);
+void createMovesArr(Move **arrMove, Sudoku *sudoku, SudokuCell ***tmpBoard){
+    int numOfMoves=0;
+    createGenerateMovesArr(arrMove, sudoku, tmpBoard, &numOfMoves);
     addArrMoveToList(sudoku, arrMove, numOfMoves);
 }
 
-State generate(Sudoku* sudoku, int x, int y){
-    int isSolvable, areXCellsFilled, numOfEmptyCells, isValid=1, cntNoSolution=0;
+State generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
+    int isSolvable, areXCellsFilled, isValid=1, cntNoSolution=0;
     int total_cells = sudoku->total_size*sudoku->total_size;
     SudokuCell*** tmpBoard = copyBoard(sudoku->currentState, sudoku->total_size); /*save the original board for cases that "fillXCells" or "ILP_Validation" will fail*/
-    numOfEmptyCells = total_cells - sudoku->cntFilledCell;
+    int numOfEmptyCells = total_cells - sudoku->cntFilledCell;
+    Cell** emptyCellsArr;
     if(numOfEmptyCells < x){
         printNotEnoughEmptyCells(x, numOfEmptyCells);
         isValid=0;
@@ -656,7 +619,7 @@ State generate(Sudoku* sudoku, int x, int y){
         isValid=0;
     }
     else{ /*in Edit mode AND there are at least X empty cells AND the board has no errors*/
-        Cell** emptyCellsArr = (Cell**)malloc(numOfEmptyCells*sizeof(Cell*));
+        emptyCellsArr = (Cell**)malloc(numOfEmptyCells*(sizeof(Cell*)));
         if (emptyCellsArr == NULL){
             printMallocFailedAndExit();
         }
@@ -666,7 +629,7 @@ State generate(Sudoku* sudoku, int x, int y){
                     sudoku->row, sudoku->column);
             if (areXCellsFilled==0){
                 cntNoSolution++;
-                backToOriginalState(sudoku->currentState,tmpBoard, sudoku->total_size);
+                backToOriginalState(sudoku->currentState, tmpBoard, sudoku->total_size);
                 continue;
             }
             isSolvable = ILP_Validation(tmpBoard);/* should fill out the board */
@@ -678,15 +641,19 @@ State generate(Sudoku* sudoku, int x, int y){
             /*arrive here when BOTH "fillXCells" and "ILP_Validation" succeed*/
             break;
         }
-        free(emptyCellsArr);
+        freeCellsArray(emptyCellsArr, numOfEmptyCells);
         if(cntNoSolution<1000){
             Move** arrMove = (Move**)malloc(total_cells* sizeof(Move*));
             if (arrMove == NULL) {
                 printMallocFailedAndExit();
             }
-            generateBoardAndCreateMovesArr(arrMove, sudoku, tmpBoard, y);
+            keepYCells(tmpBoard, y, sudoku);
+            createMovesArr(arrMove, sudoku, tmpBoard, y);
+            freeBoard(sudoku->currentState, sudoku->total_size);
+            sudoku->currentState = copyBoard(tmpBoard, sudoku->total_size);
         }
         else{
+            printErrorInPuzzleGenerator();
             isValid=0;
         }
     }
@@ -708,7 +675,6 @@ void setPointerToPreviousMove(Sudoku* sudoku){
 /* command=UNDO if we want to redo the move.
  * command=REDO if we want to undo the move*/
 void updateTheBoard(Sudoku* sudoku, Move* move, Command command){
-
     updateSudokuCntErroneousCells(&sudoku->cntErroneousCells,move->beforeErroneous, move->afterErroneous);
     if (command == UNDO){ /*undo the move*/
         sudoku->currentState[move->cell->x][move->cell->y]->digit=move->beforeValue;
@@ -735,11 +701,8 @@ void undoMove(Sudoku* sudoku){
     setPointerToPreviousMove(sudoku);
 }
 void undo(Sudoku* sudoku){
-    if (sudoku->mode == INIT){ /* in Init mode*/
-        /*print appropriate massage*/
-    }
-    else if (hasMoveToUndo(sudoku)==0){ /*there are no moves to undo*/
-        /*print that there are no moves to undo*/
+    if (hasMoveToUndo(sudoku)==0){ /*there are no moves to undo*/
+        printNoMovesToUndo();
     }
     else { /*in Solve/Edit mode AND has move to undo*/
         undoMove(sudoku);
@@ -767,11 +730,8 @@ void redoMove(Sudoku* sudoku){
     }
 }
 void redo(Sudoku* sudoku){
-    if (sudoku->mode == INIT){ /* in Init mode*/
-        /*print appropriate massage*/
-    }
-    else if (hasMoveToRedo(sudoku)==0){ /*there are no moves to redo*/
-        /*print that there are no moves to redo*/
+    if (hasMoveToRedo(sudoku)==0){ /*there are no moves to redo*/
+        printNoMovesToRedo();
     }
     else { /*in Solve/Edit mode AND has move to redo*/
         redoMove(sudoku);
@@ -838,9 +798,6 @@ void saveBoardInFile(Sudoku* sudoku, char* X){
     }
 }
 void save(Sudoku* sudoku, char* X) {
-    if (sudoku->mode == INIT) { /* in Init mode*/
-        /*print appropriate massage*/
-    } /*in Solve/Edit mode*/
     if (sudoku->mode == EDIT){
         if (isErroneous(sudoku)==1) { /* 1 if board is erroneous*/
             /*print an error message and the command is not executed*/
@@ -855,10 +812,7 @@ void save(Sudoku* sudoku, char* X) {
 
 void hint(Sudoku* sudoku, int x, int y){
     int isSolvable;
-    if (sudoku->mode!=SOLVE){
-        /*print appropriate massage*/
-    }
-    else if (isErroneous(sudoku)==1 || isFixed(sudoku,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
+    if (isErroneous(sudoku)==1 || isFixed(sudoku,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND all valid*/
@@ -893,10 +847,7 @@ void num_solutions(Sudoku* sudoku){
     int numOfSolution, total_size = sudoku->total_size;
     Cell* firstEmptyCell;
     SudokuCell*** fixedBoard = NULL;
-    if (sudoku->mode == INIT){ /* in Init mode*/
-        /*print appropriate massage*/
-    }
-    else if (isErroneous(sudoku)==1){ /*board is erroneous*/
+    if (isErroneous(sudoku)==1){ /*board is erroneous*/
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND not erroneous*/
@@ -957,21 +908,18 @@ void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize){
 
 /*TODO: need to deal with situation that 2 obvious cells become erroneous*/
 void fillObviousValues(Sudoku* sudoku){
-    int arrSize=0, dig;
+    int arrSize=0, dig, i, j, total_size = sudoku->total_size;
     int total_cells = sudoku->total_size*sudoku->total_size;
     Move** arrMove = (Move**)malloc(total_cells*(sizeof(Move*)));
     if (arrMove == NULL){
         printMallocFailedAndExit();
     }
     markSingleLegalValue(sudoku);
-    int i,j, total_size = sudoku->total_size;
     for (i=0; i<total_size; i++){
         for (j=0; j<total_size; j++){
             if (hasSingleLegalValue(sudoku,i,j)){
-
                 dig = sudoku->currentState[i][j]->optionalDigits[0];
                 setCell(sudoku, i, j, dig, arrMove, &arrSize);
-
                /* updateObviousCell(sudoku,i,j, arrMove, arrSize);*/
                 arrSize++;
             }
@@ -981,10 +929,7 @@ void fillObviousValues(Sudoku* sudoku){
 }
 
 void autofill(Sudoku* sudoku){
-    if (sudoku->mode!=SOLVE){
-        /*print appropriate massage*/
-    }
-    else if (isErroneous(sudoku)==1){ /*board is erroneous*/
+    if (isErroneous(sudoku)==1){ /*board is erroneous*/
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND not erroneous*/
@@ -998,13 +943,8 @@ void undoAllMoves(Sudoku* sudoku){
 }
 
 void reset(Sudoku* sudoku){
-    if (sudoku->mode == INIT){ /* in Init mode*/
-        /*print appropriate massage*/
-    }
-    else { /*in Solve/Edit mode*/
-        undoAllMoves(sudoku);
-        print_board(sudoku);
-    }
+    undoAllMoves(sudoku);
+    print_board(sudoku);
 }
 void exitProgram(Sudoku* sudoku){
     freeMemory(sudoku);

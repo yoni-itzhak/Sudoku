@@ -29,7 +29,6 @@ void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j){
     deleteDigitFromArr(peek(stack)->board, *p_i, *p_j, peek(stack)->board[*p_i][*p_j]->optionalDigits[0]); /*board, X, Y, digit -> delete the digit from the array*/
 }
 void pushToGetToNextCell(Sudoku* sudoku,Stack* stack,StackItem* stackItem,Cell* currentEmptyCell,int i,int j){
-
     stackItem->board[i][j]->numOfOptionalDigits=sudoku->total_size;
     findThePossibleArray(stackItem->board,sudoku->row,sudoku->column, i, j);
     stackItem->currentEmptyCell = currentEmptyCell;
@@ -49,15 +48,20 @@ void copyOptionalDigitsArray(int* fromArray, int* toArray, int length){
 }
 
 void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size){
-    int i,j;
+    int i,j, numOfOptionalDigs;
     for (i=0;i<total_size;i++){
         for (j=0;j<total_size;j++){
             toBoard[i][j]->digit=fromBoard[i][j]->digit;
             toBoard[i][j]->is_fixed=fromBoard[i][j]->is_fixed;
-            toBoard[i][j]->numOfOptionalDigits=fromBoard[i][j]->numOfOptionalDigits;
-            copyOptionalDigitsArray(fromBoard[i][j]->optionalDigits, toBoard[i][j]->optionalDigits, toBoard[i][j]->numOfOptionalDigits); /*original array, copied array, length*/
-            toBoard[i][j]->is_erroneous=fromBoard[i][j]->is_erroneous; /*might not be necessary*/
-            toBoard[i][j]->hasSingleLegalValue = fromBoard[i][j]->hasSingleLegalValue; /*might not be necessary*/
+            numOfOptionalDigs = fromBoard[i][j]->numOfOptionalDigits;
+            toBoard[i][j]->numOfOptionalDigits = numOfOptionalDigs;
+            free(toBoard[i][j]->optionalDigits);
+            toBoard[i][j]->optionalDigits = (int*)malloc(numOfOptionalDigs*(sizeof(int)));
+            if(toBoard[i][j]->optionalDigits == NULL){
+                printMallocFailedAndExit();
+            }
+            copyOptionalDigitsArray(fromBoard[i][j]->optionalDigits, toBoard[i][j]->optionalDigits, numOfOptionalDigs); /*original array, copied array, length*/
+            toBoard[i][j]->cnt_erroneous=fromBoard[i][j]->cnt_erroneous; /*might not be necessary*/
         }
     }
 }

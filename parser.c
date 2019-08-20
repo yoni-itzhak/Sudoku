@@ -21,8 +21,13 @@
  * 4. the user chose the "exit" command (STATE_EXIT)
  */
 State readCommand(Sudoku *sudoku, char *input){
+    /*TODO: change cmd to char* - for edit, solve and save*/
+    /*TODO: change global params according to Sudoku*/
+    /*TODO: move the mode verification to the last switch*/
+    /*TODO: need to send solved/unsolved: set, guess, generate, autofill*/
     int current_cmd, x, y, z, cnt=0, *ptr_cnt;
     char* path[256];
+    SET_STATUS setStatus = UNSOLVED;
     Mode current_mode = sudoku->mode;
     int* cmd = (int*)malloc(4* sizeof(int)); /* [command, param_x, param_y, param_z] */
     if(cmd == NULL){
@@ -33,19 +38,19 @@ State readCommand(Sudoku *sudoku, char *input){
     current_cmd = cmd[0];
     x = cmd[1]; y = cmd[2]; z = cmd[3];
 
-    switch(current_cmd) { /* TODO: write handle error for too few params */
+    switch(current_cmd) {
         case 0: /* invalid command */
             free(cmd);
             return STATE_LOOP;
-        case 1: /* TODO: write solve */
+        case 1:
             if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
-                solve();
+                solve(sudoku, x);
                 free(cmd);
             }
             free(cmd);
             return STATE_LOOP;
-        case 2: /* TODO:write edit */
-            edit();
+        case 2:
+            edit(sudoku, x); /* TODO: make sure that if an empty string was given, x = NULL */
             free(cmd);
         case 3: /* mark_errors */
             if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
@@ -59,17 +64,19 @@ State readCommand(Sudoku *sudoku, char *input){
             return STATE_LOOP;
         case 5: /* set */
             if(_isEnoughParams(cmd, ptr_cnt, 3, current_mode)){
-                set(sudoku, --x, --y, z);
-                free(cmd);
-                /* TODO: Figure out what to return */
+                setStatus = set(sudoku, --x, --y, z);
             }
             free(cmd);
+            if(setStatus == SOLVED){
+                return STATE_SOLVED;
+            }
             return STATE_LOOP;
         case 6: /* validate */
             validate(sudoku);
             free(cmd);
             return STATE_LOOP;
         case 7:/* guess */
+            /* TODO: write guess @@@@ */
             if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
                 guess(sudoku, x);
             }
@@ -89,9 +96,9 @@ State readCommand(Sudoku *sudoku, char *input){
             redo(sudoku);
             free(cmd);
             return STATE_LOOP;
-        case 11: /* TODO:write edit */
+        case 11: /* save */
             if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
-                save();
+                save(sudoku, x);
             }
             free(cmd);
             return STATE_LOOP;

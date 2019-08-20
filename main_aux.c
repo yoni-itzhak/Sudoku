@@ -5,13 +5,29 @@
 #include "solver.h"
 #include "game.h"
 
+void printNoMovesToUndo(){
+    printf("Error: No moves to undo\n");
+}
+
+void printNoMovesToRedo(){
+    printf("Error: No moves to redo\n");
+}
+
+void printErrorInPuzzleGenerator(){
+    printf("Error: An error occurred in the puzzle generator\n");
+}
+
+void printErroneousBoard(){
+    printf("Error: The board is erroneous\n");
+}
+
 void printNotEnoughEmptyCells(int x, int numOfEmptyCells){
-    printf("Error: The number of empty cells is smaller then %d, please choose a smaller number than "
+    printf("Error: The number of empty cells is smaller than %d, please choose a smaller number than "
            "%d\n", x, numOfEmptyCells);
 }
 
-void printCannotGenerateBoardWithErrors(){
-    printf("Error: The function 'generate' can't receive a board with erroneous cells\n");
+void printCannotGenerateBoardWithErrors(){ /*TODO: change to a dynamic function */
+    printf("Error: The function 'generate' cannot receive a board with erroneous cells\n");
 }
 
 void _printAllowedCommands(Mode mode){
@@ -136,13 +152,13 @@ void printHint(int cell){
 /*
  * The function prints that the board is solvable.
  */
-void printSolvable(){
+void printSolvableBoard(){
     printf("Validation passed: board is solvable\n");
 }
 /*
  * The function prints that the board is unsolvable.
  */
-void printUnsolvable(){
+void printUnsolvableBoard(){
     printf("Validation failed: board is unsolvable\n");
 }
 /*
@@ -261,7 +277,7 @@ void printLoadedFileCellNotValid(char* path){
     printf("Error: one of the cells in file %s is not valid/n", path);
 }
 void printLoadedFileNotSolvable(char* path){
-    printf("Error: the board in file %s is not solvable/n", path);
+    printf("Error: The board in file %s is not solvable. When loading a file in edit mode the board loaded must be solvable.\n", path);
 }
 
 
