@@ -116,7 +116,7 @@ State readCommand(Sudoku* sudoku, char* input){
             if(_isEnoughParams(cmd, &cnt, 1, current_mode)){
                 guess(sudoku, x);
             }
-            freeCase(cmd, path);
+            freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 8: /* generate */
             if(_isEnoughParams(cmd, &cnt, 2, current_mode)){
@@ -206,9 +206,7 @@ State readCommand(Sudoku* sudoku, char* input){
             freeCase(cmd, path, errorsInParams);
             return STATE_RESET;
         case 17: /* TODO: Figure out what to return in exit */
-            if(_isModeAllowingCommand(AUTOFILL, current_mode)) {
-                exitProgram(sudoku);
-            }
+            exitProgram(sudoku);
             freeCase(cmd, path, errorsInParams);
             return STATE_EXIT;
         default: /*invalid command*/
