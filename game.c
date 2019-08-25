@@ -90,7 +90,7 @@ void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells){
 }
 
 void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku){
-    int i=0, j=0, row_index=0, column_index=0, num_of_available_cells = sudoku->total_size*sudoku->total_size, chosen_cell_index;
+    int i=0, row_index=0, column_index=0, num_of_available_cells = sudoku->total_size*sudoku->total_size, chosen_cell_index;
     Cell** all_available_cells = (Cell**)malloc(sizeof(Cell*)*num_of_available_cells);
     if(all_available_cells==NULL){
         printMallocFailedAndExit();
@@ -290,14 +290,15 @@ void editWithPath(Sudoku* sudoku, char* X){
 }
 
 /*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
-void editWithoutPath(Sudoku* sudoku){
+void editWithoutPath(Sudoku* sudoku) {
 
-    SudokuCell*** emptyBoard = (SudokuCell***)malloc(sizeof(SudokuCell**));
-    if (emptyBoard == NULL){
+    SudokuCell ***emptyBoard = (SudokuCell ***) malloc(sizeof(SudokuCell **));
+    if (emptyBoard == NULL) {
         printMallocFailedAndExit();
     }
     createEmptyBoard(emptyBoard, 9); /* for empty 9X9 board*/
-    updateSudoku(sudoku, NULL ,EDIT, emptyBoard, 3, 3, 0);
+    updateSudoku(sudoku, NULL, EDIT, emptyBoard, 3, 3, 0);
+}
 
 void edit(Sudoku* sudoku, char* X){
     if (X == NULL){
@@ -440,7 +441,7 @@ int isRowValid(SudokuCell*** board, int row, int column, int x, int y,  int valu
 }
 
 int isColumnValid(SudokuCell*** board, int row, int column, int x, int y, int value ,Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells){
-    int dig, i, isValid = 1, cntNeighborsErroneous=0, beforeErroneous, afterErroneous;
+    int dig, i, isValid = 1, cntNeighborsErroneous=0;
     for (i = 0; i < row; i++) {
         dig = board[i][column]->digit;
         if (dig == value && (x != i || y != column)){ /*same digit but not same cell*/
@@ -466,7 +467,7 @@ void findHeadBlock(Cell* head,int row,int column, int x, int y){
 }
 
 int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int value ,Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells){
-    int dig, i, j, isValid = 1, cntNeighborsErroneous, beforeErroneous, afterErroneous;
+    int dig, i, j, isValid = 1, cntNeighborsErroneous;
     Cell* head=(Cell*)malloc(sizeof(Cell));
     if(head == NULL){
         printMallocFailedAndExit();
@@ -694,7 +695,7 @@ State generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
                 printMallocFailedAndExit();
             }
             keepYCells(tmpBoard, y, sudoku);
-            createMovesArr(arrMove, sudoku, tmpBoard, y);
+            createMovesArr(arrMove, sudoku, tmpBoard);
             freeBoard(sudoku->currentState, sudoku->total_size);
             sudoku->currentState = copyBoard(tmpBoard, sudoku->total_size);
         }
