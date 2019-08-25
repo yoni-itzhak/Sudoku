@@ -166,7 +166,8 @@ void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y)
         cellArr[i]=i+1;
     }
     for (dig=1; dig<total_size+1;dig++){
-        is_valid = isZValid(board,row,column,x,y,dig);
+        /*is_valid = isZValid(board,row,column,x,y,dig);*/
+        is_valid = neighborsPossibleArr(board, row, column, x, y, dig);
         if (is_valid==0){ /*digit isn't valid*/
             board[x][y]->numOfOptionalDigits-=1;
             deleteDigitFromArr(board,x,y,dig);

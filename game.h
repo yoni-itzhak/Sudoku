@@ -39,9 +39,10 @@ typedef enum{
 }MarkErroneous;
 
 typedef enum{
-    NEIGHBORS_WITH_DIG,
-    NEIGHBORS_WITH_Z,
-    NEIGHBORS_WITH_LOAD_FILE
+    NEIGHBORS_FROM_DIG,
+    NEIGHBORS_TO_DIG,
+    NEIGHBORS_LOAD_FILE,
+    NEIGHBORS_POSSIBLE_ARRAY
 }NeighborsType;
 
 
@@ -65,7 +66,7 @@ State generate(Sudoku* sudoku, int x, int y);
 int hasMoveToUndo(Sudoku* sudoku);
 void setPointerToPreviousMove(Sudoku* sudoku);
 void updateTheBoard(Sudoku* sudoku, Move* move, Command command);
-void undoMove(Sudoku* sudoku);
+void undoMove(Sudoku* sudoku, Command command);
 void undo(Sudoku* sudoku);
 void setPointerToNextMove(Sudoku* sudoku);
 int hasMoveToRedo(Sudoku* sudoku);
@@ -91,16 +92,17 @@ int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int val
 int isValueValid(SudokuCell*** board, int row, int column, int x, int y, int value, Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);
 void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize);
 SET_STATUS set(Sudoku* sudoku, int x, int y, int z);
+int isCellErroneous(SudokuCell*** board, int x, int y);
 
 void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode);
-void updateSudoku(Sudoku* sudoku, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+void updateSudoku(Sudoku* sudoku,char* X, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
 void findErroneousCells(Sudoku* sudoku);
 void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
                                       int beforeErroneous, int afterErroneous);
 void updateSudokuCntErroneousCells(int* p_cnt, int beforeErroneous, int afterErroneous);
 void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize);
 
-
+int neighborsPossibleArr(SudokuCell*** board, int row, int column, int x, int y, int dig);
 
 /****************************************************************************
  * **************************************************************************
