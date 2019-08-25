@@ -11,7 +11,7 @@
  *       2. take care of undo\redo list with "generate" or "guess"
  *       3. take care of erroneous in general (when changing cells for example)*/
 
-int ILP_Validation(SudokuCell*** tmpBoard);
+
 void LP_Guesses(Sudoku* sudoku, float x);
 void fillCellsWithScoreX(Sudoku* sudoku,float x);
 int LP_Validation(Sudoku* sudoku);
@@ -607,9 +607,15 @@ void validate(Sudoku* sudoku){
         printErroneousBoard();
     }
     else{ /*in Solve/Edit mode AND not erroneous*/
-        isSolvable = ILP_Validation(sudoku);
-        if (isSolvable==0){ /*board is unsolvable*/
-            printUnsolvableBoard();
+        isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, VALIDATE, -1, -1, NULL);
+        if (isSolvable != 1 ){
+            if (isSolvable == 0){
+                /*print that the board is UNSOLVABLE*/
+            }
+            else if (isSolvable == -1){
+                /*print gurobi failed*/
+            }
+            return;
         }
         else{ /*board is solvable*/
             printSolvableBoard();
@@ -679,8 +685,8 @@ State generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
                 backToOriginalState(sudoku->currentState, tmpBoard, sudoku->total_size);
                 continue;
             }
-            isSolvable = ILP_Validation(tmpBoard);/* should fill out the board */
-            if (isSolvable==0){
+            isSolvable = ILP_Validation(tmpBoard, sudoku->row, sudoku->column, GENERATE, -1, -1, NULL);/* should fill out the board */
+            if (isSolvable != 1 ){
                 cntNoSolution++;
                 backToOriginalState(sudoku->currentState,tmpBoard, sudoku->total_size);
                 continue;
@@ -845,12 +851,21 @@ void saveBoardInFile(Sudoku* sudoku, char* X){
     }
 }
 void save(Sudoku* sudoku, char* X) {
+    int isSolvable;
     if (sudoku->mode == EDIT){
         if (isErroneous(sudoku)==1) { /* 1 if board is erroneous*/
             /*print an error message and the command is not executed*/
+            return;
         }
-        if (ILP_Validation(sudoku)==0){ /* 0 if board is unsolvable*/
-            /*print that the board is UNSOLVABLE*/
+        isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, SAVE , -1, -1, NULL);
+        if (isSolvable != 1 ){
+            if (isSolvable == 0){
+                /*print that the board is UNSOLVABLE*/
+            }
+            else if (isSolvable == -1){
+                /*print gurobi failed*/
+            }
+            return;
         }
     }
     /*now clear for saving the file*/
@@ -858,16 +873,23 @@ void save(Sudoku* sudoku, char* X) {
 }
 
 void hint(Sudoku* sudoku, int x, int y){
-    int isSolvable;
+    int isSolvable, dig;
     if (isErroneous(sudoku)==1 || isFixed(sudoku,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND all valid*/
-        isSolvable = ILP_Validation(sudoku);
-        if (isSolvable==0){ /*board is unsolvable*/
-            /*print that the board is UNSOLVABLE*/
+        isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);
+        if ( isSolvable != 1 ){
+            if (isSolvable == 0){
+                /*print that the board is UNSOLVABLE*/
+            }
+            else if (isSolvable == -1){
+                /*print gurobi failed*/
+            }
+            return;
         }
         else{ /*board is solvable*/
+            /*print dig*/
             /*print the value of cell <X,Y> found by the ILP solution*/
         }
     }

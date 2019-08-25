@@ -95,7 +95,7 @@ void deleteDigitFromArr(SudokuCell*** board, int x, int y, int dig);
 void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y);
 void createEmptyBoard(SudokuCell*** board, int total_size);
 
-
+int ILP_Validation(SudokuCell*** tmpBoard, int row, int column, Command command, int x, int y, int* p_dig);
 
 /*void deleteDigitFromArr(SudokuCell*** board, int x, int y, int dig);
 void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y);*/
