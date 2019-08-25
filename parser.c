@@ -9,6 +9,21 @@
 #include "main_aux.h"
 #include "SPBufferset.h"
 
+freeCase(int* cmd, char* path){
+    free(cmd);
+    free(path);
+}
+
+int _modeIsAllowingCommand(Command command, Mode mode){
+    if (!isModeAllowingCommand(command, mode)) {
+        handleInputError(command, INVALID_MODE, mode);
+        return 0;
+    }
+    return 1;
+}
+
+
+
 /*
  * @params - function receives pointer to the main Sudoku and the string input from the user.
  *
@@ -20,118 +35,124 @@
  * 3. the user chose the "restart" command (STATE_RESET)
  * 4. the user chose the "exit" command (STATE_EXIT)
  */
-State readCommand(Sudoku *sudoku, char *input){
-    /*TODO: change cmd to char* - for edit, solve and save*/
-    /*TODO: change global params according to Sudoku*/
+State readCommand(Sudoku* sudoku, char* input){
     /*TODO: move the mode verification to the last switch*/
     /*TODO: need to send solved/unsolved: set, guess, generate, autofill*/
-    int current_cmd, x, y, z, cnt=0, *ptr_cnt;
-    char* path[256];
+    int current_cmd, x, y, z, cnt=0, i;
+    char* path = (char*)malloc(256* sizeof(char));
     SET_STATUS setStatus = UNSOLVED;
     Mode current_mode = sudoku->mode;
-    int* cmd = (int*)malloc(4* sizeof(int)); /* [command, param_x, param_y, param_z] */
-    if(cmd == NULL){
+    char** cmd = (char**)malloc(4* sizeof(char*));
+    for(i=0; i<4; ++i){
+        cmd[i]=(char*)malloc(256* sizeof(char*));
+    }
+    /*int* cmd = (int*)malloc(4* sizeof(int)); */
+    if(cmd == NULL || path == NULL){
         printMallocFailedAndExit();
     }
-    ptr_cnt = &cnt;
-    _parseCommand(input, cmd, path, current_mode, ptr_cnt);
+    _parseCommand(input, cmd, &path, current_mode, &cnt, sudoku);
     current_cmd = cmd[0];
     x = cmd[1]; y = cmd[2]; z = cmd[3];
-
+    path=NULL;
     switch(current_cmd) {
-        case 0: /* invalid command */
-            free(cmd);
-            return STATE_LOOP;
         case 1:
-            if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
-                solve(sudoku, x);
-                free(cmd);
+            if(_isEnoughParams(cmd, &cnt, 1, current_mode)){
+                if(_modeIsAllowingCommand(SOLVE_COMMAND, current_mode)) {
+                    solve(sudoku, path);
+                }
             }
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 2:
-            edit(sudoku, x); /* TODO: make sure that if an empty string was given, x = NULL */
-            free(cmd);
+            if(_modeIsAllowingCommand(EDIT_COMMAND, current_mode)) {
+                edit(sudoku, path);
+            }
+            freeCase(cmd, path);
+            return STATE_LOOP;
         case 3: /* mark_errors */
-            if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
+            if(_isEnoughParams(cmd, &cnt, 1, current_mode)){
+                if(strlen(token)>1 || *token != 48 || *token != 49){
+                    handleInputError(MARK_ERRORS, INVALID_PARAM_X, mode);
+                    return 0;
+                }
                 mark_errors(sudoku, x);
             }
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 4: /* print_board */
             print_board(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 5: /* set */
-            if(_isEnoughParams(cmd, ptr_cnt, 3, current_mode)){
+            if(_isEnoughParams(cmd, &cnt, 3, current_mode)){
                 setStatus = set(sudoku, --x, --y, z);
             }
-            free(cmd);
+            freeCase(cmd, path);
             if(setStatus == SOLVED){
                 return STATE_SOLVED;
             }
             return STATE_LOOP;
         case 6: /* validate */
             validate(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 7:/* guess */
             /* TODO: write guess @@@@ */
-            if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
+            if(_isEnoughParams(cmd, &cnt, 1, current_mode)){
                 guess(sudoku, x);
             }
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 8: /* generate */
-            if(_isEnoughParams(cmd, ptr_cnt, 2, current_mode)){
+            if(_isEnoughParams(cmd, &cnt, 2, current_mode)){
                 generate(sudoku, x, y);
             }
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 9: /* undo */
             undo(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 10: /* redo */
             redo(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 11: /* save */
-            if(_isEnoughParams(cmd, ptr_cnt, 1, current_mode)){
-                save(sudoku, x);
+            if(_isEnoughParams(cmd, &cnt, 1, current_mode)){
+                save(sudoku, path);
             }
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 12: /* hint */
-            if(_isEnoughParams(cmd, ptr_cnt, 2, current_mode)){
+            if(_isEnoughParams(cmd, &cnt, 2, current_mode)){
                 hint(sudoku, --x, --y);
             }
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 13: /* guess_hint */
-            if(_isEnoughParams(cmd, ptr_cnt, 2, current_mode)){
+            if(_isEnoughParams(cmd, &cnt, 2, current_mode)){
                 guess_hint(sudoku, --x, --y);
             }
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 14: /* num_solutions */
             num_solutions(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 15: /* autofill */
             autofill(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 16: /* TODO: Figure out what to return in reset */
             reset(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
         case 17: /* TODO: Figure out what to return in exit */
             exitProgram(sudoku);
-            free(cmd);
+            freeCase(cmd, path);
             return STATE_LOOP;
-        default:
-            free(cmd);
+        default: /*invalid command*/
+            freeCase(cmd, path);
             return STATE_LOOP;
     }
 }
@@ -204,8 +225,8 @@ int _commandWithPath(int* cmd, char* token, int* cnt, char** path, Mode mode){
     if (_isTooManyParams(cmd, cnt, 1, mode)){
         return 0;
     }
-    /*TODO: Take care of the file path */
-    *cnt = *cnt+1;
+    *path=token;
+    *cnt = (*cnt)+1;
     return 0;
 }
 
@@ -213,22 +234,18 @@ int _commandMarkErrors(int* cmd, char* token, int *cnt, Mode mode){
     if(_isTooManyParams(cmd, cnt, 1, mode)){
         return 0;
     }
-    if(strlen(token)>1 || *token != 48 || *token != 49){
-        handleInputError(MARK_ERRORS, INVALID_PARAM_X, mode);
-        return 0;
-    }
     cmd[1] = stringToInt(token);
-    *cnt = *cnt+1;
+    *cnt = (*cnt)+1;
     return 1;
 }
 
-int _commandSet(int* cmd, char* token, int* cnt, Mode mode){
+int _commandSet(int* cmd, char* token, int* cnt, Mode mode, int total_size){
     Error err;
     int val = stringToInt(token);
     if (_isTooManyParams(cmd, cnt, 3, mode)){
         return 0;
     }
-    if (val<=1 || val>= MAX_CELL_RANGE){
+    if (val<=1 || val>= total_size){
         err = *cnt+3;
         handleInputError(SET, err, mode);
         cmd[0] = 0;
@@ -238,12 +255,12 @@ int _commandSet(int* cmd, char* token, int* cnt, Mode mode){
     return 1;
 }
 
-int _commandGuess(int* cmd, char* token, int* cnt, Mode mode){
+int _commandGuess(int* cmd, char* token, int* cnt, Mode mode, int total_size){
     int val = stringToInt(token);
     if (_isTooManyParams(cmd, cnt, 1, mode)){
         return 0;
     }
-    if (val<=1 || val>= MAX_CELL_RANGE){
+    if (val<=1 || val>= total_size){
         handleInputError(GUESS, INVALID_PARAM_X, mode);
         cmd[0] = 0;
         return 0;
@@ -252,13 +269,13 @@ int _commandGuess(int* cmd, char* token, int* cnt, Mode mode){
     return 1;
 }
 
-int _commandGenerate(int* cmd, char* token, int* cnt, Mode mode){
+int _commandGenerate(int* cmd, char* token, int* cnt, Mode mode, int total_cells){
     Error err;
     int val = stringToInt(token);
     if (_isTooManyParams(cmd, cnt, 2, mode)){
         return 0;
     }
-    if (val<0 || val> BOARD_SIZE){/*TODO: make sure y is in range */
+    if (val<0 || val> total_cells){/*TODO: make sure y is in range */
         err = *cnt+3;
         handleInputError(GENERATE, err, mode);
         cmd[0] = 0;
@@ -268,13 +285,13 @@ int _commandGenerate(int* cmd, char* token, int* cnt, Mode mode){
     return 1;
 }
 
-int _commandHint(int* cmd, char* token, int* cnt, Mode mode){/* hint and guess_hint */
+int _commandHint(int* cmd, char* token, int* cnt, Mode mode, int total_size){/* hint and guess_hint */
     Error err;
     int val = stringToInt(token);
     if (_isTooManyParams(cmd, cnt, 2, mode)){
         return 0;
     }
-    if (val<=1 || val>= MAX_CELL_RANGE){
+    if (val<=1 || val>= total_size){
         err = *cnt+3;
         handleInputError(cmd[0], err, mode);
         cmd[0] = 0;
@@ -284,23 +301,21 @@ int _commandHint(int* cmd, char* token, int* cnt, Mode mode){/* hint and guess_h
     return 1;
 }
 
-void _parseCommand(char* input, int* cmd, char** path, Mode mode, int* cnt) {
+void _parseCommand(char* input, char* cmd, char** path, Mode mode, int* cnt, Sudoku* sudoku) {
     char s[] = " \t\r\n";
     char* token;
+    int total_cells;
     token = strtok(input, s);
-    *path = NULL;
+    path = NULL;
     if (token==NULL){
         cmd[0]=18;
         return;
     }
+    total_cells = (sudoku->total_size)*(sudoku->total_size);
     while(token != NULL) {
         if(*cnt==0){
             if (!_commandName(cmd, token, cnt, mode)){/* invalid command */
                 return;
-            }
-            if(!isModeAllowingCommand(cmd[0], mode)){
-                handleInputError(cnt[0], INVALID_MODE, mode);
-                cmd[0]=0;
             }
         }
         else {
@@ -315,22 +330,23 @@ void _parseCommand(char* input, int* cmd, char** path, Mode mode, int* cnt) {
                 }
             }
             else if (cmd[0] == 5){/* set */
-                if(!_commandSet(cmd, token, cnt, mode)){
+                if(!_commandSet(cmd, token, cnt, mode, sudoku->total_size)){
                     return;
                 }
             }
             else if (cmd[0] == 7){/* guess */
-                if(!_commandGuess(cmd, token, cnt, mode)){
+                if(!_commandGuess(cmd, token, cnt, mode, sudoku->total_size)){
                     return;
                 }
             }
             else if (cmd[0] == 8){/* generate */
-                if(!_commandGenerate(cmd, token, cnt, mode)){
+
+                if(!_commandGenerate(cmd, token, cnt, mode, total_cells)){
                     return;
                 }
             }
             else if(cmd[0] == 12 || cmd[0] == 13){/* hint or guss_hint */
-                if(!_commandHint(cmd, token, cnt, mode)){
+                if(!_commandHint(cmd, token, cnt, mode, sudoku->total_size)){
                     return;
                 }
             }
@@ -343,5 +359,3 @@ void _parseCommand(char* input, int* cmd, char** path, Mode mode, int* cnt) {
         token = strtok(NULL, s);
     }
 }
-
-

@@ -664,6 +664,7 @@ void createMovesArr(Move **arrMove, Sudoku *sudoku, SudokuCell ***tmpBoard){
 State generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
     int isSolvable, areXCellsFilled, isValid=1, cntNoSolution=0;
     int total_cells = sudoku->total_size*sudoku->total_size;
+    Move** arrMove;
     SudokuCell*** tmpBoard = copyBoard(sudoku->currentState, sudoku->total_size); /*save the original board for cases that "fillXCells" or "ILP_Validation" will fail*/
     int numOfEmptyCells = total_cells - sudoku->cntFilledCell;
     Cell** emptyCellsArr;
@@ -700,7 +701,7 @@ State generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
         }
         freeCellsArray(emptyCellsArr, numOfEmptyCells);
         if(cntNoSolution<1000){
-            Move** arrMove = (Move**)malloc(total_cells* sizeof(Move*));
+            arrMove = (Move**)malloc(total_cells* sizeof(Move*));
             if (arrMove == NULL) {
                 printMallocFailedAndExit();
             }

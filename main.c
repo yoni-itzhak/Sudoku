@@ -7,19 +7,7 @@
 #include "solver.h"
 #include "parser.h"
 
-#define ROW 3
-#define COLUMN 3
 int main() {
-    /*
-    char* ptr;
-    int seed = strtol(argv[1], &ptr, 10);
-    int num_of_cells;
-
-    if(argc<=1) {
-        return 0;
-    }
-    srand(seed);
-    */
     State current_state;
     Sudoku* sudoku;
     char input[257];
@@ -37,7 +25,7 @@ int main() {
         printSudoku(sudoku);*/
         sudoku->mode = INIT; /* TODO: verify the sudoku board creation */
         printEnterCommand();
-        while(fgets(input,257, stdin)!=NULL){
+        while(fgets(input,257, stdin)!=NULL){/*TODO: verify the length is right */
             if (strlen(input)>256){
                 printCommandTooLong();
                 continue;
