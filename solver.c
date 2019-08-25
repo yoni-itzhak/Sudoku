@@ -33,8 +33,6 @@
 #include <string.h>
 #include "gurobi_c.h"
 
-#define SUBDIM  3
-
 
 void freeGurobi(GRBenv   *env, GRBmodel *model){
     /* Free model */
@@ -67,27 +65,11 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     /* Create an empty model */
 
-    for (i = 0; i < total_size; i++) {
-        for (j = 0; j < total_size; j++) {
-            board[i][j]->numOfOptionalDigits=total_size;
-            findThePossibleArray(board,row,column,i,j);
-
-            for (v = 0; v < total_size; v++) {
-                if (board[i][j]->digit == (v+1))
-                    lb[i*total_size*total_size+j*total_size+v] = 1; /* lower bound = 1 for fixed cell */
-                else
-                    lb[i*total_size*total_size+j*total_size+v] = 0;
-                vtype[i*total_size*total_size+j*total_size+v] = GRB_BINARY;
-            }
-        }
-    }
-
-
 
     for (i = 0; i < total_size; i++) {
         for (j = 0; j < total_size; j++) {
-            if (board[i][j]->is_fixed){
-                dig = board[i][j]->digit;
+            dig = board[i][j]->digit;
+            if (dig != 0){
                 lb[i*total_size*total_size+j*total_size+(dig-1)] = 1; /* lower bound = 1 for fixed cell */
                 ub[i*total_size*total_size+j*total_size+(dig-1)] = 1;
 
@@ -117,7 +99,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
                         vtype[i * total_size * total_size + j * total_size + v] = GRB_BINARY;
                     }
                 }
-                else {
+                else { /*numOfOptionalDigits = 0 -> the cell <i,j> has no valid values*/
                     return 0;
                 }
             }

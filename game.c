@@ -15,7 +15,6 @@
 void LP_Guesses(Sudoku* sudoku, float x);
 void fillCellsWithScoreX(Sudoku* sudoku,float x);
 int LP_Validation(Sudoku* sudoku);
-int checkIfBoardIsSolvable();
 
 void freeMemory(Sudoku* sudoku){
     freeBoard (sudoku->currentState, sudoku->total_size);
@@ -222,13 +221,6 @@ int scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_siz
         printLoadedFileLengthNotValid(X);
         return 0;
     }
-    if (mode == EDIT){
-        isValid = checkIfBoardIsSolvable();
-        if (isValid == 0){
-            printLoadedFileNotSolvable(X);
-            return 0;
-        }
-    }
 }
 
 void fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
@@ -253,8 +245,20 @@ void fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
     if (isValid == 0){
         return;
     }
-    updateSudoku(sudoku, X, mode, board,row ,column, cntFilledCell);
 
+    if (mode == EDIT){ /*in EDIT mode, the loaded board should be solvable*/
+        isValid = ILP_Validation(board, row, column, EDIT_COMMAND, -1, -1, NULL);
+        if (isValid != 1 ){
+            if (isValid == 0){
+                printLoadedFileNotSolvable(X);
+            }
+            else if (isValid == -1){
+                /*print gurobi failed*/
+            }
+            return;
+        }
+    }
+    updateSudoku(sudoku, X, mode, board,row ,column, cntFilledCell);
 }
 
 void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode){
@@ -874,7 +878,7 @@ void save(Sudoku* sudoku, char* X) {
 
 void hint(Sudoku* sudoku, int x, int y){
     int isSolvable, dig;
-    if (isErroneous(sudoku)==1 || isFixed(sudoku,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
+    if (isErroneous(sudoku)==1 || isFixed(sudoku->currentState,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND all valid*/
@@ -899,7 +903,7 @@ void guess_hint(Sudoku* sudoku, int x, int y){
     if (sudoku->mode!=SOLVE){
         /*print appropriate massage*/
     }
-    else if (isErroneous(sudoku)==1 || isFixed(sudoku,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
+    else if (isErroneous(sudoku)==1 || isFixed(sudoku->currentState,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND all valid*/
