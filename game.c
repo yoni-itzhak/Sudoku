@@ -414,8 +414,7 @@ void mark_errors(Sudoku* sudoku,int x){
     sudoku->markErrors = x;
 }
 
-void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
-                                      int beforeErroneous, int afterErroneous){
+void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue, int beforeErroneous, int afterErroneous){
     Move* newMove;
     newMove = getNewMove(x, y, beforeValue, afterValue, beforeErroneous, afterErroneous);
     arrMove[*p_arrSize] = newMove;
@@ -618,6 +617,7 @@ void set(Sudoku* sudoku, int x, int y, int z){
     if (z != dig) {
         setCell(sudoku, x, y, z, arrMove, &arrSize);
         addArrMoveToList(sudoku, arrMove, arrSize);
+        displayForward(sudoku->list);
         lastCellToBeFilled(sudoku);
     }
     else{
@@ -751,8 +751,12 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
     print_board(sudoku);
 }
 
-int hasMoveToUndo(Sudoku* sudoku){
-    return hasPrev(sudoku->list);
+int hasMoveToUndo(Sudoku* sudoku){/*TODO: CREATE DUMMY FUNCTION!*/
+    /*return hasPrev(sudoku->list);*/
+    if (sudoku->list->current->arrSize == -1){ /*-1 for dummy node*/
+        return 0;
+    }
+    return 1;
 }
 
 void setPointerToPreviousMove(Sudoku* sudoku){
@@ -793,6 +797,7 @@ void undo(Sudoku* sudoku){
     }
     else { /*in Solve/Edit mode AND has move to undo*/
         undoMove(sudoku, UNDO);
+        displayForward(sudoku->list);
         print_board(sudoku);
     }
 }
@@ -800,15 +805,18 @@ void setPointerToNextMove(Sudoku* sudoku){
     moveToNext(sudoku->list);
 }
 
-int hasMoveToRedo(Sudoku* sudoku){
+int hasMoveToRedo(Sudoku* sudoku){ /*TODO: CHECK THIS*/
+    /*return sudoku->list->current->arrSize == -1 || hasNext(sudoku->list);*/
     return hasNext(sudoku->list);
 }
 void redoMove(Sudoku* sudoku){
     int i;
-    Move** currentArrMove = getCurrentMove(sudoku->list)->arrMove;
-    int currentArrSize = getCurrentMove(sudoku->list)->arrSize;
+    Move** currentArrMove;
+    int currentArrSize;
     Move* currentMove;
     setPointerToNextMove(sudoku);
+    currentArrMove = getCurrentMove(sudoku->list)->arrMove;
+    currentArrSize = getCurrentMove(sudoku->list)->arrSize;
     for (i = currentArrSize - 1; i>=0; i--){
         currentMove = currentArrMove[i];
         updateTheBoard(sudoku,currentMove,REDO);
@@ -823,6 +831,7 @@ void redo(Sudoku* sudoku){
     }
     else { /*in Solve/Edit mode AND has move to redo*/
         redoMove(sudoku);
+        displayForward(sudoku->list);
         print_board(sudoku);
     }
 }

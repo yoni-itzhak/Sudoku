@@ -118,7 +118,7 @@ void printGurobiFailed(){
 }
 
 void printChangeInBoard(Cell* cell, int from, int to){
-    printf("The value of cell <%d,%d> has changed from %d to %d\n", cell->x, cell->y, from, to);
+    printf("The value of cell <%d,%d> has changed from %d to %d\n", (cell->x)+1, (cell->y)+1, from, to);
 }
 
 void printSolutionIsErroneous(){
@@ -202,7 +202,7 @@ void printSudoku(Sudoku *sudoku) {
                 if (sudoku->currentState[i][j]->is_fixed==1){ /*cell is fixed*/
                     printf("%2d.", cell);
                 }
-                else if (sudoku->currentState[i][j]->cnt_erroneous==1 && (sudoku->markErrors==1 || sudoku->mode==EDIT)){ /*cell is erroneous*/
+                else if (sudoku->currentState[i][j]->cnt_erroneous>0 && (sudoku->markErrors==1 || sudoku->mode==EDIT)){ /*cell is erroneous*/
                     printf("%2d*", cell);
                 }
                 else{

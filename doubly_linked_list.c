@@ -5,15 +5,53 @@
 #include <stdlib.h>
 
 
+void printMove(Move* move){
+    if (move==NULL){
+        return;
+    }
+    return;
+    /*printf("(x: %d, y: %d, b_value: %d, a_value: %d, b_err: %d, a_err: %d) ", move->cell->x, move->cell->y, move->beforeValue,move->afterValue, move->beforeErroneous, move->afterErroneous);*/
+}
+
+void displayForward(List* list) {
+    if (list==NULL){
+        return;
+    }
+    return;
+/*
+    int i, cnt=0;
+    struct Node *ptr = list->head;
+
+
+
+    while (ptr != NULL) {
+        if (cnt == 0){
+            printf("DUMMY NODE\n");
+        }
+        for (i=0; i<ptr->arrSize; i++){
+            printMove(ptr->arrMove[i]);
+        }
+        printf("\n--------------------------------\n");
+        ptr = ptr->next;
+        cnt++;
+    }
+
+*/
+}
+
+void addDummyNode(List* list){
+    insertAtTail(list, NULL, -1);
+}
 /*Creates a new List and returns pointer to it.*/
 List* getNewList(){
-    List* newList = (List*)malloc(sizeof(List));
+    List* newList = (List*)malloc(sizeof(List)); /*TODO: check what should be the size of the allocated memory*/
     if (newList==NULL){
         printMallocFailedAndExit();
     }
     newList->head = NULL;
     newList->last = NULL;
     newList->current = NULL;
+    addDummyNode(newList);
     return newList;
 }
 /*Creates a new Node and returns pointer to it.*/
@@ -67,15 +105,14 @@ int isListEmpty(List* list) {
 void insertAtTail(List* list, Move** arrMove, int arrSize) {
     struct Node *newNode = getNewNode(arrMove, arrSize); /*create new node*/
     if(isListEmpty(list)) {
-        list->last = newNode; /*make it the last node*/
         list->head = newNode;
     }
     else {
         list->last->next = newNode;  /*make newNode the new last node*/
         newNode->prev = list->last;  /*mark old last node as prev of newNode*/
     }
-    list->last = newNode; /*point last to new last node*/
-    list->current=newNode; /*point current to new last node*/
+    list->last = newNode; /*point last to new last node - make it the last node*/
+    list->current = newNode; /*point current to new last node*/
 }
 
 /*assume there is next node*/

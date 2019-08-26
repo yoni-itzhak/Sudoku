@@ -316,7 +316,7 @@ int _commandSet(int* cmd, char* token, int* cnt, Mode mode, int total_size, int*
         return 0;
     }
     val = stringToInt(token);
-    if (val<=1 || val>= total_size){
+    if (val<1 || val> total_size){
         errArr[(*cnt)-1] = 1;
     }
     else{
