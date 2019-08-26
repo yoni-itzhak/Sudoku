@@ -204,9 +204,9 @@ State readCommand(Sudoku* sudoku, char* input){
                 reset(sudoku);
             }
             freeCase(cmd, path, errorsInParams);
-            return STATE_RESET;
+            return STATE_LOOP;
         case 17: /* TODO: Figure out what to return in exit */
-            exitProgram(sudoku);
+            exitProgram();
             freeCase(cmd, path, errorsInParams);
             return STATE_EXIT;
         default: /*invalid command*/

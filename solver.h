@@ -67,6 +67,7 @@ typedef struct{
     List* list; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
     int markErrors; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
     Mode mode; /*remember to take care of this field. maybe should be a separate parameter @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+    int justStarted; /* 1 if this the first game*/
 }Sudoku;
 
 typedef struct{

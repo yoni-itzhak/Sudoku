@@ -46,7 +46,7 @@ typedef enum{
 }NeighborsType;
 
 
-
+void freeMemory(Sudoku* sudoku);
 void addArrMoveToList(Sudoku*, Move**, int);
 int fillXCells(SudokuCell***, int, Cell**, int, int, int);
 int createEmptyCellsArr(Sudoku*, Cell**);
@@ -83,7 +83,7 @@ void fillObviousValues(Sudoku* sudoku);
 void autofill(Sudoku* sudoku);
 void undoAllMoves(Sudoku* sudoku);
 void reset(Sudoku* sudoku);
-void exitProgram(Sudoku* sudoku);
+void exitProgram();
 
 
 int isRowValid(SudokuCell*** board, int row, int column, int x, int y,  int value , Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);

@@ -17,9 +17,11 @@ void fillCellsWithScoreX(Sudoku* sudoku,float x);
 int LP_Validation(Sudoku* sudoku);
 
 void freeMemory(Sudoku* sudoku){
-    freeBoard (sudoku->currentState, sudoku->total_size);
-    freeBoard (sudoku->solution, sudoku->total_size);
-    freeList(sudoku->list);
+    if (sudoku->justStarted != 1){
+        freeBoard (sudoku->currentState, sudoku->total_size);
+        /*freeBoard (sudoku->solution, sudoku->total_size);*/
+        freeList(sudoku->list);
+    }
     free(sudoku);
 }
 
@@ -329,14 +331,21 @@ void updateSudoku(Sudoku* sudoku, char* X, Mode mode, SudokuCell*** newCurrentSt
 
     int isValid;
     /*TODO: check what to do if we are in INIT mode -> we dont have a board to free*/
-    freeBoard(sudoku->currentState, sudoku->total_size);
-    freeBoard(sudoku->solution, sudoku->total_size); /*check if we should calculate the new SOLUTION board* @@@@@@@@@@@@@@@@@@@@@@@@ */
+    if (sudoku->justStarted == 0){
+        freeBoard(sudoku->currentState, sudoku->total_size);
+        freeList(sudoku->list);
+    }
+    if (sudoku->justStarted == 1){ /*there are no board or list to free */
+        sudoku->justStarted = 0;
+    }
+
+    /*freeBoard(sudoku->solution, sudoku->total_size); check if we should calculate the new SOLUTION board* @@@@@@@@@@@@@@@@@@@@@@@@ */
     sudoku->currentState = newCurrentState;
     sudoku->row=newRow;
     sudoku->column=newColumn;
     sudoku->total_size = newRow * newColumn;
     sudoku->cntFilledCell = newCntFilledCell;
-    freeList(sudoku->list);
+
     sudoku->list = getNewList();
     /*sudoku->markError remain the same*/
     sudoku->mode = mode;
@@ -579,7 +588,7 @@ void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize
     /*deleteDigitFromArr(sudoku->currentState, x,y, z);*/
 }
 
-SET_STATUS set(Sudoku* sudoku, int x, int y, int z){
+void set(Sudoku* sudoku, int x, int y, int z){
     int fixed, dig;
     int arrSize=0, total_cells = sudoku->total_size*sudoku->total_size;
     Move** arrMove = (Move**)malloc(total_cells*(sizeof(Move*)));
@@ -589,17 +598,16 @@ SET_STATUS set(Sudoku* sudoku, int x, int y, int z){
     fixed = isFixed(sudoku->currentState,x,y);
     if (fixed && sudoku->mode==SOLVE){ /*in Solve mode fixed cells can't be updated (unlike in Edit mode) @@@@@@@@@@@@@@@@@@@@@@@@@@@@ check if we should make all cells in EDIT non-fixed*/
         printFixed();
-        return UNSOLVED;
+        return;
     }
     /*arrive here when changing the cell is legal*/
     dig = sudoku->currentState[x][y]->digit;
     if (z != dig) {
         setCell(sudoku, x, y, z, arrMove, &arrSize);
         addArrMoveToList(sudoku, arrMove, arrSize);
-        print_board(sudoku);
-        return lastCellToBeFilled(sudoku);
+        lastCellToBeFilled(sudoku);
     }
-    return UNSOLVED;
+    print_board(sudoku);
 }
 
 void print_board(Sudoku* sudoku){
@@ -636,6 +644,7 @@ void guess(Sudoku* sudoku, float x){
     else{ /*in Solve mode AND not erroneous*/
         LP_Guesses(sudoku, x);
         fillCellsWithScoreX(sudoku,x);
+        print_board(sudoku);
     }
 }
 
@@ -764,6 +773,7 @@ void undo(Sudoku* sudoku){
     }
     else { /*in Solve/Edit mode AND has move to undo*/
         undoMove(sudoku, UNDO);
+        print_board(sudoku);
     }
 }
 void setPointerToNextMove(Sudoku* sudoku){
@@ -793,6 +803,7 @@ void redo(Sudoku* sudoku){
     }
     else { /*in Solve/Edit mode AND has move to redo*/
         redoMove(sudoku);
+        print_board(sudoku);
     }
 }
 
@@ -1010,6 +1021,7 @@ void autofill(Sudoku* sudoku){
     }
     else{ /*in Solve mode AND not erroneous*/
         fillObviousValues(sudoku);
+        print_board(sudoku);
     }
 }
 void undoAllMoves(Sudoku* sudoku){
@@ -1022,8 +1034,7 @@ void reset(Sudoku* sudoku){
     undoAllMoves(sudoku);
     print_board(sudoku);
 }
-void exitProgram(Sudoku* sudoku){
-    freeMemory(sudoku);
+void exitProgram(){
     printExitMessage();
 }
 
