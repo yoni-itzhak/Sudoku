@@ -18,7 +18,7 @@ int main() {
     }
     sudoku->mode = INIT; /* TODO: verify the sudoku board creation */
     sudoku->justStarted = 1; /* starting game */
-    sudoku->markErrors=1;
+    sudoku->markErrors = 1;
     printEnterCommand();
     while(fgets(input,257, stdin)!=NULL){/*TODO: verify the length is right */
         if (strlen(input)>256){

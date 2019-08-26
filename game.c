@@ -200,7 +200,7 @@ int scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_siz
                 printLoadedFileCellNotValid(X);
                 return 0;
             }
-            if ( (dig == 0 && fixed ==1) || (mode == EDIT && fixed == 0) ){
+            if ( (dig == 0 && fixed ==1) || (mode == EDIT && fixed == 0 && dig !=0 ) ){
                 printLoadedFileCellNotValid(X);
                 return 0;
             }
@@ -244,8 +244,8 @@ int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
     if (isValid == 0){
         return 0;
     }
-
-    if (mode == EDIT){ /*in EDIT mode, the loaded board should be solvable*/
+    /* TODO: VALIDATION @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    if (mode == EDIT){ // in EDIT mode, the loaded board should be solvable //
         isValid = ILP_Validation(board, row, column, EDIT_COMMAND, -1, -1, NULL);
         if (isValid != 1 ){
             if (isValid == 0){
@@ -257,6 +257,7 @@ int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
             return 0;
         }
     }
+    */
     return updateSudoku(sudoku, X, mode, board,row ,column, cntFilledCell);
 }
 
