@@ -53,13 +53,13 @@ int createEmptyCellsArr(Sudoku*, Cell**);
 int isContainsValue(Sudoku* sudoku, int x, int y);
 int isFilled(Sudoku* sudoku);
 int isErroneous(Sudoku* sudoku);
-SET_STATUS lastCellToBeFilled(Sudoku* sudoku);
+void lastCellToBeFilled(Sudoku* sudoku);
 void solve(Sudoku*, char*);
 void edit(Sudoku*, char*);
 void mark_errors(Sudoku* sudoku,int x);
 void print_board(Sudoku* sudoku);
 void addOneMoveToList(Sudoku *sudoku, int x, int y, int value, int z);
-SET_STATUS set(Sudoku* sudoku, int x, int y, int z);
+void set(Sudoku* sudoku, int x, int y, int z);
 void validate(Sudoku* sudoku);
 void guess(Sudoku* sudoku, float x);
 void generate(Sudoku* sudoku, int x, int y);
@@ -91,11 +91,13 @@ int isColumnValid(SudokuCell*** board, int row, int column, int x, int y, int va
 int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int value ,Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);
 int isValueValid(SudokuCell*** board, int row, int column, int x, int y, int value, Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells);
 void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize);
-SET_STATUS set(Sudoku* sudoku, int x, int y, int z);
 int isCellErroneous(SudokuCell*** board, int x, int y);
 
-void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode);
-void updateSudoku(Sudoku* sudoku,char* X, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+int loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode);
+
+int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode);
+
+int updateSudoku(Sudoku* sudoku,char* X, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
 void findErroneousCells(Sudoku* sudoku);
 void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
                                       int beforeErroneous, int afterErroneous);

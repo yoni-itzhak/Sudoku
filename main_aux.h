@@ -28,6 +28,7 @@
  *
  */
 
+void printSameValueCell();
 void printCannotGenerateBoardWithErrors();
 void printNotEnoughEmptyCells(int, int);
 void printChangeInBoard(Cell* cell, int from, int to);

@@ -289,6 +289,10 @@ void printInvalidCommand(){
     printf("Error: invalid command\n");
 }
 
+void printSameValueCell(){
+    printf("Notice: your chosen cell has the same value that you chose to set\n");
+}
+
 
 int stringToInt(char* str){
     char* ptr;

@@ -225,7 +225,7 @@ int scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_siz
     }
 }
 
-void fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
+int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
     int total_size, row, column, cntFilledCell=0, isValid;
     SudokuCell*** board = (SudokuCell***)malloc(sizeof(SudokuCell**));
     if (board == NULL){
@@ -235,17 +235,18 @@ void fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
      * check that the old boared doesn't disappear*/
     isValid = scanRowAndColumn(file, X, &row, &column); /*find m & n*/
     if (isValid == 0){
-        return;
+        return 0;
     }
     if (row * column > 99 || row <=0 || column<=0){
         printLoadedFileFirstLineNotValid(X);
+        return 0;
     }
     total_size = row * column;
     createEmptyBoard(board, total_size); /* for empty board*/
     /*scan cells and check if all valid and solvable*/
     isValid = scanCells(file, X, board, mode, total_size, &cntFilledCell);
     if (isValid == 0){
-        return;
+        return 0;
     }
 
     if (mode == EDIT){ /*in EDIT mode, the loaded board should be solvable*/
@@ -257,27 +258,33 @@ void fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
             else if (isValid == -1){
                 /*print gurobi failed*/
             }
-            return;
+            return 0;
         }
     }
-    updateSudoku(sudoku, X, mode, board,row ,column, cntFilledCell);
+    return updateSudoku(sudoku, X, mode, board,row ,column, cntFilledCell);
 }
 
-void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode){
+int loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode){
     FILE* file;
+    int isValid = 0;
     /*int isClosed;*/
     file = fopen(X,"r");
     if (file == NULL){
         printOpenFileFailed(X);
-        return;
+        return 0;
     }
-    fileToSudoku(sudoku, file, X, mode);
+    isValid = fileToSudoku(sudoku, file, X, mode);
+
     /*createSudoku(sudoku, row, column, numOfCells);
     loadBoardFromPath(sudoku, X);*/
     fclose(file);
     if (feof(file)){
         printCloseFileFailed(X);
     }
+    return isValid;
+
+
+
     /* 'fclose' has faild* - maybe should be -1 @@@@@@@@@@@@@@@*/
     /*isClosed = fclose(file);
     if (isClosed == EOF){
@@ -287,12 +294,20 @@ void loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode){
 
 /*TODO: check about clause b. in this command - what should we do with the unsaved current game board*/
 void solve(Sudoku* sudoku, char* X){
-    loadBoardFromPath(sudoku,X,SOLVE);
+    int isValid;
+    isValid = loadBoardFromPath(sudoku,X,SOLVE);
+    if (isValid == 1){
+        print_board(sudoku);
+    }
 }
 
 /*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
 void editWithPath(Sudoku* sudoku, char* X){
-    loadBoardFromPath(sudoku,X,EDIT);
+    int isValid;
+    isValid = loadBoardFromPath(sudoku,X,EDIT);
+    if (isValid == 1){
+        print_board(sudoku);
+    }
 }
 
 /*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
@@ -327,7 +342,7 @@ int isFixedAndErroneous(Sudoku* sudoku){
     return 1;
 }
 
-void updateSudoku(Sudoku* sudoku, char* X, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell){
+int updateSudoku(Sudoku* sudoku, char* X, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell){
 
     int isValid;
     /*TODO: check what to do if we are in INIT mode -> we dont have a board to free*/
@@ -354,11 +369,13 @@ void updateSudoku(Sudoku* sudoku, char* X, Mode mode, SudokuCell*** newCurrentSt
         isValid = isFixedAndErroneous(sudoku);
         if (isValid == 0){
             printLoadedFileNotSolvable(X);
+            return 0;
         }
     }
     else{
         sudoku->cntErroneousCells = 0;
     }
+    return 1;
 }
 
 int isContainsValue(Sudoku* sudoku, int x, int y){
@@ -381,20 +398,18 @@ int isErroneous(Sudoku* sudoku){
     return 1;
 }
 
-SET_STATUS lastCellToBeFilled(Sudoku* sudoku){
+void lastCellToBeFilled(Sudoku* sudoku){
     if (sudoku->mode==SOLVE && isFilled(sudoku)){ /*in Solve mode and last cell was filled*/
         if (isErroneous(sudoku)==1){ /*board is not valid*/
             /*we remain in Solve mode*/
             printSolutionIsErroneous();
-            return UNSOLVED; /*full but not SOLVED*/
+            /*full but not SOLVED*/
         }
         else{ /* isErroneous(sudoku)==0 -> board is valid*/
             printSolved();
             sudoku->mode=INIT;
-            return SOLVED;
         }
     }
-    return UNSOLVED;
 }
 
 void mark_errors(Sudoku* sudoku,int x){
@@ -606,6 +621,9 @@ void set(Sudoku* sudoku, int x, int y, int z){
         setCell(sudoku, x, y, z, arrMove, &arrSize);
         addArrMoveToList(sudoku, arrMove, arrSize);
         lastCellToBeFilled(sudoku);
+    }
+    else{
+        printSameValueCell();
     }
     print_board(sudoku);
 }
