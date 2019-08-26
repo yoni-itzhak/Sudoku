@@ -30,8 +30,8 @@ void printCannotGenerateBoardWithErrors(){ /*TODO: change to a dynamic function 
 }
 
 void _printAllowedCommands(Mode mode){
-    Command i, is_first=1;
-    for(i=1; i<19;++i){
+    int i, is_first=1;
+    for(i=1; i<18;++i){
         if (isModeAllowingCommand(i, mode)){
             if(is_first){
                 printf("%s", stringFromCommand(i));
@@ -73,30 +73,30 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
             printf("Error: The command 'mark_errors' can only get 0 or 1 as arguments\n");
         }
         else if(command==SET){/*TODO: figure out the error for HINT and GUESS_HINT */
-            printf("Error: The first parameter for the command '%s' should be in the range 1-%d\n",
+            printf("Error: The first parameter for the command '%s' should be in the range 0-%d\n",
                     stringFromCommand(command), total_size);
         }
         else if(command==GUESS){
-            printf("Error: The command 'guess' gets a parameter in the range 1-%d\n",
+            printf("Error: The command 'guess' gets a parameter in the range 0-%d\n",
                     total_size);
         }
         else if(command==GENERATE){
-            printf("Error: The first parameter for the command 'generate' should be in the range 1-%d\n",
+            printf("Error: The first parameter for the command 'generate' should be in the range 0-%d\n",
                     total_cells);
         }
     }
     else if(err == INVALID_PARAM_Y){
         if(command==SET || command==HINT || command==GUESS_HINT){
-            printf("Error: The second parameter for the command '%s' should be in the range 1-%d\n",
+            printf("Error: The second parameter for the command '%s' should be in the range 0-%d\n",
                    stringFromCommand(command), total_size);
         }
         else if(command==GENERATE){
-            printf("Error: The second parameter for the command 'generate' should be in the range 1-%d\n",
+            printf("Error: The second parameter for the command 'generate' should be in the range 0-%d\n",
                     total_cells);
         }
     }
     else if(err==INVALID_PARAM_Z){
-        printf("Error: The third parameter for the command 'set' should be in the range 1-%d\n",
+        printf("Error: The third parameter for the command 'set' should be in the range 0-%d\n",
                total_size);
     }
 }
@@ -202,7 +202,7 @@ void printSudoku(Sudoku *sudoku) {
                 if (sudoku->currentState[i][j]->is_fixed==1){ /*cell is fixed*/
                     printf("%2d.", cell);
                 }
-                else if (sudoku->currentState[i][j]->cnt_erroneous==1 && (sudoku->markErrors==1 || sudoku->mode==EDIT)){ /*cell is erroneous*/
+                else if (sudoku->currentState[i][j]->cnt_erroneous>0 && (sudoku->markErrors==1 || sudoku->mode==EDIT)){ /*cell is erroneous*/
                     printf("%2d*", cell);
                 }
                 else{
@@ -231,7 +231,7 @@ void printSudoku(Sudoku *sudoku) {
  * The function gets called when memory allocation from malloc was failed and prints appropriate message.
  */
 void printMallocFailedAndExit(){
-    printf("Error: 'malloc' has failed/n");
+    printf("Error: 'malloc' has failed\n");
     exit(0);
 }
 
@@ -239,34 +239,34 @@ void printMallocFailedAndExit(){
  * The function gets called when opening file with 'fopen' was failed and prints appropriate message.
  */
 void printOpenFileFailed(char* path){
-    printf("Error: 'fopen' has failed to open %s/n", path);
+    printf("Error: 'fopen' has failed to open %s\n", path);
 }
 
 /*
  * The function gets called when opening file with 'fclose' was failed and prints appropriate message.
  */
 void printCloseFileFailed(char* path){
-    printf("Error: 'fclose' has failed to close %s/n", path);
+    printf("Error: 'fclose' has failed to close %s\n", path);
 }
 
 /*
  * The function gets called when write to file with 'fprintf' was failed and prints appropriate message.
  */
 void printWriteToFileFailed(char* path){
-    printf("Error: 'fprintf' has failed to write to %s/n", path);
+    printf("Error: 'fprintf' has failed to write to %s\n", path);
 }
 
 void printLoadedFileLengthNotValid(char* path){
-    printf("Error: file %s is not in valid length/n", path);
+    printf("Error: file %s is not in valid length\n", path);
 }
 void printLoadedFileEOF(char* path){
-    printf("Error: file %s has reached EOF/n", path);
+    printf("Error: file %s has reached EOF\n", path);
 }
 void printLoadedFileFirstLineNotValid(char* path){
-    printf("Error: the first line (row & column) in file %s is not valid/n", path);
+    printf("Error: the first line (row & column) in file %s is not valid\n", path);
 }
 void printLoadedFileCellNotValid(char* path){
-    printf("Error: one of the cells in file %s is not valid/n", path);
+    printf("Error: one of the cells in file %s is not valid\n", path);
 }
 void printLoadedFileNotSolvable(char* path){
     printf("Error: The board in file %s is not solvable. When loading a file in edit mode the board loaded must be solvable.\n", path);

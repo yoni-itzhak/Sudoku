@@ -952,13 +952,13 @@ void guess_hint(Sudoku* sudoku, int x, int y){
 void num_solutions(Sudoku* sudoku){
     int numOfSolution, total_size = sudoku->total_size;
     Cell* firstEmptyCell;
-    SudokuCell*** fixedBoard = NULL;
+    SudokuCell*** fixedBoard = (SudokuCell***)malloc(total_size*sizeof(SudokuCell**));/*TODO: allocating memory */
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND not erroneous*/
         firstEmptyCell = (Cell*)malloc(sizeof(Cell));
-        if(firstEmptyCell == NULL){
+        if(firstEmptyCell == NULL || fixedBoard == NULL){
             printMallocFailedAndExit();
         }
         createEmptyBoard(fixedBoard,total_size);

@@ -64,14 +64,14 @@ int isModeAllowingCommand(Command command, Mode mode);
 int _commandName(int*, char*, int*, Mode);
 int _isTooManyParams(int*, int*, int, Mode);
 int _isEnoughParams(int *cmd, int *cnt, int validNumOfParams, Mode mode);
-int _commandWithPath(int*, char*, int*, char**, Mode);
+int _commandWithPath(int*, char*, int*, char*, Mode);
 int _commandMarkErrors(int*, char*, int*, Mode, int*);
 int _commandSet(int*, char*, int*, Mode, int, int*);
 int _commandGuess(int*, char*, int*, Mode, int);
 int _commandGenerate(int*, char*, int*, Mode, int, int*);
 int _commandHint(int*, char*, int*, Mode, int, int*);
-void _freeCase(int *cmd, char *path, int *errorsInParams);
-void _parseCommand(char*, int*, char**, Mode, int*, Sudoku*, int*);
+void _freeCase(int *, char* , int *);
+void _parseCommand(char*, int*, char*, Mode, int*, Sudoku*, int*);
 
 State readCommand(Sudoku*, char*);
 

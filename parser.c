@@ -17,7 +17,7 @@ void _freeCase(int *cmd, char *path, int *errorsInParams){
 
 char *stringFromCommand(Command c){
     char *str_commands[] = {"invalid command", "solve", "edit", "mark_errors","print_board",
-                            "set", "validate", "generate", "undo", "redo", "save", "hint",
+                            "set", "validate", "guess", "generate", "undo", "redo", "save", "hint",
                             "guess_hint", "num_solutions", "autofill", "reset", "exit"};
 
     return str_commands[c];
@@ -88,10 +88,9 @@ State readCommand(Sudoku* sudoku, char* input){
         printMallocFailedAndExit();
     }
     total_cells = (sudoku->total_size)*(sudoku->total_size);
-    _parseCommand(input, cmd, &path, current_mode, &cnt, sudoku, errorsInParams);
+    _parseCommand(input, cmd, path, current_mode, &cnt, sudoku, errorsInParams);
     current_cmd = cmd[0];
     x = cmd[1]; y = cmd[2]; z = cmd[3];
-    path=NULL;
     switch(current_cmd) {
         case 1: /* solve */
             if(_isEnoughParams(cmd, &cnt, 1, current_mode)) {
@@ -100,6 +99,9 @@ State readCommand(Sudoku* sudoku, char* input){
             _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 2: /* edit */
+            if (cnt == 1){
+                path=NULL;
+            }
             edit(sudoku, path);
             _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
@@ -287,11 +289,11 @@ int _isEnoughParams(int *cmd, int *cnt, int validNumOfParams, Mode mode){
 }
 
 
-int _commandWithPath(int* cmd, char* token, int* cnt, char** path, Mode mode){
+int _commandWithPath(int* cmd, char* token, int* cnt, char* path, Mode mode){
     if (_isTooManyParams(cmd, cnt, 1, mode)){
         return 0;
     }
-    *path=token;
+    strcpy(path, token);
     *cnt = (*cnt)+1;
     return 0;
 }
@@ -316,7 +318,7 @@ int _commandSet(int* cmd, char* token, int* cnt, Mode mode, int total_size, int*
         return 0;
     }
     val = stringToInt(token);
-    if (val<=1 || val>= total_size){
+    if (val<0 || val> total_size){
         errArr[(*cnt)-1] = 1;
     }
     else{
@@ -382,12 +384,11 @@ int _commandHint(int* cmd, char* token, int* cnt, Mode mode, int total_size, int
     return 1;
 }
 
-void _parseCommand(char* input, int* cmd, char** path, Mode mode, int* cnt, Sudoku* sudoku, int* errorsInParams) {
+void _parseCommand(char* input, int* cmd, char* path, Mode mode, int* cnt, Sudoku* sudoku, int* errorsInParams) {
     char s[] = " \t\r\n";
     char* token;
     int total_cells;
     token = strtok(input, s);
-    path = NULL;
     if (token==NULL){
         cmd[0]=18;
         return;
@@ -401,6 +402,7 @@ void _parseCommand(char* input, int* cmd, char** path, Mode mode, int* cnt, Sudo
             if(!isModeAllowingCommand(cmd[0], mode)){
                 handleInputError(cmd[0], INVALID_MODE, mode, -1, -1);
                 cmd[0]=0;
+                return;
             }
         }
         else {
