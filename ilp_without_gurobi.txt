@@ -1,0 +1,27 @@
+/*void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype, int total_size){
+    if (ind == NULL && sol == val && lb == ub && vtype == NULL && total_size == 0){
+        return;
+    }
+    return;
+}*/
+
+/*void freeGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype){
+    free(*ind);
+    free(*sol);
+    free(*val);
+    free(*lb);
+    free(*ub);
+    free(*vtype);
+}*/
+
+/*void freeGurobi(GRBenv   *env, GRBmodel *model){
+    GRBfreemodel(model);  // Free model //
+    GRBfreeenv(env); // Free environment //
+}*/
+
+int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
+    if (command == RESET && board == NULL && row==column && x==y && p_dig==NULL){
+        return 1;
+    }
+    return 0;
+}
