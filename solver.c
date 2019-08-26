@@ -50,7 +50,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     double    *sol, *val, *lb, *ub;
     char      *vtype;
     int       optimstatus;
-    double    objval;
+    double    objval = 0.0;
     int       i, j, v, ig, jg, count, dig, cnt, isSolvable;
     int       error = 0;
 
@@ -239,8 +239,13 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         return -1;
     }
 
-    /*error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
-    if (error) goto QUIT;*/
+    error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
+    if (error) {
+        printf("ERROR %d GRBgettdblattr(): %s\n", error, GRBgeterrormsg(env));
+        freeGurobi(env, model);
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
+        return -1;
+    }
 
 
     /* get the solution - the assignment to each variable */
@@ -312,7 +317,7 @@ void pushToGetToNextCell(Sudoku* sudoku,Stack* stack,StackItem* stackItem,Cell* 
     push(stack,stackItem);
 }
 
-int updateCurrentEmptyCell(Cell* currentEmptyCell,int i, int j){
+void updateCurrentEmptyCell(Cell* currentEmptyCell,int i, int j){
     currentEmptyCell->x=i;
     currentEmptyCell->y=j;
 }

@@ -3,27 +3,7 @@
 #define HW4_DOUBLY_LINKED_LIST_H
 
 #include "solver.h"
-
-typedef struct {
-    int beforeValue;
-    int afterValue;
-    int beforeErroneous;
-    int afterErroneous;
-    Cell* cell;
-}Move;
-
-struct Node {
-    Move** arrMove;
-    int arrSize;
-    struct Node *next;
-    struct Node *prev;
-};
-
-typedef struct{
-    struct Node *head;
-    struct Node *last;
-    struct Node *current;
-}List;
+#include "structs.h"
 
 List* getNewList(); /*Creates a new List and returns pointer to it.*/
 struct Node* getNewNode(Move** arrMove, int arrSize); /*Creates a new Node and returns pointer to it.*/

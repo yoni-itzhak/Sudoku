@@ -12,9 +12,18 @@
  *       3. take care of erroneous in general (when changing cells for example)*/
 
 
-void LP_Guesses(Sudoku* sudoku, float x);
-void fillCellsWithScoreX(Sudoku* sudoku,float x);
-int LP_Validation(Sudoku* sudoku);
+void LP_Guesses(){
+
+}
+void fillCellsWithScoreX(){
+
+}
+int LP_Validation(){
+    return 0;
+}
+void printAllLegalValues(){
+
+}
 
 void freeSudokuMemory(Sudoku *sudoku){
     if (sudoku->justStarted != 1){
@@ -27,7 +36,7 @@ void freeSudokuMemory(Sudoku *sudoku){
 
 /* TODO: check in email (or yuval porat) when we the load is valid*/
 
-int createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
+void createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
     int  i=0, j=0, index=0;
     for(;i<sudoku->total_size; ++i){
         for (;j<sudoku->total_size;++j){
@@ -221,8 +230,8 @@ int scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_siz
     isValid = areOnlyWhitespacesLeft(file, X); /*check if there are only whitespaces left in the file*/
     if (isValid == 0){
         printLoadedFileLengthNotValid(X);
-        return 0;
     }
+    return isValid;
 }
 
 int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
@@ -764,11 +773,11 @@ void updateTheBoard(Sudoku* sudoku, Move* move, Command command){
     updateSudokuCntErroneousCells(&sudoku->cntErroneousCells,move->beforeErroneous, move->afterErroneous);
     if (command == UNDO){ /*undo the move*/
         sudoku->currentState[move->cell->x][move->cell->y]->digit=move->beforeValue;
-        sudoku->currentState[move->cell->x][move->cell->y]->cnterroneous=move->beforeErroneous;
+        sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous=move->beforeErroneous;
     }
     else if (command == REDO){ /*redo the move*/
         sudoku->currentState[move->cell->x][move->cell->y]->digit=move->afterValue;
-        sudoku->currentState[move->cell->x][move->cell->y]->cnterroneous=move->afterErroneous;
+        sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous=move->afterErroneous;
     }
 }
 

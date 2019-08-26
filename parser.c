@@ -15,6 +15,54 @@ void _freeCase(int *cmd, char *path, int *errorsInParams){
     free(errorsInParams);
 }
 
+char *stringFromCommand(Command c){
+    char *str_commands[] = {"invalid command", "solve", "edit", "mark_errors","print_board",
+                            "set", "validate", "generate", "undo", "redo", "save", "hint",
+                            "guess_hint", "num_solutions", "autofill", "reset", "exit"};
+
+    return str_commands[c];
+}
+
+char* commandNumParams(Command com){
+    if (com==1 || com==3 || com==7 || com==11){
+        return "1";
+    }
+    else if (com==8 || com ==12 || com ==13){
+        return "2";
+    }
+    else if(com==5){
+        return "3";
+    }
+    else if(com==2){
+        return "0 or 1";
+    }
+    else{
+        return "0";
+    }
+}
+
+int isModeAllowingCommand(Command command, Mode mode){
+    if (mode == SOLVE){
+        if (command == GENERATE) {
+            return 0;
+        }
+        return 1;
+    }
+    else if(mode == EDIT){
+        if(command == MARK_ERRORS || command == GUESS || command == HINT ||
+           command == GUESS_HINT || command == AUTOFILL){
+            return 0;
+        }
+        return 1;
+    }
+    else{ /*(mode == INIT)*/
+        if(command == SOLVE_COMMAND || command == EDIT_COMMAND){
+            return 1;
+        }
+        return 0;
+    }
+}
+
 /*
  * @params - function receives pointer to the main Sudoku and the string input from the user.
  *
@@ -26,6 +74,8 @@ void _freeCase(int *cmd, char *path, int *errorsInParams){
  * 3. the user chose the "restart" command (STATE_RESET)
  * 4. the user chose the "exit" command (STATE_EXIT)
  */
+
+
 State readCommand(Sudoku* sudoku, char* input){
     /*TODO: move the mode verification to the last switch*/
     /*TODO: need to send solved/unsolved: set, guess, generate, autofill*/

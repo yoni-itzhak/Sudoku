@@ -4,6 +4,7 @@
 #include "stack.h"
 #include "doubly_linked_list.h"
 #include "parser.h"
+#include "structs.h"
 
 /**
  * solver summary
@@ -35,46 +36,13 @@
  * pickRandomNumberFromTheArray - Picks random index from the array
  */
 
-typedef enum{
-    INIT,
-    EDIT,
-    SOLVE
-}Mode;
 
-typedef struct{
-    int digit;
-    int is_fixed;
-    int cnt_erroneous; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    int* optionalDigits;
-    int numOfOptionalDigits; /*initialized to total_size and will save the length of the "optionalDigits" array*/
-    /*int hasSingleLegalValue; only for "autofill" command. initialized to 0. will be 1 if the cell has only single legal value*/
-}SudokuCell;
-
-
-typedef struct{
-    SudokuCell*** currentState;
-    SudokuCell*** solution;
-    int row;
-    int column;
-    int total_size;
-    int cntFilledCell;
-    int cntErroneousCells; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    List* list; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    int markErrors; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    Mode mode; /*remember to take care of this field. maybe should be a separate parameter @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    int justStarted; /* 1 if this the first game*/
-}Sudoku;
-
-typedef struct{
-    int x;
-    int y;
-}Cell;
 
 
 int canBacktrack(Stack* stack,int x,int y);
 void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j);
 void pushToGetToNextCell(Sudoku* sudoku,Stack* stack,StackItem* stackItem,Cell* currentEmptyCell,int i,int j);
-int updateCurrentEmptyCell(Cell* currentEmptyCell,int i, int j);
+void updateCurrentEmptyCell(Cell* currentEmptyCell,int i, int j);
 void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size);
 SudokuCell*** copyBoard(SudokuCell*** board, int total_size);
 void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell*** tmpItemBoard, int total_size, int i,int j);

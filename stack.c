@@ -12,7 +12,7 @@ Stack* newStack(int capacity){
     }
     stack->maxsize = capacity;
     stack->top = -1;
-    stack->items = (StackItem*)malloc(sizeof(StackItem) * capacity);
+    stack->items = (StackItem**)malloc(sizeof(StackItem*) * capacity);
     if (stack->items == NULL){
         printMallocFailedAndExit();
     }

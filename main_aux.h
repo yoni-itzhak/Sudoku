@@ -5,6 +5,10 @@
 #include "solver.h"
 #include "parser.h"
 
+#include "structs.h"
+
+
+
 
 /**
  * main_aux summary

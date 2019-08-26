@@ -110,7 +110,8 @@ int hasPrev(List* list){
 }*/
 
 void freeArrMove(struct Node* node){
-    for (int i=0; i< node->arrSize; i++){
+    int i;
+    for (i=0; i< node->arrSize; i++){
         free(node->arrMove[i]->cell);
         free(node->arrMove[i]);
     }

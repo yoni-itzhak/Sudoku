@@ -4,19 +4,11 @@
 #define HW4_STACK_H
 
 #include "solver.h"
+#include "structs.h"
 
 /*Data structure for stack : */
 
-typedef struct{
-    SudokuCell*** board;
-    Cell* currentEmptyCell;
-}StackItem;
 
-typedef struct{
-    int maxsize; /* define max capacity of Stack*/
-    int top;
-    StackItem** items; /*array of stackItem's pointers*/
-}Stack;
 
 void freeStackItem(StackItem* stackItem, int total_size); /*free the allocated memory of StackItem*/
 void freeStack(Stack* stack, int total_size); /*free the allocated memory of Stack*/

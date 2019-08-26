@@ -8,6 +8,8 @@
 #include "parser.h"
 #include "doubly_linked_list.h"
 
+#include "structs.h"
+
 
 
 /**
@@ -35,11 +37,17 @@ typedef enum{
     NEIGHBORS_POSSIBLE_ARRAY
 }NeighborsType;
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+void LP_Guesses();
+void fillCellsWithScoreX();
+int LP_Validation();
+void printAllLegalValues();
 
 void freeSudokuMemory(Sudoku *sudoku);
 void addArrMoveToList(Sudoku*, Move**, int);
 int fillXCells(SudokuCell***, int, Cell**, int, int, int);
-int createEmptyCellsArr(Sudoku*, Cell**);
+
+void createEmptyCellsArr(Sudoku*, Cell**);
 int isContainsValue(Sudoku* sudoku, int x, int y);
 int isFilled(Sudoku* sudoku);
 int isErroneous(Sudoku* sudoku);
