@@ -1,5 +1,3 @@
-
-
 #ifndef HW4_SOLVER_H
 #define HW4_SOLVER_H
 
@@ -51,10 +49,6 @@ typedef struct{
     /*int hasSingleLegalValue; only for "autofill" command. initialized to 0. will be 1 if the cell has only single legal value*/
 }SudokuCell;
 
-typedef enum{
-    SOLUTION,
-    NO_SOLUTION
-}HasSolution;
 
 typedef struct{
     SudokuCell*** currentState;
@@ -75,13 +69,6 @@ typedef struct{
     int y;
 }Cell;
 
-typedef struct{
-    Cell* firstEmpty;
-    SudokuCell*** tmpBoard;
-    int row;
-    int column;
-}DeterSudoku;
-
 
 int canBacktrack(Stack* stack,int x,int y);
 void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j);
@@ -98,20 +85,9 @@ void createEmptyBoard(SudokuCell*** board, int total_size);
 
 int ILP_Validation(SudokuCell*** tmpBoard, int row, int column, Command command, int x, int y, int* p_dig);
 
-/*void deleteDigitFromArr(SudokuCell*** board, int x, int y, int dig);
-void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y);*/
-void freeDeterSudoku(DeterSudoku* deterSudoku,int total_size, HasSolution hasSolution);
-void makeSolutionBoardFix(SudokuCell*** tmpBoard, int total_size);
 void findNextEmptyCell(SudokuCell*** board,int total_size,Cell* cell, int x,int y);
 void freeBoard(SudokuCell*** board, int total_size);
-/*void createEmptyBoard(SudokuCell*** board, int total_size);*/
 void currentStateToFixed(Sudoku *sudoku, SudokuCell ***board, int total_size);
-HasSolution Backtracking(DeterSudoku* deterSudoku,int isRandom, int total_size, int x, int y);
-HasSolution boardSolver(Sudoku* sudoku, int isRandom);
-void createSudoku(Sudoku* sudoku,int row, int column, int num_of_cells);
-void generateBoard(Sudoku* sudoku);
-void randomDeletingCells(Sudoku *sudoku, int);
-int pickRandomNumberFromTheArray(int*, int);
 
 #endif
 

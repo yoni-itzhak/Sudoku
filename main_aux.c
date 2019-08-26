@@ -137,12 +137,7 @@ void printSolved(){
 void printFixed(){
     printf("Error: cell is fixed\n");
 }
-/*
- * The function prints that the value is invalid.
- */
-void printInvalidValue(){
-    printf("Error: value is invalid\n");
-}
+
 /*
  * The function prints the hint for the required cell.
  */
@@ -161,23 +156,8 @@ void printSolvableBoard(){
 void printUnsolvableBoard(){
     printf("Validation failed: board is unsolvable\n");
 }
-/*
- * The function prints that the program is exiting, and exit.
- */
-void printExiting(){
-    printf("Exiting...\n");
-    exit(0);
-}
-/*
- * The function prints the separator row for the board printing format.
- */
-void printSeparatorRow2(){
-    int i;
-    for (i=0;i<34;i++){
-        printf("%c",'-');
-    }
-    printf("\n");
-}
+
+
 void printSeparatorRow(int N, int m){
     int i,dash=4*N+m+1;
     for (i=0;i<dash;i++){
@@ -227,15 +207,6 @@ void printSudoku(Sudoku *sudoku) {
 
 
 /*
- * The function checks for EOF. if so, calling "printExiting".
- */
-void checkNoInput(){
-    if(feof(stdin)){
-        printExiting();
-    }
-}
-
-/*
  * The function gets called when memory allocation from malloc was failed and prints appropriate message.
  */
 void printMallocFailedAndExit(){
@@ -278,15 +249,6 @@ void printLoadedFileCellNotValid(char* path){
 }
 void printLoadedFileNotSolvable(char* path){
     printf("Error: The board in file %s is not solvable. When loading a file in edit mode the board loaded must be solvable.\n", path);
-}
-
-
-
-/*
- * The function prints that the command is invalid.
- */
-void printInvalidCommand(){
-    printf("Error: invalid command\n");
 }
 
 void printSameValueCell(){

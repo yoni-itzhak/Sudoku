@@ -29,16 +29,6 @@
  */
 
 typedef enum{
-    UNSOLVED,
-    SOLVED
-}SET_STATUS;
-
-typedef enum{
-    MARK,
-    UNMARK
-}MarkErroneous;
-
-typedef enum{
     NEIGHBORS_FROM_DIG,
     NEIGHBORS_TO_DIG,
     NEIGHBORS_LOAD_FILE,
