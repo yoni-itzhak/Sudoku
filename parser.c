@@ -302,11 +302,11 @@ int _commandMarkErrors(int* cmd, char* token, int *cnt, Mode mode, int* errorsAr
     if(_isTooManyParams(cmd, cnt, 1, mode)){
         return 0;
     }
-    if(strlen(token)>1 || *token != 48 || *token != 49){
-        errorsArr[0]=1;
+    if((strlen(token)==1) & (*token == 48 || *token == 49)){
+        cmd[1] = stringToInt(token);
     }
     else {
-        cmd[1] = stringToInt(token);
+        errorsArr[0]=1;
     }
     *cnt = (*cnt)+1;
     return 1;
