@@ -9,7 +9,7 @@
 #include "main_aux.h"
 #include "SPBufferset.h"
 
-freeCase(int* cmd, char* path, int* errorsInParams){
+void _freeCase(int *cmd, char *path, int *errorsInParams){
     free(cmd);
     free(path);
     free(errorsInParams);
@@ -47,11 +47,11 @@ State readCommand(Sudoku* sudoku, char* input){
             if(_isEnoughParams(cmd, &cnt, 1, current_mode)) {
                 solve(sudoku, path);
             }
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 2: /* edit */
             edit(sudoku, path);
-            freeCase(cmd, path,errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 3: /* mark_errors */
             if(_isEnoughParams(cmd, &cnt, 1, current_mode)){
@@ -62,11 +62,11 @@ State readCommand(Sudoku* sudoku, char* input){
                     mark_errors(sudoku, x);
                 }
             }
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 4: /* print_board */
             print_board(sudoku);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 5: /* set */
             if(_isEnoughParams(cmd, &cnt, 3, current_mode)){
@@ -81,18 +81,18 @@ State readCommand(Sudoku* sudoku, char* input){
                     set(sudoku, --x, --y, z);
                 }
             }
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 6: /* validate */
             validate(sudoku);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 7:/* guess */
             /* TODO: write guess @@@@ */
             if(_isEnoughParams(cmd, &cnt, 1, current_mode)){
                 guess(sudoku, x);
             }
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 8: /* generate */
             if(_isEnoughParams(cmd, &cnt, 2, current_mode)){
@@ -107,19 +107,19 @@ State readCommand(Sudoku* sudoku, char* input){
                     generate(sudoku, x, y);
                 }
             }
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 9: /* undo */
             undo(sudoku);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 10: /* redo */
             redo(sudoku);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 11: /* save */
             save(sudoku, path);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 12: /* hint */
             if(_isEnoughParams(cmd, &cnt, 2, current_mode)){
@@ -134,7 +134,7 @@ State readCommand(Sudoku* sudoku, char* input){
                     hint(sudoku, --x, --y);
                 }
             }
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 13: /* guess_hint */
             if(_isEnoughParams(cmd, &cnt, 2, current_mode)){
@@ -149,26 +149,26 @@ State readCommand(Sudoku* sudoku, char* input){
                     guess_hint(sudoku, --x, --y);
                 }
             }
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 14: /* num_solutions */
             num_solutions(sudoku);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 15: /* autofill */
             autofill(sudoku);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 16: /* TODO: Figure out what to return in reset */
             reset(sudoku);
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
         case 17: /* TODO: Figure out what to return in exit */
             exitProgram();
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_EXIT;
         default: /*invalid command*/
-            freeCase(cmd, path, errorsInParams);
+            _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
     }
 }

@@ -28,7 +28,6 @@
  * validate         - checks if the current board is valid.
  */
 
-
 typedef enum{
     NEIGHBORS_FROM_DIG,
     NEIGHBORS_TO_DIG,

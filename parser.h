@@ -1,8 +1,5 @@
-
-
 #ifndef HW4_PARSER_H
 #define HW4_PARSER_H
-
 
 #include "solver.h"
 
@@ -24,8 +21,6 @@
  */
 
 typedef enum{
-    STATE_SOLVED,
-    STATE_RESET,
     STATE_EXIT,
     STATE_LOOP
 }State;
@@ -118,10 +113,9 @@ int _commandSet(int*, char*, int*, Mode, int, int*);
 int _commandGuess(int*, char*, int*, Mode, int);
 int _commandGenerate(int*, char*, int*, Mode, int, int*);
 int _commandHint(int*, char*, int*, Mode, int, int*);
-int _isModeAllowingCommand(Command command, Mode mode);
+void _freeCase(int *cmd, char *path, int *errorsInParams);
+void _parseCommand(char*, int*, char**, Mode, int*, Sudoku*, int*);
 
 State readCommand(Sudoku*, char*);
-void _parseCommand(char*, int*, char**, Mode, int*, Sudoku*, int*);
-State exitRestartCommand(char*);
 
 #endif

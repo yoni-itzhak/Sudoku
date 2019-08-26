@@ -141,12 +141,7 @@ void printSolved(){
 void printFixed(){
     printf("Error: cell is fixed\n");
 }
-/*
- * The function prints that the value is invalid.
- */
-/*void printInvalidValue(){
-    printf("Error: value is invalid\n");
-}*/
+
 /*
  * The function prints the hint for the required cell.
  */

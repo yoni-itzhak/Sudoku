@@ -12,15 +12,31 @@
 #include <string.h>
 #include "gurobi_c.h"
 
+void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype, int total_size){
+    int num_all_vars = total_size*total_size*total_size;
+    (*ind) = (int*)malloc(total_size* sizeof(int));
+    (*sol) = (double*)malloc(num_all_vars* sizeof(double));
+    (*val) = (double*)malloc(total_size*sizeof(double));
+    (*lb) = (double*)malloc(num_all_vars* sizeof(double));
+    (*ub) = (double*)malloc(num_all_vars* sizeof(double));
+    (*vtype) = (char*)malloc(num_all_vars* sizeof(char));
+    if ((*ind)==NULL || (*sol)==NULL || (*val)==NULL || (*lb)==NULL || (*ub)==NULL || (*vtype)==NULL){
+        printMallocFailedAndExit();
+    }
+}
+
+void freeGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype){
+    free(*ind);
+    free(*sol);
+    free(*val);
+    free(*lb);
+    free(*ub);
+    free(*vtype);
+}
 
 void freeGurobi(GRBenv   *env, GRBmodel *model){
-    /* Free model */
-
-    GRBfreemodel(model);
-
-    /* Free environment */
-
-    GRBfreeenv(env);
+    GRBfreemodel(model); /* Free model */
+    GRBfreeenv(env); /* Free environment */
 }
 
 int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
@@ -30,23 +46,16 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     int total_size = row * column;
 
-    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    /*malloc and free all arrays*/
-    int       ind[total_size];
-    double    sol[total_size*total_size*total_size];
-    double    val[total_size];
-    double    lb[total_size*total_size*total_size];
-    double    ub[total_size*total_size*total_size];
-    char      vtype[total_size*total_size*total_size];
+    int       *ind;
+    double    *sol, *val, *lb, *ub;
+    char      *vtype;
     int       optimstatus;
     double    objval;
     int       i, j, v, ig, jg, count, dig, cnt, isSolvable;
     int       error = 0;
 
-
+    allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size);
     /* Create an empty model */
-
-
     for (i = 0; i < total_size; i++) {
         for (j = 0; j < total_size; j++) {
             dig = board[i][j]->digit;
@@ -81,6 +90,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
                     }
                 }
                 else { /*numOfOptionalDigits = 0 -> the cell <i,j> has no valid values*/
+                    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                     return 0;
                 }
             }
@@ -92,15 +102,15 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     error = GRBloadenv(&env, "sudoku.log");
     if (error) {
         printf("ERROR %d GRBloadenv(): %s\n", error, GRBgeterrormsg(env));
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
     error = GRBsetintparam(env, GRB_INT_PAR_LOGTOCONSOLE, 0);
     if (error) {
         printf("ERROR %d GRBsetintattr(): %s\n", error, GRBgeterrormsg(env));
-
         GRBfreeenv(env);
-
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
@@ -109,9 +119,8 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     error = GRBnewmodel(env, &model, "sudoku", total_size*total_size*total_size, NULL, lb, ub, vtype, NULL);
     if (error) {
         printf("ERROR %d GRBnewmodel(): %s\n", error, GRBgeterrormsg(env));
-
         GRBfreeenv(env);
-
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
@@ -128,6 +137,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
             if (error) {
                 printf("ERROR %d 1st GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
                 freeGurobi(env, model);
+                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                 return -1;
             }
         }
@@ -146,6 +156,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
             if (error) {
                 printf("ERROR %d 2nd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
                 freeGurobi(env, model);
+                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                 return -1;
             }
         }
@@ -164,6 +175,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
             if (error) {
                 printf("ERROR %d 3rd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
                 freeGurobi(env, model);
+                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                 return -1;
             }
         }
@@ -190,6 +202,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
                 if (error) {
                     printf("ERROR %d 4th GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
                     freeGurobi(env, model);
+                    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                     return -1;
                 }
             }
@@ -202,6 +215,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     if (error) {
         printf("ERROR %d GRBoptimize(): %s\n", error, GRBgeterrormsg(env));
         freeGurobi(env, model);
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
@@ -211,6 +225,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     if (error) {
         printf("ERROR %d GRBwrite(): %s\n", error, GRBgeterrormsg(env));
         freeGurobi(env, model);
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
@@ -220,6 +235,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     if (error) {
         printf("ERROR %d GRBgetintattr(): %s\n", error, GRBgeterrormsg(env));
         freeGurobi(env, model);
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
@@ -233,6 +249,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     if (error) {
         printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));
         freeGurobi(env, model);
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
@@ -262,16 +279,11 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         isSolvable = 0;
         printf("Optimization was stopped early\n");
     }
-
     printf("\n");
-
     freeGurobi(env, model);
-
+    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
     return isSolvable;
 }
-
-
-
 
 
 int canBacktrack(Stack* stack,int x,int y){
@@ -332,7 +344,7 @@ void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_s
 }
 
 SudokuCell*** copyBoard(SudokuCell*** board, int total_size){
-    SudokuCell*** newBoard;
+    SudokuCell*** newBoard = NULL;
     createEmptyBoard(newBoard, total_size);
     copyBoardValues(board, newBoard, total_size);
     return newBoard;
@@ -348,8 +360,8 @@ void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell*** tmpItemBoard
 }
 /*assuming that receiving <X,Y> who the first empty cell*/
 int exhaustiveBacktracking(Sudoku* sudoku, int x, int y){
-    int total_size = sudoku->total_size,i=x,j=y, cntSolution=0, row = sudoku->row, column = sudoku->column;
-    SudokuCell*** tmpItemBoard; /*will be malloc in "updateCellAndOptionalDigits" func*/
+    int total_size = sudoku->total_size,i=x,j=y, cntSolution=0;
+    SudokuCell*** tmpItemBoard = NULL; /*will be malloc in "updateCellAndOptionalDigits" func*/
     Stack* stack = newStack(total_size*total_size+1);
     StackItem* stackItem = (StackItem*)malloc(sizeof(StackItem));
     Cell* nextEmptyCell = (Cell*)malloc(sizeof(Cell));
@@ -469,43 +481,6 @@ void createEmptyBoard(SudokuCell*** board, int total_size){
     }
 }
 
-/****************************************************************************
- * **************************************************************************
- * **************************************************************************
- * **************************************************************************
- * **************************************************************************
- * **************************************************************************/
-
-
-/*
- * @params - function receives DeterSudoku*, the Sudoku size (for "freeBoard func.), and HasSolution enum.
- *
- * The function frees deterSudoku's fields, ant itself.
- *
- * note - if there is a solution to the board, the function will not free the tmpBoard.
- */
-void freeDeterSudoku(DeterSudoku* deterSudoku, int total_size, HasSolution hasSolution){
-    free(deterSudoku->firstEmpty);
-    if (hasSolution==NO_SOLUTION){
-        freeBoard(deterSudoku->tmpBoard,total_size);
-    }
-    free(deterSudoku);
-}
-
-/*
- * @params - function receives SudokuCell*** tmpBoard and the Sudoku size.
- *
- * The function turns all the cells from the tmpBoard to fixed.
- */
-
-void makeSolutionBoardFix(SudokuCell*** tmpBoard, int total_size){
-    int i,j;
-    for (i=0; i<total_size; i++){
-        for (j=0; j<total_size; j++){
-            tmpBoard[i][j]->is_fixed=1;
-        }
-    }
-}
 /*
  * @params - function receives SudokuCell***, the Sudoku size, pointer to Cell, and the indexes x,y.
  *
@@ -586,134 +561,3 @@ void currentStateToFixed(Sudoku* sudoku, SudokuCell*** board, int total_size){
         }
     }
 }
-
-
-/*
- * @params - function receives pointer to the main Sudoku.
- *
- * The function allocates the required memory for DeterSudoku and it's fields and updates them with appropriate values.
- *
- * Also, calls "deterministicBacktracking". if the board has a solution,
- * the function update sudoku->solution with the new one.
- *
- * in any event, frees all the allocated memory for solving the board.
- *
- * @return - according to "deterministicBacktracking".
- */
-
-HasSolution boardSolver(Sudoku* sudoku, int isRandom){
-
-    HasSolution hasSolution;
-    int total_size = sudoku->total_size;
-    DeterSudoku* deterSudoku;
-    SudokuCell*** fixedBoard;
-    Cell* firstEmptyCell;
-    deterSudoku = (DeterSudoku*)malloc(sizeof(DeterSudoku));
-    if(deterSudoku == NULL){
-        printMallocFailedAndExit();
-    }
-    fixedBoard = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
-    if(fixedBoard == NULL){
-        printMallocFailedAndExit();
-    }
-    firstEmptyCell = (Cell*)malloc(sizeof(Cell));
-    if(firstEmptyCell == NULL){
-        printMallocFailedAndExit();
-    }
-    createEmptyBoard(fixedBoard,total_size);
-    currentStateToFixed(sudoku, fixedBoard, total_size);/*copy the sudoku.currentState to fixedBoard*/
-    findNextEmptyCell(fixedBoard, total_size,firstEmptyCell,0,0); /*search for the first empty cell in the board*/
-    /*fill the fields of deterSudoku*/
-    deterSudoku->firstEmpty = firstEmptyCell;
-    deterSudoku->tmpBoard=fixedBoard;
-    deterSudoku->row=sudoku->row;
-    deterSudoku->column=sudoku->column;
-
-    /*search for a solution, 1 is sent to define it will be done randomly*/
-    hasSolution = Backtracking(deterSudoku, isRandom, total_size, firstEmptyCell->x, firstEmptyCell->y);
-    if (hasSolution==SOLUTION){
-        makeSolutionBoardFix(deterSudoku->tmpBoard, total_size); /*turns the cells of the deterministic solution to fixed*/
-        freeBoard(sudoku->solution,total_size); /*free old solution memory*/
-        sudoku->solution=deterSudoku->tmpBoard; /*store the new solution*/
-        freeDeterSudoku(deterSudoku,total_size,hasSolution);
-        return SOLUTION;
-    }
-    else {/*hasSolution==NO_SOLUTION*/
-        freeDeterSudoku(deterSudoku,total_size,hasSolution);
-        return NO_SOLUTION;
-    }
-}
-
-/*
- * @params - function receives pointer to the main Sudoku.
- *
- * The function calls to "boardSolver" with isRandom=1 for the random backtracking.
- */
-void generateBoard(Sudoku *sudoku) {
-    boardSolver(sudoku,1);
-}
-
-/*
- * @params - function receives pointer to the main Sudoku and the number of cells that the user chose to fill.
- *
- * The function picks each time a randomized X,Y to be fixed in the board.
- */
-void randomDeletingCells(Sudoku *sudoku, int numOfFixedCells) {/*Deleting randomized cells*/
-    int x, y;
-    while (numOfFixedCells != 0) {
-        x = rand() %(sudoku->total_size);
-        y = rand() %(sudoku->total_size);
-        if (sudoku->currentState[y][x]->is_fixed) {/* if is_fixed=1 that means that that the cell is fixed*/
-            continue;
-        } else {/*setting the cell and making it fixed*/
-            sudoku->currentState[y][x]->is_fixed = 1;
-            sudoku->currentState[y][x]->digit = sudoku->solution[y][x]->digit;
-            numOfFixedCells--;
-        }
-    }
-}
-/*
- * @params - function receives pointer to the main Sudoku, the row and column values and the number of cells to be fixed.
- *
- * The function creates the Sudoku fields and fills them with appropriate values.
- */
-
-void createSudoku(Sudoku* sudoku,int row, int column, int num_of_cells) {
-
-    int total_size=row*column;
-    SudokuCell*** tmp;
-    SudokuCell*** sol;
-    tmp = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
-    if(tmp == NULL){
-        printMallocFailedAndExit();
-    }
-    sol = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
-    if(sol == NULL){
-        printMallocFailedAndExit();
-    }
-    createEmptyBoard(tmp, total_size);
-    createEmptyBoard(sol, total_size);
-    sudoku->currentState=tmp;
-    sudoku->solution=sol;
-    sudoku->total_size=total_size;
-    sudoku->cntFilledCell=num_of_cells;
-    sudoku->column=column;
-    sudoku->row=row;
-}
-
-/*
- * @params - function receives pointer to an array and its length.
- *
- * The function picks random index from the array.
- *
- * @return - the number placed in array[index].
- */
-int pickRandomNumberFromTheArray(int* tmpArr, int numOfOptionalDigits){
-    int randNum;
-    if(numOfOptionalDigits==1){
-        return tmpArr[0];
-    }
-    randNum=rand()%numOfOptionalDigits;
-    return tmpArr[randNum];
-}
-
