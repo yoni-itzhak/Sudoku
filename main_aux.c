@@ -46,7 +46,7 @@ void _printAllowedCommands(Mode mode){
     printf("\n");
 }
 
-void handleInputError(Command command, Error err, Mode mode){
+void handleInputError(Command command, Error err, Mode mode, int total_size, int total_cells){
     if(err == INVALID_NAME){
         printf("Error: The command does not exist, please choose from: ");
         _printAllowedCommands(mode);
@@ -73,37 +73,37 @@ void handleInputError(Command command, Error err, Mode mode){
         else if(command==MARK_ERRORS){
             printf("Error: The command 'mark_errors' can only get 0 or 1 as arguments\n");
         }
-        else if(command==SET || command==HINT || command==GUESS_HINT){
+        else if(command==SET){/*TODO: figure out the error for HINT and GUESS_HINT */
             printf("Error: The first parameter for the command '%s' should be in the range 1-%d\n",
-                    stringFromCommand(command), MAX_CELL_RANGE);
+                    stringFromCommand(command), total_size);
         }
         else if(command==GUESS){
             printf("Error: The command 'guess' gets a parameter in the range 1-%d\n",
-                    MAX_CELL_RANGE);
+                    total_size);
         }
         else if(command==GENERATE){
             printf("Error: The first parameter for the command 'generate' should be in the range 1-%d\n",
-                    BOARD_SIZE);
+                    total_cells);
         }
     }
     else if(err == INVALID_PARAM_Y){
         if(command==SET || command==HINT || command==GUESS_HINT){
             printf("Error: The second parameter for the command '%s' should be in the range 1-%d\n",
-                   stringFromCommand(command), MAX_CELL_RANGE);
+                   stringFromCommand(command), total_size);
         }
         else if(command==GENERATE){
             printf("Error: The second parameter for the command 'generate' should be in the range 1-%d\n",
-                    BOARD_SIZE);
+                    total_cells);
         }
     }
     else if(err==INVALID_PARAM_Z){
         printf("Error: The third parameter for the command 'set' should be in the range 1-%d\n",
-               MAX_CELL_RANGE);
+               total_size);
     }
 }
 
 void printEnterCommand(){
-    printf("Please enter a command\n");
+    printf("Please enter a command: \n");
 }
 
 void printCommandTooLong(){
@@ -210,7 +210,7 @@ void printSudoku(Sudoku *sudoku) {
                 if (sudoku->currentState[i][j]->is_fixed==1){ /*cell is fixed*/
                     printf("%2d.", cell);
                 }
-                else if (sudoku->currentState[i][j]->is_erroneous==1 && (sudoku->markErrors==1 || sudoku->mode==EDIT)){ /*cell is erroneous*/
+                else if (sudoku->currentState[i][j]->cnt_erroneous==1 && (sudoku->markErrors==1 || sudoku->mode==EDIT)){ /*cell is erroneous*/
                     printf("%2d*", cell);
                 }
                 else{

@@ -670,7 +670,7 @@ void createMovesArr(Move **arrMove, Sudoku *sudoku, SudokuCell ***tmpBoard){
     addArrMoveToList(sudoku, arrMove, numOfMoves);
 }
 
-State generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
+void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
     int isSolvable, areXCellsFilled, isValid=1, cntNoSolution=0;
     int total_cells = sudoku->total_size*sudoku->total_size;
     Move** arrMove;
@@ -726,9 +726,10 @@ State generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
     }
     freeBoard(tmpBoard, sudoku->total_size);
     if(y==total_cells && isValid){
-        return STATE_SOLVED;
+        printSolved();
+        sudoku->mode=INIT;
     }
-    return STATE_LOOP;
+    print_board(sudoku);
 }
 
 int hasMoveToUndo(Sudoku* sudoku){

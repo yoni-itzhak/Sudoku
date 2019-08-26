@@ -36,7 +36,7 @@ void printSolutionIsErroneous();
 void printExitMessage();
 void printEnterCommand();
 void printCommandTooLong();
-void handleInputError(Command, Error, Mode);
+void handleInputError(Command, Error, Mode, int, int);
 int stringToInt(char*);
 void printOpenFileFailed(char* path);
 void printCloseFileFailed(char* path);
