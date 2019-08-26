@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 
+#include "structs.h"
 #include "main_aux.h"
 #include "parser.h"
 

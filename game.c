@@ -656,8 +656,11 @@ void guess(Sudoku* sudoku, float x){
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND not erroneous*/
-        LP_Guesses(sudoku, x);
-        fillCellsWithScoreX(sudoku,x);
+        if (x==0.0){
+            return;
+        }
+        LP_Guesses();
+        fillCellsWithScoreX();
         print_board(sudoku);
     }
 }
@@ -934,7 +937,7 @@ void guess_hint(Sudoku* sudoku, int x, int y){
         /*print an error message and the command is not executed*/
     }
     else{ /*in Solve mode AND all valid*/
-        isSolvable = LP_Validation(sudoku);
+        isSolvable = LP_Validation();
         if (isSolvable == 0 ){ /*board is unsolvable*/
             printUnsolvableBoard();
         }

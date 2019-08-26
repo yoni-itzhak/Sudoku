@@ -8,6 +8,7 @@
 #include "parser.h"
 #include "solver.h"
 #include "doubly_linked_list.h"
+#include "stack.h"
 
 
 /**
