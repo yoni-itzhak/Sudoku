@@ -118,7 +118,7 @@ void printGurobiFailed(){
 }
 
 void printChangeInBoard(Cell* cell, int from, int to){
-    printf("The value of cell <%d,%d> has changed from %d to %d\n", cell->x, cell->y, from, to);
+    printf("The value of cell <%d,%d> has changed from %d to %d\n", (cell->x)+1, (cell->y)+1, from, to);
 }
 
 void printSolutionIsErroneous(){

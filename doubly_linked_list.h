@@ -16,6 +16,8 @@ void moveToPrev(List* list);
 int hasNext(List* list);
 int hasPrev(List* list);
 /*void moveToStart(List* list);*/
+void displayForward(List* list);
+void printMove(Move* move);
 
 void deleteLast(List* list); /*delete the node at the last location*/
 
