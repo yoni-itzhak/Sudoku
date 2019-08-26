@@ -54,7 +54,7 @@ int isListEmpty(List* list) {
     return 0;
 }
 
-int length(List* list) {
+/*int length(List* list) {
     int length = 0;
     struct Node* tmp;
 
@@ -62,7 +62,7 @@ int length(List* list) {
         length++;
     }
     return length;
-}
+}*/
 
 /*Inserts a Node at tail of doubly linked list*/
 void insertAtTail(List* list, Move** arrMove, int arrSize) {
@@ -103,11 +103,11 @@ int hasPrev(List* list){
     return 1;
 }
 
-void moveToStart(List* list){
+/*void moveToStart(List* list){
     while (hasPrev(list)){
         list->current=list->current->prev;
     }
-}
+}*/
 
 void freeArrMove(struct Node* node){
     for (int i=0; i< node->arrSize; i++){
@@ -124,7 +124,7 @@ void freeNode(struct Node* node){
 
 /*delete the node at the last location*/
 void deleteLast(List* list) {
-    struct node *tmp = list->last; /*save reference to last link*/
+    struct Node *tmp = list->last; /*save reference to last link*/
     if(list->head->next == NULL) { /*if only one node*/
         list->head = NULL;
     }

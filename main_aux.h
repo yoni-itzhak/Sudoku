@@ -56,16 +56,17 @@ void printNoMovesToRedo();
 
 void printSolved();
 void printFixed();
-void printInvalidValue();
+/*void printInvalidValue();*/
 void printSolvableBoard();
 void printUnsolvableBoard();
-void printHint(int cell);
+void printHint(int x, int y, int value);
 void printSudoku(Sudoku *sudoku);
-void printSeparatorRow();
-void printExiting();
-void printInvalidCommand();
-void checkNoInput();
+void printSeparatorRow(int N, int m);
+/*void printExiting();*/
+/*void printInvalidCommand();*/
+/*void checkNoInput();*/
 void printMallocFailedAndExit();
+void printGurobiFailed();
 
 #endif
 

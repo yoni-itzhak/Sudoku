@@ -16,7 +16,7 @@ void LP_Guesses(Sudoku* sudoku, float x);
 void fillCellsWithScoreX(Sudoku* sudoku,float x);
 int LP_Validation(Sudoku* sudoku);
 
-void freeMemory(Sudoku* sudoku){
+void freeSudokuMemory(Sudoku *sudoku){
     if (sudoku->justStarted != 1){
         freeBoard (sudoku->currentState, sudoku->total_size);
         /*freeBoard (sudoku->solution, sudoku->total_size);*/
@@ -256,7 +256,7 @@ int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
                 printLoadedFileNotSolvable(X);
             }
             else if (isValid == -1){
-                /*print gurobi failed*/
+                printGurobiFailed();
             }
             return 0;
         }
@@ -495,7 +495,7 @@ void findHeadBlock(Cell* head,int row,int column, int x, int y){
 }
 
 int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int value ,Move** arrMove, int* p_arrSize, NeighborsType neighborsType, int* p_cntTotalErroneousCells){
-    int dig, i, j, isValid = 1, cntNeighborsErroneous;
+    int dig, i, j, isValid = 1, cntNeighborsErroneous=0;
     Cell* head=(Cell*)malloc(sizeof(Cell));
     if(head == NULL){
         printMallocFailedAndExit();
@@ -640,10 +640,10 @@ void validate(Sudoku* sudoku){
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, VALIDATE, -1, -1, NULL);
         if (isSolvable != 1 ){
             if (isSolvable == 0){
-                /*print that the board is UNSOLVABLE*/
+                printUnsolvableBoard();
             }
             else if (isSolvable == -1){
-                /*print gurobi failed*/
+                printGurobiFailed();
             }
             return;
         }
@@ -895,10 +895,10 @@ void save(Sudoku* sudoku, char* X) {
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, SAVE , -1, -1, NULL);
         if (isSolvable != 1 ){
             if (isSolvable == 0){
-                /*print that the board is UNSOLVABLE*/
+                printUnsolvableBoard();
             }
             else if (isSolvable == -1){
-                /*print gurobi failed*/
+                printGurobiFailed();
             }
             return;
         }
@@ -916,21 +916,21 @@ void hint(Sudoku* sudoku, int x, int y){
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);
         if ( isSolvable != 1 ){
             if (isSolvable == 0){
-                /*print that the board is UNSOLVABLE*/
+                printUnsolvableBoard();
             }
             else if (isSolvable == -1){
-                /*print gurobi failed*/
+                printGurobiFailed();
             }
             return;
         }
         else{ /*board is solvable*/
-            /*print dig*/
+            printHint(x,y,dig);
             /*print the value of cell <X,Y> found by the ILP solution*/
         }
     }
 }
 void guess_hint(Sudoku* sudoku, int x, int y){
-    int isSolvable;
+    int isSolvable = 0;
     if (sudoku->mode!=SOLVE){
         /*print appropriate massage*/
     }
@@ -939,10 +939,11 @@ void guess_hint(Sudoku* sudoku, int x, int y){
     }
     else{ /*in Solve mode AND all valid*/
         isSolvable = LP_Validation(sudoku);
-        if (isSolvable==0){ /*board is unsolvable*/
-            /*print that the board is UNSOLVABLE*/
+        if (isSolvable == 0 ){ /*board is unsolvable*/
+            printUnsolvableBoard();
         }
         else{ /*board is solvable*/
+            printAllLegalValues();
             /*print all the legal values of cell <X,Y> and their scores (score greater then 0)*/
         }
     }

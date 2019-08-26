@@ -5,6 +5,7 @@
 
 #include "stack.h"
 #include "doubly_linked_list.h"
+#include "parser.h"
 
 /**
  * solver summary

@@ -28,15 +28,6 @@
  * validate         - checks if the current board is valid.
  */
 
-typedef enum{
-    UNSOLVED,
-    SOLVED
-}SET_STATUS;
-
-typedef enum{
-    MARK,
-    UNMARK
-}MarkErroneous;
 
 typedef enum{
     NEIGHBORS_FROM_DIG,
@@ -46,7 +37,7 @@ typedef enum{
 }NeighborsType;
 
 
-void freeMemory(Sudoku* sudoku);
+void freeSudokuMemory(Sudoku *sudoku);
 void addArrMoveToList(Sudoku*, Move**, int);
 int fillXCells(SudokuCell***, int, Cell**, int, int, int);
 int createEmptyCellsArr(Sudoku*, Cell**);
@@ -58,7 +49,7 @@ void solve(Sudoku*, char*);
 void edit(Sudoku*, char*);
 void mark_errors(Sudoku* sudoku,int x);
 void print_board(Sudoku* sudoku);
-void addOneMoveToList(Sudoku *sudoku, int x, int y, int value, int z);
+/*void addOneMoveToList(Sudoku *sudoku, int x, int y, int value, int z);*/
 void set(Sudoku* sudoku, int x, int y, int z);
 void validate(Sudoku* sudoku);
 void guess(Sudoku* sudoku, float x);
@@ -75,10 +66,11 @@ void redo(Sudoku* sudoku);
 void save(Sudoku*, char*);
 void hint(Sudoku* sudoku, int x, int y);
 void guess_hint(Sudoku* sudoku, int x, int y);
+void printAllLegalValues();
 void num_solutions(Sudoku* sudoku);
 void markSingleLegalValue(Sudoku* sudoku);
 int hasSingleLegalValue(Sudoku* sudoku, int i, int j);
-void updateObviousCell(Sudoku* sudoku, int i, int j,Move** arrMove, int arrSize);
+/*void updateObviousCell(Sudoku* sudoku, int i, int j,Move** arrMove, int arrSize);*/
 void fillObviousValues(Sudoku* sudoku);
 void autofill(Sudoku* sudoku);
 void undoAllMoves(Sudoku* sudoku);
@@ -102,7 +94,6 @@ void findErroneousCells(Sudoku* sudoku);
 void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
                                       int beforeErroneous, int afterErroneous);
 void updateSudokuCntErroneousCells(int* p_cnt, int beforeErroneous, int afterErroneous);
-void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize);
 
 int neighborsPossibleArr(SudokuCell*** board, int row, int column, int x, int y, int dig);
 

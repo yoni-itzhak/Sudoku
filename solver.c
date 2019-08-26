@@ -30,6 +30,8 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     int total_size = row * column;
 
+    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+    /*malloc and free all arrays*/
     int       ind[total_size];
     double    sol[total_size*total_size*total_size];
     double    val[total_size];

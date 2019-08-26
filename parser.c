@@ -141,12 +141,12 @@ State readCommand(Sudoku* sudoku, char* input){
                 numErrors=0;
                 for(i=0; i<2; ++i){
                     if(errorsInParams[i]){
-                        handleInputError(HINT, 4+i, current_mode, sudoku->total_size, total_cells);
+                        handleInputError(GUESS_HINT, 4+i, current_mode, sudoku->total_size, total_cells);
                         numErrors++;
                     }
                 }
                 if(!numErrors){
-                    hint(sudoku, --x, --y);
+                    guess_hint(sudoku, --x, --y);
                 }
             }
             freeCase(cmd, path, errorsInParams);

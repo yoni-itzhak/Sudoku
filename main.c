@@ -32,6 +32,6 @@ int main() {
         }
         printEnterCommand();
     }
-    freeMemory(sudoku);
+    freeSudokuMemory(sudoku);
     return 0;
 }

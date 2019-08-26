@@ -114,6 +114,10 @@ void printNumOfSolution(int numOfSolution){
     printf("Your puzzle has %d solution", numOfSolution);
 }
 
+void printGurobiFailed(){
+    printf("Error: Gurobi optimization has failed\n");
+}
+
 void printChangeInBoard(Cell* cell, int from, int to){
     printf("The value of cell <%d,%d> has changed from %d to %d\n", cell->x, cell->y, from, to);
 }
@@ -140,14 +144,14 @@ void printFixed(){
 /*
  * The function prints that the value is invalid.
  */
-void printInvalidValue(){
+/*void printInvalidValue(){
     printf("Error: value is invalid\n");
-}
+}*/
 /*
  * The function prints the hint for the required cell.
  */
-void printHint(int cell){
-    printf("Hint: set cell to %d\n",cell);
+void printHint(int x, int y, int value){
+    printf("Hint: set cell <%d,%d> to %d\n",x,y,value);
 }
 /*
  * The function prints that the board is solvable.
@@ -164,20 +168,14 @@ void printUnsolvableBoard(){
 /*
  * The function prints that the program is exiting, and exit.
  */
-void printExiting(){
+/*void printExiting(){
     printf("Exiting...\n");
     exit(0);
-}
+}*/
 /*
  * The function prints the separator row for the board printing format.
  */
-void printSeparatorRow2(){
-    int i;
-    for (i=0;i<34;i++){
-        printf("%c",'-');
-    }
-    printf("\n");
-}
+
 void printSeparatorRow(int N, int m){
     int i,dash=4*N+m+1;
     for (i=0;i<dash;i++){
@@ -229,11 +227,11 @@ void printSudoku(Sudoku *sudoku) {
 /*
  * The function checks for EOF. if so, calling "printExiting".
  */
-void checkNoInput(){
+/*void checkNoInput(){
     if(feof(stdin)){
         printExiting();
     }
-}
+}*/
 
 /*
  * The function gets called when memory allocation from malloc was failed and prints appropriate message.
@@ -285,9 +283,9 @@ void printLoadedFileNotSolvable(char* path){
 /*
  * The function prints that the command is invalid.
  */
-void printInvalidCommand(){
+/*void printInvalidCommand(){
     printf("Error: invalid command\n");
-}
+}*/
 
 void printSameValueCell(){
     printf("Notice: your chosen cell has the same value that you chose to set\n");
