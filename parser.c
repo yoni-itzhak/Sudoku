@@ -281,7 +281,7 @@ int _isTooManyParams(int* cmd, int* cnt, int validNumOfParams, Mode mode){
 }
 
 int _isEnoughParams(int *cmd, int *cnt, int validNumOfParams, Mode mode){
-    if(*cnt < validNumOfParams){
+    if((*cnt)-1 < validNumOfParams){
         handleInputError(cmd[0], NOT_ENOUGH_PARAMS, mode, -1, -1);
         return 0;
     }
