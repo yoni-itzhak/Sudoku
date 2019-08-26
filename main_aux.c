@@ -2,8 +2,7 @@
 #include <stdlib.h>
 
 #include "main_aux.h"
-#include "solver.h"
-#include "game.h"
+
 
 void printNoMovesToUndo(){
     printf("Error: No moves to undo\n");

@@ -1,7 +1,7 @@
 #ifndef HW4_PARSER_H
 #define HW4_PARSER_H
 
-#include "solver.h"
+
 #include "structs.h"
 
 /**

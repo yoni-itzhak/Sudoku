@@ -54,16 +54,3 @@ StackItem* pop(Stack *stack){
     return stack->items[stack->top--]; /* decrement stack size by 1 and (optionally) return the popped element*/
 }
 
-void freeStackItem(StackItem* stackItem, int total_size){
-    freeBoard(stackItem->board, total_size);
-    free(stackItem->currentEmptyCell);
-    free(stackItem);
-}
-
-void freeStack(Stack* stack, int total_size){
-    while(size(stack)>0){
-        freeStackItem(pop(stack), total_size);
-    }
-    free(stack->items);
-    free(stack);
-}

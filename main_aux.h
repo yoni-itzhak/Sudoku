@@ -2,11 +2,9 @@
 #ifndef HW4_MAIN_AUX_H
 #define HW4_MAIN_AUX_H
 
-#include "solver.h"
-#include "parser.h"
 
 #include "structs.h"
-
+#include "parser.h"
 
 
 

@@ -10,8 +10,7 @@
 
 
 
-void freeStackItem(StackItem* stackItem, int total_size); /*free the allocated memory of StackItem*/
-void freeStack(Stack* stack, int total_size); /*free the allocated memory of Stack*/
+
 Stack* newStack(int capacity); /*initialize stack*/
 int size(Stack *stack); /*return the size of the stack*/
 int isStackEmpty(Stack *stack); /*check if the stack is empty or not*/

@@ -4,12 +4,10 @@
 #define HW4_GAME_H
 
 
-#include "solver.h"
-#include "parser.h"
-#include "doubly_linked_list.h"
-
 #include "structs.h"
-
+#include "parser.h"
+#include "solver.h"
+#include "doubly_linked_list.h"
 
 
 /**
@@ -43,7 +41,7 @@ void fillCellsWithScoreX();
 int LP_Validation();
 void printAllLegalValues();
 
-void freeSudokuMemory(Sudoku *sudoku);
+
 void addArrMoveToList(Sudoku*, Move**, int);
 int fillXCells(SudokuCell***, int, Cell**, int, int, int);
 

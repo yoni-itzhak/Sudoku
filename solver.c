@@ -12,6 +12,7 @@
 #include <string.h>
 #include "gurobi_c.h"
 
+
 void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype, int total_size){
     int num_all_vars = total_size*total_size*total_size;
     (*ind) = (int*)malloc(total_size* sizeof(int));
@@ -35,9 +36,16 @@ void freeGurobiArrays(int** ind, double** sol, double** val, double** lb, double
 }
 
 void freeGurobi(GRBenv   *env, GRBmodel *model){
-    GRBfreemodel(model); /* Free model */
-    GRBfreeenv(env); /* Free environment */
+    GRBfreemodel(model);  /* Free model */
+    GRBfreeenv(env); /* Free environment /*/
 }
+
+/*int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
+    if (command == RESET && board == NULL && row==column && x==y && p_dig==NULL){
+        return 1;
+    }
+    return 0;
+}*/
 
 int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
 
@@ -55,12 +63,12 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     int       error = 0;
 
     allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size);
-    /* Create an empty model */
+    /* Create an empty model /*/
     for (i = 0; i < total_size; i++) {
         for (j = 0; j < total_size; j++) {
             dig = board[i][j]->digit;
             if (dig != 0){
-                lb[i*total_size*total_size+j*total_size+(dig-1)] = 1; /* lower bound = 1 for fixed cell */
+                lb[i*total_size*total_size+j*total_size+(dig-1)] = 1; /*/ lower bound = 1 for fixed cell /*/
                 ub[i*total_size*total_size+j*total_size+(dig-1)] = 1;
 
                 for (v = 0; v < total_size; v++) {
@@ -79,7 +87,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
                     cnt = 0;
                     for (v = 0; v < total_size; v++) {
                         if ((v + 1) == board[i][j]->optionalDigits[cnt]) {
-                            lb[i * total_size * total_size + j * total_size + v] = 0; /* lower bound = 1 for fixed cell */
+                            lb[i * total_size * total_size + j * total_size + v] = 0; /*/ lower bound = 1 for fixed cell /*/
                             ub[i * total_size * total_size + j * total_size + v] = 1;
                             cnt++;
                         } else {
@@ -89,7 +97,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
                         vtype[i * total_size * total_size + j * total_size + v] = GRB_BINARY;
                     }
                 }
-                else { /*numOfOptionalDigits = 0 -> the cell <i,j> has no valid values*/
+                else { /*/numOfOptionalDigits = 0 -> the cell <i,j> has no valid values/*/
                     freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                     return 0;
                 }
@@ -97,7 +105,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         }
     }
 
-    /* Create environment */
+    /*/ Create environment /*/
 
     error = GRBloadenv(&env, "sudoku.log");
     if (error) {
@@ -114,7 +122,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         return -1;
     }
 
-    /* Create an empty model named "sudoku" */
+    /*/ Create an empty model named "sudoku" /*/
 
     error = GRBnewmodel(env, &model, "sudoku", total_size*total_size*total_size, NULL, lb, ub, vtype, NULL);
     if (error) {
@@ -124,7 +132,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         return -1;
     }
 
-    /*first constraint type - each cell gets a value*/
+    /*/first constraint type - each cell gets a value/*/
 
     for (i = 0; i < total_size; i++) {
         for (j = 0; j < total_size; j++) {
@@ -143,7 +151,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         }
     }
 
-    /* second constraint type - each value must appear once in each column */
+    /*/ second constraint type - each value must appear once in each column /*/
 
     for (v = 0; v < total_size; v++) {
         for (j = 0; j < total_size; j++) {
@@ -162,7 +170,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         }
     }
 
-    /* third constraint type - each value must appear once in each row */
+    /*/ third constraint type - each value must appear once in each row /*/
 
     for (v = 0; v < total_size; v++) {
         for (i = 0; i < total_size; i++) {
@@ -181,10 +189,10 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         }
     }
 
-    /* fourth constraint type - each value must appear once in each subgrid */
+    /*/ fourth constraint type - each value must appear once in each subgrid /*/
 
-    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    /*check row and column (SUBGRID)*/
+    /*/@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/*/
+    /*/check row and column (SUBGRID)/*/
 
     for (v = 0; v < total_size; v++) {
         for (ig = 0; ig < row; ig++) {
@@ -209,7 +217,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         }
     }
 
-    /* Optimize model */
+    /*/ Optimize model /*/
 
     error = GRBoptimize(model);
     if (error) {
@@ -219,7 +227,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         return -1;
     }
 
-    /* Write model to 'sudoku.lp' */
+    /*/ Write model to 'sudoku.lp' /*/
 
     error = GRBwrite(model, "sudoku.lp");
     if (error) {
@@ -229,7 +237,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         return -1;
     }
 
-    /* Capture solution information */
+    /*/ Capture solution information /*/
 
     error = GRBgetintattr(model, GRB_INT_ATTR_STATUS, &optimstatus);
     if (error) {
@@ -248,8 +256,8 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     }
 
 
-    /* get the solution - the assignment to each variable */
-    /* 3-- number of variables, the size of "sol" should match */
+    /*/ get the solution - the assignment to each variable /*/
+    /*/ 3-- number of variables, the size of "sol" should match /*/
     error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0, total_size*total_size*total_size, sol);
     if (error) {
         printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));
@@ -258,10 +266,10 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         return -1;
     }
 
-    /* print results */
+    /*/ print results /*/
     printf("\nOptimization complete\n");
 
-    /* solution found */
+    /*/ solution found /*/
     if (optimstatus == GRB_OPTIMAL){
         isSolvable = 1;
         printf("Optimal objective: %.4e\n", objval);
@@ -274,12 +282,12 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         }
     }
 
-    /* no solution found */
+    /*/ no solution found /*/
     else if (optimstatus == GRB_INF_OR_UNBD){
         isSolvable = 0;
         printf("Model is infeasible or unbounded\n");
     }
-    /* error or calculation stopped */
+    /*/ error or calculation stopped /*/
     else{
         isSolvable = 0;
         printf("Optimization was stopped early\n");
@@ -515,22 +523,7 @@ void findNextEmptyCell(SudokuCell*** board,int total_size,Cell* cell, int x,int 
     cell->y=-1;
 }
 
-/*
- * @params - function receives SudokuCell*** board and the Sudoku size.
- *
- * The function frees all board's allocated memory.
- */
-void freeBoard(SudokuCell*** board, int total_size){
-    int i,j;
-    for(i=0; i< total_size; i++){
-        for(j=0; j<total_size;j++){
-            free(board[i][j]->optionalDigits);
-            free(board[i][j]);
-        }
-        free(board[i]);
-    }
-    free(board);
-}
+
 
 
 

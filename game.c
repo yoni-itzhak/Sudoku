@@ -3,9 +3,9 @@
 #include <time.h>
 
 #include "game.h"
-#include "solver.h"
 #include "main_aux.h"
-#include "doubly_linked_list.h"
+
+
 
 /* TODO: 1. take care of erroneous cells when adding a move to undo\redo list (if the cell has changed and became erroneous - and vice versa)
  *       2. take care of undo\redo list with "generate" or "guess"
@@ -25,14 +25,7 @@ void printAllLegalValues(){
 
 }
 
-void freeSudokuMemory(Sudoku *sudoku){
-    if (sudoku->justStarted != 1){
-        freeBoard (sudoku->currentState, sudoku->total_size);
-        /*freeBoard (sudoku->solution, sudoku->total_size);*/
-        freeList(sudoku->list);
-    }
-    free(sudoku);
-}
+
 
 /* TODO: check in email (or yuval porat) when we the load is valid*/
 
@@ -84,13 +77,7 @@ int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmp
     return 1;
 }
 
-void freeCellsArray(Cell **arr, int arr_size){
-    int i=0;
-    for(;i<arr_size;++i){
-        free(arr[i]);
-    }
-    free(arr);
-}
+
 
 void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells){
     int i=0;

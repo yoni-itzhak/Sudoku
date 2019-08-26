@@ -1,10 +1,9 @@
 #ifndef HW4_SOLVER_H
 #define HW4_SOLVER_H
 
-#include "stack.h"
-#include "doubly_linked_list.h"
 #include "parser.h"
 #include "structs.h"
+#include "gurobi_c.h"
 
 /**
  * solver summary
@@ -55,7 +54,7 @@ void createEmptyBoard(SudokuCell*** board, int total_size);
 int ILP_Validation(SudokuCell*** tmpBoard, int row, int column, Command command, int x, int y, int* p_dig);
 
 void findNextEmptyCell(SudokuCell*** board,int total_size,Cell* cell, int x,int y);
-void freeBoard(SudokuCell*** board, int total_size);
+
 void currentStateToFixed(Sudoku *sudoku, SudokuCell ***board, int total_size);
 
 #endif

@@ -4,9 +4,7 @@
 #include <string.h>
 
 #include "main_aux.h"
-#include "solver.h"
 #include "parser.h"
-#include "game.h"
 
 int main() {
     State current_state;

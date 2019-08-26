@@ -1,7 +1,6 @@
-
-
 #ifndef SUDOKU_STRUCTS_H
 #define SUDOKU_STRUCTS_H
+
 
 typedef struct{
     int x;
@@ -73,5 +72,14 @@ typedef struct{
 
 
 
+void freeBoard(SudokuCell*** board, int total_size);
+void freeSudokuMemory(Sudoku *sudoku);
+void freeCellsArray(Cell **arr, int arr_size);
+
+void freeStackItem(StackItem* stackItem, int total_size); /*free the allocated memory of StackItem*/
+void freeStack(Stack* stack, int total_size); /*free the allocated memory of Stack*/
+void freeNode(struct Node* node);
+void freeList(List *list);
 
 #endif
+

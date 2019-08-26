@@ -2,7 +2,7 @@
 #ifndef HW4_DOUBLY_LINKED_LIST_H
 #define HW4_DOUBLY_LINKED_LIST_H
 
-#include "solver.h"
+
 #include "structs.h"
 
 List* getNewList(); /*Creates a new List and returns pointer to it.*/
@@ -16,9 +16,9 @@ void moveToPrev(List* list);
 int hasNext(List* list);
 int hasPrev(List* list);
 /*void moveToStart(List* list);*/
-void freeNode(struct Node* node);
+
 void deleteLast(List* list); /*delete the node at the last location*/
-void freeList(List *list);
+
 struct Node* getCurrentMove(List* list);
 
 #endif

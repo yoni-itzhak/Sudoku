@@ -1,6 +1,5 @@
 
 #include "doubly_linked_list.h"
-#include "solver.h"
 #include "main_aux.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -109,19 +108,7 @@ int hasPrev(List* list){
     }
 }*/
 
-void freeArrMove(struct Node* node){
-    int i;
-    for (i=0; i< node->arrSize; i++){
-        free(node->arrMove[i]->cell);
-        free(node->arrMove[i]);
-    }
-    free(node->arrMove);
-}
 
-void freeNode(struct Node* node){
-    freeArrMove(node);
-    free(node);
-}
 
 /*delete the node at the last location*/
 void deleteLast(List* list) {
@@ -136,12 +123,7 @@ void deleteLast(List* list) {
     freeNode(tmp); /*free the allocated memory of the deleted node*/
 }
 
-void freeList(List *list){
-    while (!isListEmpty(list)){
-        deleteLast(list);
-    }
-    free(list);
-}
+
 
 struct Node* getCurrentMove(List* list){
     return list->current;
