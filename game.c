@@ -309,12 +309,14 @@ void editWithPath(Sudoku* sudoku, char* X){
 /*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
 void editWithoutPath(Sudoku* sudoku) {
 
-    SudokuCell ***emptyBoard = (SudokuCell ***) malloc(sizeof(SudokuCell **));
+    SudokuCell ***emptyBoard = (SudokuCell ***) malloc(9*sizeof(SudokuCell **));
     if (emptyBoard == NULL) {
         printMallocFailedAndExit();
     }
+
     createEmptyBoard(emptyBoard, 9); /* for empty 9X9 board*/
     updateSudoku(sudoku, NULL, EDIT, emptyBoard, 3, 3, 0);
+    print_board(sudoku);
 }
 
 void edit(Sudoku* sudoku, char* X){

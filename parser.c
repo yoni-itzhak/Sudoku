@@ -399,9 +399,8 @@ void _parseCommand(char* input, int* cmd, char** path, Mode mode, int* cnt, Sudo
                 return;
             }
             if(!isModeAllowingCommand(cmd[0], mode)){
-                handleInputError(cnt[0], INVALID_MODE, mode, -1, -1);
+                handleInputError(cmd[0], INVALID_MODE, mode, -1, -1);
                 cmd[0]=0;
-                return;
             }
         }
         else {
