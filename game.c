@@ -775,15 +775,28 @@ void setPointerToPreviousMove(Sudoku* sudoku){
     moveToPrev(sudoku->list);
 }
 
+void updateSudokuCntFilledCells(int* p_cntFilledCell, int fromValue, int toValue){
+    if (fromValue == 0 && toValue != 0){
+        (*p_cntFilledCell)++;
+    }
+    if (fromValue != 0 && toValue == 0){
+        (*p_cntFilledCell)--;
+    }
+}
+
 /* command=UNDO if we want to redo the move.
  * command=REDO if we want to undo the move*/
 void updateTheBoard(Sudoku* sudoku, Move* move, Command command){
+    int dig;
+    dig = sudoku->currentState[move->cell->x][move->cell->y]->digit;
     updateSudokuCntErroneousCells(&sudoku->cntErroneousCells,move->beforeErroneous, move->afterErroneous);
     if (command == UNDO){ /*undo the move*/
+        updateSudokuCntFilledCells(&sudoku->cntFilledCell,dig, move->beforeValue);
         sudoku->currentState[move->cell->x][move->cell->y]->digit=move->beforeValue;
         sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous=move->beforeErroneous;
     }
     else if (command == REDO){ /*redo the move*/
+        updateSudokuCntFilledCells(&sudoku->cntFilledCell,dig, move->afterValue);
         sudoku->currentState[move->cell->x][move->cell->y]->digit=move->afterValue;
         sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous=move->afterErroneous;
     }
@@ -979,19 +992,21 @@ void guess_hint(Sudoku* sudoku, int x, int y){
 void num_solutions(Sudoku* sudoku){
     int numOfSolution, total_size = sudoku->total_size;
     Cell* firstEmptyCell;
-    SudokuCell*** fixedBoard = (SudokuCell***)malloc(total_size*sizeof(SudokuCell**));/*TODO: allocating memory */
+    SudokuCell*** fixedBoard;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        /*print an error message and the command is not executed*/
+        printErroneousBoard();
     }
     else{ /*in Solve mode AND not erroneous*/
         firstEmptyCell = (Cell*)malloc(sizeof(Cell));
+        fixedBoard = (SudokuCell***)malloc(total_size*sizeof(SudokuCell**));/*TODO: allocating memory */
         if(firstEmptyCell == NULL || fixedBoard == NULL){
             printMallocFailedAndExit();
         }
         createEmptyBoard(fixedBoard,total_size);
         currentStateToFixed(sudoku, fixedBoard, total_size);/*copy the sudoku.currentState to fixedBoard*/
         findNextEmptyCell(fixedBoard, total_size,firstEmptyCell,0,0); /*search for the first empty cell in the board*/
-        numOfSolution = exhaustiveBacktracking(sudoku, firstEmptyCell->x, firstEmptyCell->y);
+        printBoard(fixedBoard, total_size, sudoku->row, sudoku->column);
+        numOfSolution = exhaustiveBacktracking(sudoku, fixedBoard, firstEmptyCell->x, firstEmptyCell->y);
         printNumOfSolution(numOfSolution);
         freeBoard(fixedBoard,total_size);
         free(firstEmptyCell);

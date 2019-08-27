@@ -99,6 +99,7 @@ int updateSudoku(Sudoku* sudoku,char* X, Mode mode, SudokuCell*** newCurrentStat
 void findErroneousCells(Sudoku* sudoku);
 void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
                                       int beforeErroneous, int afterErroneous);
+void updateSudokuCntFilledCells(int* p_cntFilledCell, int fromValue, int toValue);
 void updateSudokuCntErroneousCells(int* p_cnt, int beforeErroneous, int afterErroneous);
 
 int neighborsPossibleArr(SudokuCell*** board, int row, int column, int x, int y, int dig);

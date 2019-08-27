@@ -29,6 +29,9 @@
  * printMallocFailed    - gets called when memory allocation from malloc was failed and prints appropriate message
  *
  */
+void printBoard(SudokuCell*** board, int total_size, int row, int column); /*TODO: need to be deleted at the end*/
+
+
 void printNoAutoFilledCells();
 void printSameValueCell();
 void printCannotGenerateBoardWithErrors();

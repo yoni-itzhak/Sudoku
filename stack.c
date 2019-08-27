@@ -34,7 +34,6 @@ int isFull(Stack *stack){
 void push(Stack *stack, StackItem* stackItem){
     if (isFull(stack)){ /*check if stack is already full. Then inserting an element would lead to stack overflow*/
         printf("OverFlow\nProgram Terminated\n");
-        exit(EXIT_FAILURE);
     }
     stack->items[++stack->top] = stackItem; /*add an element and increments the top index*/
 }
@@ -42,15 +41,18 @@ void push(Stack *stack, StackItem* stackItem){
 StackItem* peek(Stack *stack){
     if (!isStackEmpty(stack)) /*check for empty stack*/
         return stack->items[stack->top];
-    else
-        exit(EXIT_FAILURE);
+    else{
+        printf("empty stack\nProgram Terminated\n");
+        return NULL;
+    }
 }
 
-StackItem* pop(Stack *stack){
+void pop(Stack *stack, int total_size){
     if (isStackEmpty(stack)){ /*check for stack underflow*/
         printf("UnderFlow\nProgram Terminated\n");
-        exit(EXIT_FAILURE);
     }
-    return stack->items[stack->top--]; /* decrement stack size by 1 and (optionally) return the popped element*/
+    freeStackItem(stack->items[stack->top], total_size);
+    stack->top--;
+    /* decrement stack size by 1 and (optionally) return the popped element*/
 }
 
