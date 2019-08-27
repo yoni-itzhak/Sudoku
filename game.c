@@ -876,15 +876,17 @@ int fixedInEdit(Sudoku* sudoku, int i, int j){
     return 0;
 }
 
-void checkIfWriteFailed(char *X, int isWrite){
+int checkIfWriteFailed(char *X, int isWrite){
     if (isWrite < 0){
         printWriteToFileFailed(X);
+        return 0;
     }
+    return 1;
 }
 
 void saveBoardInFile(Sudoku* sudoku, char* X){
     FILE* file;
-    int isClosed, i, j, dig, fixed, total_size = sudoku->total_size;
+    int isValid, isClosed, i, j, dig, fixed, total_size = sudoku->total_size;
 
     file = fopen(X,"w");
     if (file == NULL){
@@ -903,16 +905,22 @@ void saveBoardInFile(Sudoku* sudoku, char* X){
             dig = sudoku->currentState[i][j]->digit;
             fixed = sudoku->currentState[i][j]->is_fixed;
             if (fixed==1 || fixedInEdit(sudoku, i, j)){ /*cell is fixed*/
-                checkIfWriteFailed(X, fprintf(file, "%d.", dig));
+                isValid = checkIfWriteFailed(X, fprintf(file, "%d.", dig));
             }
             else{
-                checkIfWriteFailed(X, fprintf(file, "%d", dig));
+                isValid = checkIfWriteFailed(X, fprintf(file, "%d", dig));
+            }
+            if(isValid==0){
+                return;
             }
             if (j == total_size-1){ /*end of row*/
-                checkIfWriteFailed(X, fprintf(file, "\n"));
+                isValid = checkIfWriteFailed(X, fprintf(file, "\n"));
             }
             else{
-                checkIfWriteFailed(X, fprintf(file, " "));
+                isValid = checkIfWriteFailed(X, fprintf(file, " "));
+            }
+            if(isValid==0){
+                return;
             }
         }
     }
@@ -920,6 +928,7 @@ void saveBoardInFile(Sudoku* sudoku, char* X){
     isClosed = fclose(file);
     if (isClosed == EOF){ /* 'fclose' has faild* - maybe should be -1 @@@@@@@@@@@@@@@*/
         printCloseFileFailed(X);
+        return;
     }
 }
 void save(Sudoku* sudoku, char* X) {

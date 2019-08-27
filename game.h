@@ -46,7 +46,7 @@ void printAllLegalValues();
 void addArrMoveToList(Sudoku*, Move**, int);
 int fillXCells(SudokuCell***, int, Cell**, int, int, int);
 
-
+void saveBoardInFile(Sudoku* sudoku, char* X);
 void updateSudokuCntFilledCells(int* p_cntFilledCell, int fromValue, int toValue);
 void createEmptyCellsArr(Sudoku*, Cell**);
 int isContainsValue(Sudoku* sudoku, int x, int y);
