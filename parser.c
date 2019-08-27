@@ -56,7 +56,7 @@ int isModeAllowingCommand(Command command, Mode mode){
         return 1;
     }
     else{ /*(mode == INIT)*/
-        if(command == SOLVE_COMMAND || command == EDIT_COMMAND){
+        if(command == SOLVE_COMMAND || command == EDIT_COMMAND || command == EXIT){
             return 1;
         }
         return 0;
@@ -374,7 +374,7 @@ int _commandHint(int* cmd, char* token, int* cnt, Mode mode, int total_size, int
     if (_isTooManyParams(cmd, cnt, 2, mode)){
         return 0;
     }
-    if (val<=1 || val>= total_size){
+    if (val<1 || val> total_size){
         errArr[(*cnt)-1]=1;
     }
     else{

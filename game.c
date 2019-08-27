@@ -921,8 +921,14 @@ void save(Sudoku* sudoku, char* X) {
 
 void hint(Sudoku* sudoku, int x, int y){
     int isSolvable, dig;
-    if (isErroneous(sudoku)==1 || isFixed(sudoku->currentState,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
-        /*print an error message and the command is not executed*/
+    if(isErroneous(sudoku)==1){
+        printErroneousBoard();
+    }
+    else if (isFixed(sudoku->currentState,x,y)==1){
+        printFixed();
+    }
+    else if(isContainsValue(sudoku,x,y)==1){
+        printContainsValue();
     }
     else{ /*in Solve mode AND all valid*/
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);
