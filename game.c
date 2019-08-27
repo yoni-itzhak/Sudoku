@@ -273,8 +273,9 @@ int loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode){
 
     /*createSudoku(sudoku, row, column, numOfCells);
     loadBoardFromPath(sudoku, X);*/
-    fclose(file);
-    if (feof(file)){
+    /*fclose(file);*/
+
+    if (fclose(file) == EOF){
         printCloseFileFailed(X);
     }
     return isValid;
@@ -1107,6 +1108,10 @@ void autofill(Sudoku* sudoku){
             printNoAutoFilledCells();
         }
         else{
+            if(sudoku->cntFilledCell == sudoku->total_size*sudoku->total_size){
+                printSolved();
+                sudoku->mode = INIT;
+            }
             print_board(sudoku);
         }
 

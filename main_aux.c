@@ -259,40 +259,6 @@ void printSudoku(Sudoku *sudoku) {
 }
 
 
-void printBoard(SudokuCell*** board, int total_size, int row, int column) {
-    int i, j, cell;
-    for (i = 0; i < total_size; i++) {
-        if (i % row == 0) {
-            printSeparatorRow(total_size, column);
-        }
-        for (j = 0; j < total_size; j++) {
-            if (j % column == 0) {
-                printf("|");
-            }
-            printf(" ");
-            cell = board[i][j]->digit;
-            if (cell == 0) { /*cell is empty*/
-                printf("   ");
-            }
-            else { /*cell isn't empty*/
-                if (board[i][j]->is_fixed==1){ /*cell is fixed*/
-                    printf("%2d.", cell);
-                }
-                else if (board[i][j]->cnt_erroneous>0){ /*cell is erroneous*/
-                    printf("%2d*", cell);
-                }
-                else{
-                    printf("%2d ", cell);
-                }
-            }
-            if (j == total_size-1) {
-                printf("|\n");
-            }
-        }
-    }
-    printSeparatorRow(total_size, column);
-}
-
 /*
  * The function checks for EOF. if so, calling "printExiting".
  */
