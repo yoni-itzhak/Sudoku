@@ -374,7 +374,7 @@ int _commandHint(int* cmd, char* token, int* cnt, Mode mode, int total_size, int
     if (_isTooManyParams(cmd, cnt, 2, mode)){
         return 0;
     }
-    if (val<=1 || val>= total_size){
+    if (val<1 || val> total_size){
         errArr[(*cnt)-1]=1;
     }
     else{

@@ -58,6 +58,7 @@ void printNoMovesToRedo();
 
 void printSolved();
 void printFixed();
+void printContainsValue();
 /*void printInvalidValue();*/
 void printSolvableBoard();
 void printUnsolvableBoard();

@@ -145,6 +145,10 @@ void printFixed(){
     printf("Error: cell is fixed\n");
 }
 
+void printContainsValue(){
+    printf("Error: The cell already contains a value\n");
+}
+
 /*
  * The function prints the hint for the required cell.
  */
