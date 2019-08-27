@@ -310,8 +310,6 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     freeGurobi(env, model);
     freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
     return isSolvable;
-
-
 }
 
 

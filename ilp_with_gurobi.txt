@@ -94,14 +94,14 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     error = GRBloadenv(&env, "sudoku.log");
     if (error) {
-        printf("ERROR %d GRBloadenv(): %s\n", error, GRBgeterrormsg(env));
+        /*printf("ERROR %d GRBloadenv(): %s\n", error, GRBgeterrormsg(env));*/
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
 
     error = GRBsetintparam(env, GRB_INT_PAR_LOGTOCONSOLE, 0);
     if (error) {
-        printf("ERROR %d GRBsetintattr(): %s\n", error, GRBgeterrormsg(env));
+        /*printf("ERROR %d GRBsetintattr(): %s\n", error, GRBgeterrormsg(env));*/
         GRBfreeenv(env);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
@@ -111,7 +111,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     error = GRBnewmodel(env, &model, "sudoku", total_size*total_size*total_size, NULL, lb, ub, vtype, NULL);
     if (error) {
-        printf("ERROR %d GRBnewmodel(): %s\n", error, GRBgeterrormsg(env));
+        /*printf("ERROR %d GRBnewmodel(): %s\n", error, GRBgeterrormsg(env));*/
         GRBfreeenv(env);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
@@ -128,7 +128,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
             error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
             if (error) {
-                printf("ERROR %d 1st GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
+                /*printf("ERROR %d 1st GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
                 freeGurobi(env, model);
                 freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                 return -1;
@@ -147,7 +147,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
             error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
             if (error) {
-                printf("ERROR %d 2nd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
+                /*printf("ERROR %d 2nd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
                 freeGurobi(env, model);
                 freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                 return -1;
@@ -166,7 +166,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
             error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
             if (error) {
-                printf("ERROR %d 3rd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
+                /*printf("ERROR %d 3rd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
                 freeGurobi(env, model);
                 freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                 return -1;
@@ -193,7 +193,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
                 error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
                 if (error) {
-                    printf("ERROR %d 4th GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
+                    /*printf("ERROR %d 4th GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
                     freeGurobi(env, model);
                     freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
                     return -1;
@@ -206,7 +206,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     error = GRBoptimize(model);
     if (error) {
-        printf("ERROR %d GRBoptimize(): %s\n", error, GRBgeterrormsg(env));
+        /*printf("ERROR %d GRBoptimize(): %s\n", error, GRBgeterrormsg(env));*/
         freeGurobi(env, model);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
@@ -216,7 +216,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     error = GRBwrite(model, "sudoku.lp");
     if (error) {
-        printf("ERROR %d GRBwrite(): %s\n", error, GRBgeterrormsg(env));
+        /*printf("ERROR %d GRBwrite(): %s\n", error, GRBgeterrormsg(env));*/
         freeGurobi(env, model);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
@@ -226,15 +226,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     error = GRBgetintattr(model, GRB_INT_ATTR_STATUS, &optimstatus);
     if (error) {
-        printf("ERROR %d GRBgetintattr(): %s\n", error, GRBgeterrormsg(env));
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
-        return -1;
-    }
-
-    error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
-    if (error) {
-        printf("ERROR %d GRBgettdblattr(): %s\n", error, GRBgeterrormsg(env));
+        /*printf("ERROR %d GRBgetintattr(): %s\n", error, GRBgeterrormsg(env));*/
         freeGurobi(env, model);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
@@ -245,11 +237,12 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     /*/ 3-- number of variables, the size of "sol" should match /*/
     error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0, total_size*total_size*total_size, sol);
     if (error) {
-        printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));
+        /*printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));*/
         freeGurobi(env, model);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
         return -1;
     }
+
 
     /*/ print results /*/
     printf("\nOptimization complete\n");
@@ -265,10 +258,22 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
                 }
             }
         }
+        else if(command == GENERATE){
+            for (i=0; i<total_size; i++){
+                for(j=0;j<total_size;j++){
+                    for(v=0;v<total_size; v++){
+                        if (sol[i*total_size*total_size + j*total_size + v] == 1.0){
+                             board[i][j]->digit = v+1;
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     /*/ no solution found /*/
-    else if (optimstatus == GRB_INF_OR_UNBD){
+    else if (optimstatus == GRB_INFEASIBLE || optimstatus == GRB_UNBOUNDED || optimstatus == GRB_INF_OR_UNBD){
         isSolvable = 0;
         printf("Model is infeasible or unbounded\n");
     }
@@ -277,6 +282,15 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         isSolvable = 0;
         printf("Optimization was stopped early\n");
     }
+
+    error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
+    if (error) {
+        /*printf("ERROR %d GRBgettdblattr(): %s\n", error, GRBgeterrormsg(env));*/
+        freeGurobi(env, model);
+        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
+        return -1;
+    }
+
     printf("\n");
     freeGurobi(env, model);
     freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
