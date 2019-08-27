@@ -39,13 +39,13 @@
 
 
 int canBacktrack(Stack* stack,int x,int y);
-void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j);
-void pushToGetToNextCell(Sudoku* sudoku,Stack* stack,StackItem* stackItem,Cell* currentEmptyCell,int i,int j);
+void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j, int total_size);
+void pushToGetToNextCell(Sudoku* sudoku,Stack* stack,StackItem* stackItem,Cell* currentEmptyCell,int i,int j, int firstTime);
 void updateCurrentEmptyCell(Cell* currentEmptyCell,int i, int j);
 void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size);
 SudokuCell*** copyBoard(SudokuCell*** board, int total_size);
-void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell*** tmpItemBoard, int total_size, int i,int j);
-int exhaustiveBacktracking(Sudoku* sudoku, int x, int y);
+void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell**** tmpItemBoard, int total_size, int i,int j);
+int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int y);
 
 void deleteDigitFromArr(SudokuCell*** board, int x, int y, int dig);
 void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y);

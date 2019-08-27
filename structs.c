@@ -47,7 +47,7 @@ void freeStackItem(StackItem* stackItem, int total_size){
 
 void freeStack(Stack* stack, int total_size){
     while(size(stack)>0){
-        freeStackItem(pop(stack), total_size);
+        pop(stack, total_size);
     }
     free(stack->items);
     free(stack);
