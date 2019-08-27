@@ -262,31 +262,19 @@ int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
 
 int loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode){
     FILE* file;
-    int isValid = 0;
-    /*int isClosed;*/
+    int isValid = 0, isClosed;
     file = fopen(X,"r");
     if (file == NULL){
         printOpenFileFailed(X);
         return 0;
     }
     isValid = fileToSudoku(sudoku, file, X, mode);
-
-    /*createSudoku(sudoku, row, column, numOfCells);
-    loadBoardFromPath(sudoku, X);*/
-    /*fclose(file);*/
-
-    if (fclose(file) == EOF){
+    isClosed = fclose(file);
+    if (isClosed == -1){
         printCloseFileFailed(X);
+        return 0;
     }
     return isValid;
-
-
-
-    /* 'fclose' has faild* - maybe should be -1 @@@@@@@@@@@@@@@*/
-    /*isClosed = fclose(file);
-    if (isClosed == EOF){
-        printCloseFileFailed(X);
-    }*/
 }
 
 /*TODO: check about clause b. in this command - what should we do with the unsaved current game board*/
@@ -309,12 +297,10 @@ void editWithPath(Sudoku* sudoku, char* X){
 
 /*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
 void editWithoutPath(Sudoku* sudoku) {
-
     SudokuCell ***emptyBoard = (SudokuCell ***) malloc(9*sizeof(SudokuCell **));
     if (emptyBoard == NULL) {
         printMallocFailedAndExit();
     }
-
     createEmptyBoard(emptyBoard, 9); /* for empty 9X9 board*/
     updateSudoku(sudoku, NULL, EDIT, emptyBoard, 3, 3, 0);
     print_board(sudoku);
@@ -928,7 +914,7 @@ void saveBoardInFile(Sudoku* sudoku, char* X){
     }
 
     isClosed = fclose(file);
-    if (isClosed == EOF){ /* 'fclose' has faild* - maybe should be -1 @@@@@@@@@@@@@@@*/
+    if (isClosed == -1){
         printCloseFileFailed(X);
         return;
     }
@@ -937,7 +923,7 @@ void save(Sudoku* sudoku, char* X) {
     int isSolvable;
     if (sudoku->mode == EDIT){
         if (isErroneous(sudoku)==1) { /* 1 if board is erroneous*/
-            /*print an error message and the command is not executed*/
+            printErroneousBoard();
             return;
         }
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, SAVE , -1, -1, NULL);
