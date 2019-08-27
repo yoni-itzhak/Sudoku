@@ -77,7 +77,7 @@ void num_solutions(Sudoku* sudoku);
 void markSingleLegalValue(Sudoku* sudoku);
 int hasSingleLegalValue(Sudoku* sudoku, int i, int j);
 /*void updateObviousCell(Sudoku* sudoku, int i, int j,Move** arrMove, int arrSize);*/
-void fillObviousValues(Sudoku* sudoku);
+int fillObviousValues(Sudoku* sudoku);
 void autofill(Sudoku* sudoku);
 void undoAllMoves(Sudoku* sudoku);
 void reset(Sudoku* sudoku);

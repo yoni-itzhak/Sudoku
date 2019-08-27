@@ -364,6 +364,7 @@ int updateSudoku(Sudoku* sudoku, char* X, Mode mode, SudokuCell*** newCurrentSta
     sudoku->list = getNewList();
     /*sudoku->markError remain the same*/
     sudoku->mode = mode;
+    sudoku->cntErroneousCells = 0;
     if (mode == SOLVE){
         findErroneousCells(sudoku);
         isValid = isFixedAndErroneous(sudoku);
@@ -392,6 +393,15 @@ int isFilled(Sudoku* sudoku){
 
 
 int isErroneous(Sudoku* sudoku){
+   /* int i,j;
+    printf("%d\n", sudoku->cntErroneousCells);
+    for (i=0;i<sudoku->total_size;i++){
+        for (j=0;j<sudoku->total_size;j++){
+            printf("%d %d with %d\n", i,j, sudoku->currentState[i][j]->cnt_erroneous);
+        }
+    }*/
+
+
     if (sudoku->cntErroneousCells==0){ /*zero cells are erroneous*/
         return 0;
     }
@@ -458,7 +468,7 @@ int isRowValid(SudokuCell*** board, int row, int column, int x, int y,  int valu
     int dig, i, isValid = 1, cntNeighborsErroneous=0;
     for(i = 0;i < column;i++){
         dig = board[row][i]->digit;
-        if (dig == value && (x != row || y != i)) { /*same digit but not same cell*/
+        if (dig != 0 && dig == value && (x != row || y != i)) { /*same digit but not same cell*/
             valueValidationAmongNeighbors(board, row, i, dig, arrMove, p_arrSize, neighborsType, p_cntTotalErroneousCells, &cntNeighborsErroneous);
             isValid = 0;
         }
@@ -471,7 +481,7 @@ int isColumnValid(SudokuCell*** board, int row, int column, int x, int y, int va
     int dig, i, isValid = 1, cntNeighborsErroneous=0;
     for (i = 0; i < row; i++) {
         dig = board[i][column]->digit;
-        if (dig == value && (x != i || y != column)){ /*same digit but not same cell*/
+        if (dig != 0 && dig == value && (x != i || y != column)){ /*same digit but not same cell*/
 
             valueValidationAmongNeighbors(board, i, column, dig, arrMove, p_arrSize, neighborsType, p_cntTotalErroneousCells, &cntNeighborsErroneous);
             isValid = 0;
@@ -503,7 +513,7 @@ int isBlockValid(SudokuCell*** board ,int row, int column, int x, int y, int val
     for (i=0;i<row;i++){
         for (j=0; j<column; j++){
             dig = board[i + head->x][j+head->y]->digit;
-            if (dig == value && (x != i + head->x || y != j+head->y)) {
+            if (dig != 0 && dig == value && (x != i + head->x || y != j+head->y)) {
 
                 valueValidationAmongNeighbors(board, i + head->x, j+head->y, dig, arrMove, p_arrSize, neighborsType, p_cntTotalErroneousCells, &cntNeighborsErroneous);
                 isValid = 0;
@@ -1024,8 +1034,8 @@ void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize){
 
 
 /*TODO: need to deal with situation that 2 obvious cells become erroneous*/
-void fillObviousValues(Sudoku* sudoku){
-    int arrSize=0, dig, i, j, total_size = sudoku->total_size;
+int fillObviousValues(Sudoku* sudoku){
+    int arrSize=0, dig, i, j, total_size = sudoku->total_size, cntAutoFilled=0;
     int total_cells = sudoku->total_size*sudoku->total_size;
     Move** arrMove = (Move**)malloc(total_cells*(sizeof(Move*)));
     if (arrMove == NULL){
@@ -1037,6 +1047,7 @@ void fillObviousValues(Sudoku* sudoku){
             if (hasSingleLegalValue(sudoku,i,j)){
                 dig = sudoku->currentState[i][j]->optionalDigits[0];
                 setCell(sudoku, i, j, dig, arrMove, &arrSize);
+                cntAutoFilled++;
                /* updateObviousCell(sudoku,i,j, arrMove, arrSize);*/
 
                /*check why we need to increment arrSize
@@ -1044,16 +1055,28 @@ void fillObviousValues(Sudoku* sudoku){
             }
         }
     }
+    if (cntAutoFilled == 0){
+        return 0;
+    }
     addArrMoveToList(sudoku, arrMove, arrSize);
+    return 1;
+
 }
 
 void autofill(Sudoku* sudoku){
+    int isFilled;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        /*print an error message and the command is not executed*/
+        printErroneousBoard();
     }
     else{ /*in Solve mode AND not erroneous*/
-        fillObviousValues(sudoku);
-        print_board(sudoku);
+        isFilled = fillObviousValues(sudoku);
+        if (isFilled == 0){
+            printNoAutoFilledCells();
+        }
+        else{
+            print_board(sudoku);
+        }
+
     }
 }
 void undoAllMoves(Sudoku* sudoku){

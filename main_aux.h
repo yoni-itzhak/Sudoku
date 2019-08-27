@@ -29,7 +29,7 @@
  * printMallocFailed    - gets called when memory allocation from malloc was failed and prints appropriate message
  *
  */
-
+void printNoAutoFilledCells();
 void printSameValueCell();
 void printCannotGenerateBoardWithErrors();
 void printNotEnoughEmptyCells(int, int);

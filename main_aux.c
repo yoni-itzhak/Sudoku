@@ -25,6 +25,10 @@ void printNotEnoughEmptyCells(int x, int numOfEmptyCells){
            "%d\n", x, numOfEmptyCells);
 }
 
+void printNoAutoFilledCells(){
+    printf("Notice: There are no cells to autofill\n");
+}
+
 void printCannotGenerateBoardWithErrors(){ /*TODO: change to a dynamic function */
     printf("Error: The function 'generate' cannot receive a board with erroneous cells\n");
 }

@@ -56,7 +56,7 @@ int isModeAllowingCommand(Command command, Mode mode){
         return 1;
     }
     else{ /*(mode == INIT)*/
-        if(command == SOLVE_COMMAND || command == EDIT_COMMAND){
+        if(command == SOLVE_COMMAND || command == EDIT_COMMAND || command == EXIT){
             return 1;
         }
         return 0;
