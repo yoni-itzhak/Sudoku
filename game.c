@@ -223,10 +223,7 @@ int scanCells(FILE* file, char* X, SudokuCell*** board, Mode mode, int total_siz
 
 int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
     int total_size, row, column, cntFilledCell=0, isValid;
-    SudokuCell*** board = (SudokuCell***)malloc(sizeof(SudokuCell**));
-    if (board == NULL){
-        printMallocFailedAndExit();
-    }
+    SudokuCell*** board;
     /*if scanRowAndColumn OR scanCells failed, need to finish the function
      * check that the old boared doesn't disappear*/
     isValid = scanRowAndColumn(file, X, &row, &column); /*find m & n*/
@@ -238,6 +235,10 @@ int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
         return 0;
     }
     total_size = row * column;
+    board = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
+    if (board == NULL){
+        printMallocFailedAndExit();
+    }
     createEmptyBoard(board, total_size); /* for empty board*/
     /*scan cells and check if all valid and solvable*/
     isValid = scanCells(file, X, board, mode, total_size, &cntFilledCell);
