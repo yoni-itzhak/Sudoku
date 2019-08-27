@@ -56,6 +56,7 @@ void printErrorInPuzzleGenerator();
 void printNoMovesToUndo();
 void printNoMovesToRedo();
 
+void printBoard(SudokuCell*** board, int total_size, int row, int column);
 void printSolved();
 void printFixed();
 void printContainsValue();

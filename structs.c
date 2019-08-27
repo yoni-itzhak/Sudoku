@@ -32,8 +32,8 @@ void freeBoard(SudokuCell*** board, int total_size){
 }
 
 void freeCellsArray(Cell **arr, int arr_size){
-    int i=0;
-    for(;i<arr_size;++i){
+    int i;
+    for(i=0;i<arr_size;++i){
         free(arr[i]);
     }
     free(arr);

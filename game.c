@@ -30,9 +30,9 @@ void printAllLegalValues(){
 /* TODO: check in email (or yuval porat) when we the load is valid*/
 
 void createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
-    int  i=0, j=0, index=0;
-    for(;i<sudoku->total_size; ++i){
-        for (;j<sudoku->total_size;++j){
+    int  i, j, index=0;
+    for(i=0;i<sudoku->total_size; ++i){
+        for (j=0;j<sudoku->total_size;++j){
             if (sudoku->currentState[i][j]->digit == 0){
                 emptyCellsArr[index] = (Cell*)malloc(sizeof(Cell));
                 if(emptyCellsArr[index] == NULL){
@@ -56,21 +56,19 @@ void swapArrayCells(Cell** cellsArr, int index_1, int index_2){
 int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmptyCells, int row, int column){
     int empty_cell_index, rand_dig_index, num_of_optional_digits;
     Cell* empty_cell_coordinates;
-    SudokuCell* chosen_cell;
     for(;x>0;--x){
         empty_cell_index = rand()%numOfEmptyCells;
         empty_cell_coordinates = emptyCellsArr[empty_cell_index];
-        chosen_cell = tmpBoard[empty_cell_coordinates->x][empty_cell_coordinates->y];
-        chosen_cell->numOfOptionalDigits = row*column;
+        tmpBoard[empty_cell_coordinates->x][empty_cell_coordinates->y]->numOfOptionalDigits = row*column;
         findThePossibleArray(tmpBoard, row, column, empty_cell_coordinates->x, empty_cell_coordinates->y);
-        num_of_optional_digits = chosen_cell->numOfOptionalDigits;
+        num_of_optional_digits = tmpBoard[empty_cell_coordinates->x][empty_cell_coordinates->y]->numOfOptionalDigits;
         if (num_of_optional_digits>0){
             rand_dig_index = rand()%(num_of_optional_digits);
         }
         else{
             return 0;
         }
-        chosen_cell->digit = chosen_cell->optionalDigits[rand_dig_index];
+        tmpBoard[empty_cell_coordinates->x][empty_cell_coordinates->y]->digit = tmpBoard[empty_cell_coordinates->x][empty_cell_coordinates->y]->optionalDigits[rand_dig_index];
         swapArrayCells(emptyCellsArr, empty_cell_index, numOfEmptyCells-1);
         numOfEmptyCells--;
     }
@@ -80,20 +78,20 @@ int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmp
 
 
 void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells){
-    int i=0;
-    for(;i<numOfCells;++i){
+    int i;
+    for(i=0;i<numOfCells;++i){
         board[cellsArr[i]->x][cellsArr[i]->y]->digit=0;
     }
 }
 
 void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku){
-    int i=0, row_index=0, column_index=0, num_of_available_cells = sudoku->total_size*sudoku->total_size, chosen_cell_index;
+    int i=0, row_index, column_index, num_of_available_cells = sudoku->total_size*sudoku->total_size, chosen_cell_index;
     Cell** all_available_cells = (Cell**)malloc(sizeof(Cell*)*num_of_available_cells);
     if(all_available_cells==NULL){
         printMallocFailedAndExit();
     }
-    for(;row_index<sudoku->total_size; ++row_index){
-        for(;column_index<sudoku->total_size; ++column_index){
+    for(row_index=0;row_index<sudoku->total_size; ++row_index){
+        for(column_index=0;column_index<sudoku->total_size; ++column_index){
             all_available_cells[i] = (Cell*)malloc(sizeof(Cell));
             if(all_available_cells[i]==NULL){
                 printMallocFailedAndExit();
@@ -380,7 +378,7 @@ int updateSudoku(Sudoku* sudoku, char* X, Mode mode, SudokuCell*** newCurrentSta
 }
 
 int isContainsValue(Sudoku* sudoku, int x, int y){
-    return sudoku->currentState[x][y]!=0;
+    return sudoku->currentState[x][y]->digit!=0;
 }
 
 int isFilled(Sudoku* sudoku){
@@ -684,9 +682,9 @@ void backToOriginalState(SudokuCell*** originalBoard, SudokuCell*** invalidBoard
 }
 
 void createGenerateMovesArr(Move** arrMove, Sudoku* sudoku, SudokuCell*** tmpBoard, int* ptrNumOfMoves){
-    int i=0, j=0;
-    for (;i<sudoku->total_size; ++i){
-        for(;j<sudoku->total_size;++j){
+    int i, j;
+    for (i=0;i<sudoku->total_size; ++i){
+        for(j=0;j<sudoku->total_size;++j){
             if(sudoku->currentState[i][j]->digit != tmpBoard[i][j]->digit){
                 addMoveToArrMoveAndIncrementSize(arrMove, ptrNumOfMoves, i, j, sudoku->currentState[i][j]->digit,
                                                  tmpBoard[i][j]->digit, 0, 0);
@@ -732,6 +730,9 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
             }
             isSolvable = ILP_Validation(tmpBoard, sudoku->row, sudoku->column, GENERATE, -1, -1, NULL);/* should fill out the board */
             if (isSolvable != 1 ){
+                if (isSolvable == -1){
+                    printGurobiFailed();
+                }
                 cntNoSolution++;
                 backToOriginalState(sudoku->currentState,tmpBoard, sudoku->total_size);
                 continue;
@@ -749,6 +750,7 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
             createMovesArr(arrMove, sudoku, tmpBoard);
             freeBoard(sudoku->currentState, sudoku->total_size);
             sudoku->currentState = copyBoard(tmpBoard, sudoku->total_size);
+            sudoku->cntFilledCell = y;
         }
         else{
             printErrorInPuzzleGenerator();
@@ -775,17 +777,29 @@ void setPointerToPreviousMove(Sudoku* sudoku){
     moveToPrev(sudoku->list);
 }
 
+void updateSudokuCntFilledCells(int* p_cntFilledCell, int fromValue, int toValue){
+    if (fromValue == 0 && toValue != 0){
+        (*p_cntFilledCell)++;
+    }
+    if (fromValue != 0 && toValue == 0){
+        (*p_cntFilledCell)--;
+    }
+}
+
 /* command=UNDO if we want to redo the move.
  * command=REDO if we want to undo the move*/
-void updateTheBoard(Sudoku* sudoku, Move* move, Command command){
-    updateSudokuCntErroneousCells(&sudoku->cntErroneousCells,move->beforeErroneous, move->afterErroneous);
-    if (command == UNDO){ /*undo the move*/
-        sudoku->currentState[move->cell->x][move->cell->y]->digit=move->beforeValue;
-        sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous=move->beforeErroneous;
-    }
-    else if (command == REDO){ /*redo the move*/
-        sudoku->currentState[move->cell->x][move->cell->y]->digit=move->afterValue;
-        sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous=move->afterErroneous;
+void updateTheBoard(Sudoku* sudoku, Move* move, Command command) {
+    int dig;
+    dig = sudoku->currentState[move->cell->x][move->cell->y]->digit;
+    updateSudokuCntErroneousCells(&sudoku->cntErroneousCells, move->beforeErroneous, move->afterErroneous);
+    if (command == UNDO) { /*undo the move*/
+        updateSudokuCntFilledCells(&sudoku->cntFilledCell, dig, move->beforeValue);
+        sudoku->currentState[move->cell->x][move->cell->y]->digit = move->beforeValue;
+        sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous = move->beforeErroneous;
+    } else if (command == REDO) { /*redo the move*/
+        updateSudokuCntFilledCells(&sudoku->cntFilledCell, dig, move->afterValue);
+        sudoku->currentState[move->cell->x][move->cell->y]->digit = move->afterValue;
+        sudoku->currentState[move->cell->x][move->cell->y]->cnt_erroneous = move->afterErroneous;
     }
 }
 
@@ -875,6 +889,7 @@ void saveBoardInFile(Sudoku* sudoku, char* X){
     file = fopen(X,"w");
     if (file == NULL){
         printOpenFileFailed(X);
+        return;
     }
 
     checkIfWriteFailed(X, fprintf(file, "%d %d\n", sudoku->column, sudoku->row)); /* write the first line: m n*/
@@ -952,7 +967,7 @@ void hint(Sudoku* sudoku, int x, int y){
             return;
         }
         else{ /*board is solvable*/
-            printHint(x,y,dig);
+            printHint(x+1,y+1,dig);
             /*print the value of cell <X,Y> found by the ILP solution*/
         }
     }
