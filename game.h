@@ -29,6 +29,20 @@
  * validate         - checks if the current board is valid.
  */
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*loading files*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+int check_EOF_and_invalid_scan(char* path, int scan, void (*errorFunc)(char*));
+int scanRowAndColumn(FILE* file, char* path, int* p_row, int* p_column);
+int areOnlyWhitespacesLeft(FILE* file);
+int scanCells(FILE* file, char* path, SudokuCell*** board, Mode mode, int total_size, int* p_cntFilledCell);
+/* TODO: not finished! */ int check_erroneous_in_loaded_board(Sudoku* tmpSudoku, char* path, Mode newMode, int editWithoutPath, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+/* TODO: not finished! */ int updateSudoku(Sudoku* sudoku, char* path, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+
+
+
+
 typedef enum{
     NEIGHBORS_FROM_DIG,
     NEIGHBORS_TO_DIG,
@@ -79,7 +93,7 @@ void num_solutions(Sudoku* sudoku);
 void markSingleLegalValue(Sudoku* sudoku);
 int hasSingleLegalValue(Sudoku* sudoku, int i, int j);
 /*void updateObviousCell(Sudoku* sudoku, int i, int j,Move** arrMove, int arrSize);*/
-int fillObviousValues(Sudoku* sudoku);
+int fillObviousValues(Sudoku* sudoku, int autoFillBeforeILP);
 void autofill(Sudoku* sudoku);
 void undoAllMoves(Sudoku* sudoku);
 void reset(Sudoku* sudoku);
@@ -93,12 +107,12 @@ int isValueValid(SudokuCell*** board, int row, int column, int x, int y, int val
 void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize);
 int isCellErroneous(SudokuCell*** board, int x, int y);
 
-int loadBoardFromPath(Sudoku* sudoku, char* X, Mode mode);
+int loadBoardFromPath(Sudoku *sudoku, char *X, Mode mode);
 
 int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode);
 
 int updateSudoku(Sudoku* sudoku,char* X, Mode mode, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
-void findErroneousCells(Sudoku* sudoku);
+void findErroneousCells(SudokuCell*** board, int total_size, int row, int column, int* p_cntErroneousCells);
 void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue,
                                       int beforeErroneous, int afterErroneous);
 void updateSudokuCntFilledCells(int* p_cntFilledCell, int fromValue, int toValue);

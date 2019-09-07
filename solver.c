@@ -13,12 +13,6 @@
 #include "gurobi_c.h"
 
 
-/*void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype, int total_size){
-    if (ind == NULL && sol == val && lb == ub && vtype == NULL && total_size == 0){
-        return;
-    }
-    return;
-}*/
 void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype, int total_size){
     int num_all_vars = total_size*total_size*total_size;
     (*ind) = (int*)malloc(total_size* sizeof(int));
@@ -46,12 +40,116 @@ void freeGurobi(GRBenv   *env, GRBmodel *model){
     GRBfreeenv(env); /* Free environment /*/
 }
 
-/*int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
-    if (command == RESET && board == NULL && row==column && x==y && p_dig==NULL){
-        return 1;
+int LP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
+
+
+    int total_size = row * column;
+
+    int       *ind;
+    double    *sol, *val, *lb, *ub, *obj; /* TODO: allocate and free 'obj' */
+    char      *vtype;
+    int       optimstatus;
+    double    objval = 0.0;
+    int       i, j, v, ig, jg, count, dig, cnt, isSolvable;
+    int       error = 0;
+
+    allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size);
+    /* Create an empty model /*/
+    for (i = 0; i < total_size; i++) {
+        for (j = 0; j < total_size; j++) {
+            dig = board[i][j]->digit;
+            if (dig != 0){ /* cell is "fixed" -> 'dig' is the only legal value for this cell */
+                lb[i*total_size*total_size+j*total_size+(dig-1)] = 1; /* lower bound = 1 for fixed cell */
+                ub[i*total_size*total_size+j*total_size+(dig-1)] = 1;
+                obj[i*total_size*total_size+j*total_size+(dig-1)] = 0;
+                for (v = 0; v < total_size; v++) {
+                    if ((v+1)!=dig){
+                        lb[i*total_size*total_size+j*total_size+v] = 0;
+                        ub[i*total_size*total_size+j*total_size+v] = 0;
+                        obj[i*total_size*total_size+j*total_size+v] = 0;
+                    }
+                    vtype[i*total_size*total_size+j*total_size+v] = GRB_CONTINUOUS;
+                }
+            }
+            else {
+                board[i][j]->numOfOptionalDigits = total_size;
+                findThePossibleArray(board, row, column, i, j);
+
+                if (board[i][j]->numOfOptionalDigits != 0) { /* the cell has some legal values */
+                    cnt = 0;
+                    for (v = 0; v < total_size; v++) {
+                        if ((v + 1) == board[i][j]->optionalDigits[cnt]) {
+                            lb[i * total_size * total_size + j * total_size + v] = 0; /*/ lower bound = 1 for fixed cell /*/
+                            ub[i * total_size * total_size + j * total_size + v] = 1;
+                            obj[i * total_size * total_size + j * total_size + v] = rand()%(board[i][j]->numOfOptionalDigits);
+                            cnt++;
+                        } else {
+                            lb[i * total_size * total_size + j * total_size + v] = 0;
+                            ub[i * total_size * total_size + j * total_size + v] = 0;
+                            obj[i * total_size * total_size + j * total_size + v] = 0;
+                        }
+                        vtype[i * total_size * total_size + j * total_size + v] = GRB_CONTINUOUS;
+                    }
+                }
+                else { /*/numOfOptionalDigits = 0 -> the cell <i,j> has no valid values/*/
+                    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype);
+                    return 0;
+                }
+            }
+        }
     }
-    return 0;
-}*/
+
+    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     */
+
+    /*find objective function*/
+
+    /* Add variables */
+
+    /* coefficients - for x,y,z (cells 0,1,2 in "obj") */
+
+    obj[0] = 1; obj[1] = 3; obj[2] = 2;
+
+    /* variable types - for x,y,z (cells 0,1,2 in "vtype") */
+    /* other options: GRB_INTEGER, GRB_CONTINUOUS */
+    vtype[0] = GRB_BINARY; vtype[1] = GRB_BINARY; vtype[2] = GRB_BINARY;
+
+    /* add variables to model */
+    error = GRBaddvars(model, 3, 0, NULL, NULL, NULL, obj, NULL, NULL, vtype, NULL);
+    if (error) {
+        printf("ERROR %d GRBaddvars(): %s\n", error, GRBgeterrormsg(env));
+        return -1;
+    }
+
+    /* Change objective sense to maximization */
+    error = GRBsetintattr(model, GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE);
+    if (error) {
+        printf("ERROR %d GRBsetintattr(): %s\n", error, GRBgeterrormsg(env));
+        return -1;
+    }
+
+    /* update the model - to integrate new variables */
+
+    error = GRBupdatemodel(model);
+    if (error) {
+        printf("ERROR %d GRBupdatemodel(): %s\n", error, GRBgeterrormsg(env));
+        return -1;
+    }
+
+
+
+    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     */
+
+}
 
 int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
 
@@ -110,6 +208,26 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
             }
         }
     }
+
+    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     */
+
+    /*find objective function*/
+
+
+
+
+    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
+     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     */
+
 
     /*/ Create environment /*/
 
@@ -319,6 +437,7 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 }
 
 
+
 int canBacktrack(Stack* stack,int x,int y){
     if (peek(stack)->currentEmptyCell->x == x && peek(stack)->currentEmptyCell->y == y){
         if (peek(stack)->board[x][y]->numOfOptionalDigits==0){
@@ -359,12 +478,21 @@ void copyOptionalDigitsArray(int* fromArray, int* toArray, int length){
     }
 }
 
-void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size){
+void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size, int copyFixedCellsOnly){
     int i,j, numOfOptionalDigs;
     for (i=0;i<total_size;i++){
         for (j=0;j<total_size;j++){
             toBoard[i][j]->digit=fromBoard[i][j]->digit;
             toBoard[i][j]->is_fixed=fromBoard[i][j]->is_fixed;
+            if (copyFixedCellsOnly == 1){
+                if (isFixed(fromBoard, i, j)){
+                    toBoard[i][j]->cnt_erroneous=0;
+                }
+                else{
+                    toBoard[i][j]->digit=0;
+                }
+                continue;
+            }
             numOfOptionalDigs = fromBoard[i][j]->numOfOptionalDigits;
             toBoard[i][j]->numOfOptionalDigits = numOfOptionalDigs;
             free(toBoard[i][j]->optionalDigits);
@@ -378,24 +506,25 @@ void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_s
     }
 }
 
-SudokuCell*** copyBoard(SudokuCell*** board, int total_size){
+SudokuCell*** copyBoard(SudokuCell*** board, int total_size, int copyFixedCellsOnly){
     SudokuCell*** newBoard = (SudokuCell***)malloc(total_size* sizeof(SudokuCell**));
     if (newBoard == NULL){
         printMallocFailedAndExit();
     }
     createEmptyBoard(newBoard, total_size);
-    copyBoardValues(board, newBoard, total_size);
+    copyBoardValues(board, newBoard, total_size,copyFixedCellsOnly);
     return newBoard;
 }
 
 void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell**** tmpItemBoard, int total_size, int i,int j){
     int dig=0;
-    (*tmpItemBoard) = copyBoard(stackItem->board, total_size); /*@@need to malloc tmpItemBoard + need to copy all the fields in each cell*/
+    (*tmpItemBoard) = copyBoard(stackItem->board, total_size, 0); /* 0 for copying the all board */ /*@@need to malloc tmpItemBoard + need to copy all the fields in each cell*/
     dig = (*tmpItemBoard)[i][j]->optionalDigits[0];
     (*tmpItemBoard)[i][j]->numOfOptionalDigits -= 1;
     deleteDigitFromArr((*tmpItemBoard), i, j, dig); /*delete the number from the array*/
     (*tmpItemBoard)[i][j]->digit = dig; /*update the board with the chosen digit*/
 }
+/*TODO: ask Yoni to make separate function that allocate the memory*/
 /*assuming that receiving <X,Y> who the first empty cell*/
 int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int y){
     int total_size = sudoku->total_size,i=x,j=y, cntSolution=0;
@@ -407,12 +536,9 @@ int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int 
     if(stackItem == NULL || nextEmptyCell == NULL || currentEmptyCell == NULL){
         printMallocFailedAndExit();
     }
-    printf("here2\n");
-    printBoard(fixedBoard, total_size, sudoku->row, sudoku->column);
-    stackItem->board = copyBoard(fixedBoard, total_size);
+    stackItem->board = copyBoard(fixedBoard, total_size, 0); /* 0 for copying the all board */
     stackItem->board[i][j]->numOfOptionalDigits=sudoku->total_size;
     findThePossibleArray(stackItem->board,sudoku->row,sudoku->column, i, j);
-    printBoard(stackItem->board, total_size, sudoku->row, sudoku->column);
     updateCurrentEmptyCell(currentEmptyCell,x,y);
     pushToGetToNextCell(sudoku,stack,stackItem,currentEmptyCell,x,y, 1);
     while (canBacktrack(stack,x,y)) { /*while the array of the first empty cell isn't empty*/
@@ -432,10 +558,8 @@ int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int 
                 if (currentEmptyCell == NULL) {
                     printMallocFailedAndExit();
                 }
-
                 i=nextEmptyCell->x;
                 j=nextEmptyCell->y;
-
                 updateCurrentEmptyCell(currentEmptyCell,i,j);
             }
             stackItem = (StackItem*)malloc(sizeof(StackItem)); /*TODO: check if get free at the end*/
@@ -507,34 +631,7 @@ void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y)
     }
 }
 
-/*
- * @params - function receives SudokuCell*** board and the Sudoku size.
- *
- * The function create an empty board, malloc all board's required memory. also it resets each cell.
- */
-void createEmptyBoard(SudokuCell*** board, int total_size){
-    int i,j;
-    for(i=0; i<total_size; i++){
-        board[i] = (SudokuCell**)malloc(total_size*sizeof(SudokuCell*));
-        if(board[i] == NULL){
-            printMallocFailedAndExit();
-        }
-        for(j=0; j<total_size;j++){
-            board[i][j] = (SudokuCell*)malloc(sizeof(SudokuCell));
-            if(board[i][j] == NULL){
-                printMallocFailedAndExit();
-            }
-            board[i][j]->digit=0;
-            board[i][j]->is_fixed=0;
-            board[i][j]->cnt_erroneous=0;
-            board[i][j]->numOfOptionalDigits=total_size;
-            board[i][j]->optionalDigits=(int*)malloc(total_size* sizeof(int));
-            if(board[i][j]->optionalDigits == NULL){
-                printMallocFailedAndExit();
-            }
-        }
-    }
-}
+
 
 /*
  * @params - function receives SudokuCell***, the Sudoku size, pointer to Cell, and the indexes x,y.
@@ -579,7 +676,6 @@ void currentStateToFixed(Sudoku* sudoku, SudokuCell*** board, int total_size){
 
 
     int cnt=0,i,j,dig, finishCopy=0, x,y;
-    printf("here\n\n");
     for (i=0;i<total_size;i++){
         for (j=0;j<total_size;j++) {
             if (cnt < sudoku->cntFilledCell) { /*more filled cells are left to copy*/
@@ -602,7 +698,6 @@ void currentStateToFixed(Sudoku* sudoku, SudokuCell*** board, int total_size){
                         }
                     }
                 }
-                printf("good1\n\n");
                 break;
             }
         }
@@ -614,7 +709,6 @@ void currentStateToFixed(Sudoku* sudoku, SudokuCell*** board, int total_size){
                     }
                 }
             }
-            printf("good2\n\n");
             break;
         }
     }

@@ -300,6 +300,11 @@ void printWriteToFileFailed(char* path){
 void printLoadedFileLengthNotValid(char* path){
     printf("Error: file %s is not in valid length\n", path);
 }
+
+void printLoadedFileFilledAndSolved(){
+    printf("Notice: your loaded board is filled and solved successfully. Game mode set to INIT\n");
+}
+
 void printLoadedFileEOF(char* path){
     printf("Error: file %s has reached EOF\n", path);
 }
@@ -309,8 +314,16 @@ void printLoadedFileFirstLineNotValid(char* path){
 void printLoadedFileCellNotValid(char* path){
     printf("Error: one of the cells in file %s is not valid\n", path);
 }
-void printLoadedFileNotSolvable(char* path){
-    printf("Error: The board in file %s is not solvable. When loading a file in edit mode the board loaded must be solvable.\n", path);
+void printLoadedFileNotSolvable(char* path) {
+    printf("Error: The board in file %s is not solvable. When loading a board in SOLVE mode, its fixed cells can't be erroneous.\n",path);
+}
+
+void printSolveFileFailed(char* path){
+    printf("Error: The board in file %s is not valid\n", path);
+}
+
+void printEditFileFailed(char* path){
+    printf("Error: The board in file %s is not valid\n", path);
 }
 
 

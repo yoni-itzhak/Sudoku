@@ -71,6 +71,7 @@ typedef struct{
 }Stack;
 
 
+void createEmptyBoard(SudokuCell*** board, int total_size);
 
 void freeBoard(SudokuCell*** board, int total_size);
 void freeSudokuMemory(Sudoku *sudoku);

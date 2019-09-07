@@ -20,7 +20,11 @@ void displayForward(List* list);
 void printMove(Move* move);
 
 void deleteLast(List* list); /*delete the node at the last location*/
+void deleteFromCurrent(List* list);
 
 struct Node* getCurrentMove(List* list);
+
+int isDummyNode(List* list);
+void addDummyNode(List* list);
 
 #endif

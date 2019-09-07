@@ -4,6 +4,36 @@
 #include "doubly_linked_list.h"
 #include <stdlib.h>
 
+/*
+ * @params - function receives SudokuCell*** board and the Sudoku size.
+ *
+ * The function create an empty board, malloc all board's required memory. also it resets each cell.
+ */
+void createEmptyBoard(SudokuCell*** board, int total_size){
+    int i,j;
+    for(i=0; i<total_size; i++){
+        board[i] = (SudokuCell**)malloc(total_size*sizeof(SudokuCell*));
+        if(board[i] == NULL){
+            printMallocFailedAndExit();
+        }
+        for(j=0; j<total_size;j++){
+            board[i][j] = (SudokuCell*)malloc(sizeof(SudokuCell));
+            if(board[i][j] == NULL){
+                printMallocFailedAndExit();
+            }
+            board[i][j]->digit=0;
+            board[i][j]->is_fixed=0;
+            board[i][j]->cnt_erroneous=0;
+            board[i][j]->numOfOptionalDigits=total_size;
+            board[i][j]->optionalDigits=(int*)malloc(total_size* sizeof(int));
+            if(board[i][j]->optionalDigits == NULL){
+                printMallocFailedAndExit();
+            }
+        }
+    }
+}
+
+
 
 void freeSudokuMemory(Sudoku *sudoku){
     if (sudoku->justStarted != 1){
@@ -18,6 +48,7 @@ void freeSudokuMemory(Sudoku *sudoku){
  * @params - function receives SudokuCell*** board and the Sudoku size.
  *
  * The function frees all board's allocated memory.
+ *
  */
 void freeBoard(SudokuCell*** board, int total_size){
     int i,j;

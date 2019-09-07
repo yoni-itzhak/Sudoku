@@ -6,19 +6,19 @@
 
 
 void printMove(Move* move){
-    if (move==NULL){
+    /*if (move==NULL){
         return;
     }
-    return;
-    /*printf("(x: %d, y: %d, b_value: %d, a_value: %d, b_err: %d, a_err: %d) ", move->cell->x, move->cell->y, move->beforeValue,move->afterValue, move->beforeErroneous, move->afterErroneous);*/
+    return;*/
+    printf("(x: %d, y: %d, b_value: %d, a_value: %d, b_err: %d, a_err: %d) ", move->cell->x, move->cell->y, move->beforeValue,move->afterValue, move->beforeErroneous, move->afterErroneous);
 }
 
 void displayForward(List* list) {
-    if (list==NULL){
+    /*if (list==NULL){
         return;
     }
     return;
-/*
+*/
     int i, cnt=0;
     struct Node *ptr = list->head;
 
@@ -36,7 +36,14 @@ void displayForward(List* list) {
         cnt++;
     }
 
-*/
+
+}
+
+int isDummyNode(List* list){
+    if (list->current->arrSize == -1){
+        return 1;
+    }
+    return 0;
 }
 
 void addDummyNode(List* list){
@@ -145,7 +152,11 @@ int hasPrev(List* list){
     }
 }*/
 
-
+void deleteFromCurrent(List* list){
+    while (list->last != list->current){
+        deleteLast(list);
+    }
+}
 
 /*delete the node at the last location*/
 void deleteLast(List* list) {

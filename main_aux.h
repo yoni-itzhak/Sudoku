@@ -31,6 +31,8 @@
  */
 void printBoard(SudokuCell*** board, int total_size, int row, int column); /*TODO: need to be deleted at the end*/
 
+void printSolveFileFailed(char* path);
+void printEditFileFailed(char* path);
 
 void printNoAutoFilledCells();
 void printSameValueCell();
@@ -55,6 +57,8 @@ void printLoadedFileCellNotValid(char* path);
 void printLoadedFileNotSolvable(char* path);
 void printErroneousBoard();
 void printErrorInPuzzleGenerator();
+
+void printLoadedFileFilledAndSolved();
 
 void printNoMovesToUndo();
 void printNoMovesToRedo();

@@ -42,14 +42,14 @@ int canBacktrack(Stack* stack,int x,int y);
 void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j, int total_size);
 void pushToGetToNextCell(Sudoku* sudoku,Stack* stack,StackItem* stackItem,Cell* currentEmptyCell,int i,int j, int firstTime);
 void updateCurrentEmptyCell(Cell* currentEmptyCell,int i, int j);
-void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size);
-SudokuCell*** copyBoard(SudokuCell*** board, int total_size);
+void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size, int copyFixedCellsOnly);
+SudokuCell*** copyBoard(SudokuCell*** board, int total_size, int copyFixedCellsOnly);
 void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell**** tmpItemBoard, int total_size, int i,int j);
 int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int y);
 
 void deleteDigitFromArr(SudokuCell*** board, int x, int y, int dig);
 void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y);
-void createEmptyBoard(SudokuCell*** board, int total_size);
+
 
 int ILP_Validation(SudokuCell*** tmpBoard, int row, int column, Command command, int x, int y, int* p_dig);
 
