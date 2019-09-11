@@ -37,6 +37,9 @@
 
 
 
+void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype, int total_size, double** obj, int isLP);
+void freeGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype,double** obj, int isLP);
+
 
 int canBacktrack(Stack* stack,int x,int y);
 void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j, int total_size);
