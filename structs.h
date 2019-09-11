@@ -72,6 +72,12 @@ typedef struct{
 }Stack;
 
 
+typedef struct{
+    int val;
+    int probability;
+}WeightedCell;
+
+
 void createEmptyBoard(SudokuCell*** board, int total_size);
 
 void freeBoard(SudokuCell*** board, int total_size);

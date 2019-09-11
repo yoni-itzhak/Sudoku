@@ -908,15 +908,6 @@ void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku){
  *       3. take care of erroneous in general (when changing cells for example)*/
 
 
-void LP_Guesses(){
-
-}
-void fillCellsWithScoreX(){
-
-}
-int LP_Validation(){
-    return 1;
-}
 void printAllLegalValues(){
 
 }
@@ -1014,17 +1005,11 @@ void validate(Sudoku* sudoku){
 /* Guess*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void guess(Sudoku* sudoku, float x){
-    if (sudoku->mode!=SOLVE){
-        /*print appropriate massage*/
+    if (isErroneous(sudoku)==1){ /*board is erroneous*/
+        printErroneousBoard();
     }
-    else if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        /*print an error message and the command is not executed*/
-    }
-    else{ /*in Solve mode AND not erroneous*/
-        if (x==0.0){
-            return;
-        }
-        LP_Guesses();
+    else{
+        is_solvable = LP_Validation(sudoku, )
         fillCellsWithScoreX();
         print_board(sudoku);
     }

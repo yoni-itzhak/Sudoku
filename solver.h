@@ -52,10 +52,12 @@ void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y)
 
 
 int ILP_Validation(SudokuCell*** tmpBoard, int row, int column, Command command, int x, int y, int* p_dig);
+int LP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* sol_arr, int* arr_size, int* movesArr);
 
 void findNextEmptyCell(SudokuCell*** board,int total_size,Cell* cell, int x,int y);
 
 void currentStateToFixed(Sudoku *sudoku, SudokuCell ***board, int total_size);
+int choose_weighted_rand(WeightedCell* arr, int arr_size)
 
 #endif
 

@@ -346,3 +346,12 @@ int stringToInt(char* str){
     return val;
 }
 
+int isNumInArr(int num, int *arr, int arr_size){
+    int i;
+    for(i=0; i<arr_size;i++){
+        if(arr[i] == num){
+            return 1;
+        }
+    }
+    return 0;
+}

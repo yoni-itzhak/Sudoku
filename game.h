@@ -125,10 +125,6 @@ void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku);
  *       3. take care of erroneous in general (when changing cells for example)*/
 
 
-void LP_Guesses();
-void fillCellsWithScoreX();
-int LP_Validation();
-void printAllLegalValues();
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Mark errors*/

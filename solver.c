@@ -40,7 +40,7 @@ void freeGurobi(GRBenv   *env, GRBmodel *model){
     GRBfreeenv(env); /* Free environment /*/
 }
 
-int LP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
+int LP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* sol_arr, int* arr_size){
 
 
     int total_size = row * column;
@@ -50,9 +50,10 @@ int LP_Validation(SudokuCell*** board, int row, int column, Command command, int
     char      *vtype;
     int       optimstatus;
     double    objval = 0.0;
-    int       i, j, v, ig, jg, count, dig, cnt, isSolvable;
+    int       i, j, v, ig, jg, count, dig, cnt, isSolvable, possible_sol_arr_size, chosen_val, cell_probability, numOfMoves=0;
     int       error = 0;
-
+    Move** arrMove;
+    WeightedCell*  possible_sol_arr;
     allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size);
     /* Create an empty model /*/
     for (i = 0; i < total_size; i++) {
@@ -98,6 +99,41 @@ int LP_Validation(SudokuCell*** board, int row, int column, Command command, int
             }
         }
     }
+
+    if(command == GUESS) {
+        arrMove = (Move**)malloc((total_size*total_size) * sizeof(Move*));
+        if (arrMove == NULL) {
+            printMallocFailedAndExit();
+        }
+        for (i = 0; i < total_size; i++) {
+            for (j = 0; j < total_size; j++) {
+                board[i][j]->numOfOptionalDigits = total_size;
+                findThePossibleArray(board, row, column, i, j);
+                possible_sol_arr = (WeightedCell*)malloc(total_size* sizeof(WeightedCell));
+                if (possible_sol_arr == NULL){
+                    printMallocFailedAndExit();
+                }
+                possible_sol_arr_size=0;
+                for (v = 0; v < total_size; v++) {
+                    cell_probability = sol[i * total_size * total_size + j * total_size + v];
+                    if (cell_probability >= x && isNumInArr(v+1, board[i][j]->optionalDigits, board[i][j]->numOfOptionalDigits)){
+                        /*TODO: validate we don't choose value with probability 0 */
+                        possible_sol_arr[possible_sol_arr_size].val = v+1;
+                        possible_sol_arr[possible_sol_arr_size].probability = cell_probability;
+                        possible_sol_arr_size++;
+                    }
+                }
+                chosen_val = choose_weighted_rand(possible_sol_arr, possible_sol_arr_size);
+                free(possible_sol_arr);
+
+                addMoveToArrMoveAndIncrementSize(arrMove, &numOfMoves, i, j, sudoku->currentState[i][j]->digit,
+                                                 tmpBoard[i][j]->digit, 0, 0);
+
+
+            }
+        }
+    }
+
 
     /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
