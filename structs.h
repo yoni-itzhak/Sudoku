@@ -1,6 +1,7 @@
 #ifndef SUDOKU_STRUCTS_H
 #define SUDOKU_STRUCTS_H
 
+#include "main_aux.h"
 
 typedef struct{
     int x;

@@ -22,7 +22,7 @@ stack.o: stack.c stack.h solver.h structs.h
 	$(CC) $(COMP_FLAG) -c $*.c
 doubly_linked_list.o: doubly_linked_list.c doubly_linked_list.h structs.h
 	$(CC) $(COMP_FLAG) -c $*.c
-structs.o: structs.c structs.h
+structs.o: structs.c structs.h main_aux.h
 	$(CC) $(COMP_FLAG) -c $*.c
 
 clean:
