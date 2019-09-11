@@ -79,5 +79,7 @@ void printSeparatorRow(int N, int m);
 void printMallocFailedAndExit();
 void printGurobiFailed();
 
+int isNumInArr(int num, int *arr, int arr_size)
+
 #endif
 

@@ -130,7 +130,7 @@ State readCommand(Sudoku* sudoku, char* input){
                     }
                 }
                 if(!numErrors) {
-                    set(sudoku, --x, --y, z);
+                    set(sudoku, --y, --x, z);
                 }
             }
             _freeCase(cmd, path, errorsInParams);
@@ -183,7 +183,7 @@ State readCommand(Sudoku* sudoku, char* input){
                     }
                 }
                 if(!numErrors){
-                    hint(sudoku, --x, --y);
+                    hint(sudoku, --y, --x);
                 }
             }
             _freeCase(cmd, path, errorsInParams);
@@ -198,7 +198,7 @@ State readCommand(Sudoku* sudoku, char* input){
                     }
                 }
                 if(!numErrors){
-                    guess_hint(sudoku, --x, --y);
+                    guess_hint(sudoku, --y, --x);
                 }
             }
             _freeCase(cmd, path, errorsInParams);
