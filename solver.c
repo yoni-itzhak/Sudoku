@@ -333,13 +333,12 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
 
     /*/ Write model to 'sudoku.lp' /*/
 
-    error = GRBwrite(model, "sudoku.lp");
+    /*error = GRBwrite(model, "sudoku.lp");
     if (error) {
-        /*printf("ERROR %d GRBwrite(): %s\n", error, GRBgeterrormsg(env));*/
         freeGurobi(env, model);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
         return -1;
-    }
+    }*/
 
     /*/ Capture solution information /*/
 
@@ -426,6 +425,18 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
     return isSolvable;
 }
 
+int IsBoardErroneous(SudokuCell*** board, int total_size){
+    int i,j;
+    for (i=0;i<total_size;i++){
+        for (j=0;j<total_size;j++){
+            if (isCellErroneous(board,i,j)){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
 
     GRBenv   *env   = NULL;
@@ -440,6 +451,13 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
     double    objval = 0.0;
     int       i, j, v, ig, jg, count, dig, cnt, isSolvable;
     int       error = 0;
+    int isErroneous;
+
+    isErroneous = IsBoardErroneous(board, row*column);
+    if (isErroneous){
+        /*don't run ILP and exit function*/
+    }
+    /* if valid, run ILP */
 
     allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size, NULL, 0);
     /* Create an empty model /*/
@@ -628,13 +646,12 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
 
     /*/ Write model to 'sudoku.lp' /*/
 
-    error = GRBwrite(model, "sudoku.lp");
+    /*error = GRBwrite(model, "sudoku.lp");
     if (error) {
-        /*printf("ERROR %d GRBwrite(): %s\n", error, GRBgeterrormsg(env));*/
         freeGurobi(env, model);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
         return -1;
-    }
+    }*/
 
     /*/ Capture solution information /*/
 
@@ -680,7 +697,6 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
                             board[i][j]->digit = v+1;
                         }
                     }
-
                 }
             }
         }

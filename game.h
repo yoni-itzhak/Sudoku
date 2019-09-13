@@ -45,7 +45,9 @@ int check_EOF_and_invalid_scan(char* path, int scan, void (*errorFunc)(char*));
 int scanRowAndColumn(FILE* file, char* path, int* p_row, int* p_column);
 int areOnlyWhitespacesLeft(FILE* file);
 int scanCells(FILE* file, char* path, SudokuCell*** board, Mode mode, int total_size, int* p_cntFilledCell);
-/* TODO: not finished! */ int check_erroneous_in_loaded_board(Sudoku* tmpSudoku, char* path, Mode newMode, int editWithoutPath, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+/* TODO: not finished! */ int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode,
+                                                               int editWithoutPath, SudokuCell ***newCurrentState,
+                                                               int newRow, int newColumn, int newCntFilledCell);
 /* TODO: not finished! */ int updateSudoku(Sudoku* sudoku, char* path, Mode newMode, int editWithoutPath, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
 int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode);
 int loadBoardFromPath(Sudoku *sudoku, char *X, Mode mode);
@@ -165,6 +167,7 @@ int hasMoveToRedo(Sudoku* sudoku);
 void setPointerToPreviousMove(Sudoku* sudoku);
 void setPointerToNextMove(Sudoku* sudoku);
 void updateTheBoard(Sudoku* sudoku, Move* move, Command command);
+int isTrivialSet(Move* currentMove);
 void undoMove(Sudoku* sudoku, Command command);
 void undo(Sudoku* sudoku);
 void redoMove(Sudoku* sudoku);

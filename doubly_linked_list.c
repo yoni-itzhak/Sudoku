@@ -98,16 +98,6 @@ int isListEmpty(List* list) {
     return 0;
 }
 
-/*int length(List* list) {
-    int length = 0;
-    struct Node* tmp;
-
-    for(tmp = list->head; tmp != NULL; tmp = tmp->next){
-        length++;
-    }
-    return length;
-}*/
-
 /*Inserts a Node at tail of doubly linked list*/
 void insertAtTail(List* list, Move** arrMove, int arrSize) {
     struct Node *newNode = getNewNode(arrMove, arrSize); /*create new node*/
@@ -146,12 +136,6 @@ int hasPrev(List* list){
     return 1;
 }
 
-/*void moveToStart(List* list){
-    while (hasPrev(list)){
-        list->current=list->current->prev;
-    }
-}*/
-
 void deleteFromCurrent(List* list){
     while (list->last != list->current){
         deleteLast(list);
@@ -170,7 +154,6 @@ void deleteLast(List* list) {
     list->last = list->last->prev;
     freeNode(tmp); /*free the allocated memory of the deleted node*/
 }
-
 
 
 struct Node* getCurrentMove(List* list){
