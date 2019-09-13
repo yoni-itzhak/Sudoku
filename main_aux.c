@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "main_aux.h"
+#include "parser.h"
 
 void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_size, int x, int y){
     int i;

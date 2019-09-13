@@ -1,18 +1,16 @@
 #ifndef SUDOKU_STRUCTS_H
 #define SUDOKU_STRUCTS_H
 
-#include "main_aux.h"
-
-typedef struct{
-    int x;
-    int y;
-}Cell;
-
 typedef enum{
     INIT,
     EDIT,
     SOLVE
 }Mode;
+
+typedef struct{
+    int x;
+    int y;
+}Cell;
 
 typedef struct {
     int beforeValue;

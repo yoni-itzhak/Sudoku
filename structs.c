@@ -2,6 +2,7 @@
 #include "structs.h"
 #include "stack.h"
 #include "doubly_linked_list.h"
+#include "main_aux.h"
 #include <stdlib.h>
 
 /*
