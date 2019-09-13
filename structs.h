@@ -74,7 +74,7 @@ typedef struct{
 
 typedef struct{
     int val;
-    int probability;
+    float probability;
 }WeightedCell;
 
 

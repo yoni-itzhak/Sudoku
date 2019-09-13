@@ -79,7 +79,9 @@ void printSeparatorRow(int N, int m);
 void printMallocFailedAndExit();
 void printGurobiFailed();
 
-int isNumInArr(int num, int *arr, int arr_size)
+int isNumInArr(int num, int *arr, int arr_size);
+float stringToFloat(char* str);
+void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_size, int x, int y);
 
 #endif
 

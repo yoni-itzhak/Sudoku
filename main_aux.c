@@ -1,7 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "main_aux.h"
+
+void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_size, int x, int y){
+    int i;
+    printf("The cell <%d, %d> possible legal values are:\n", y, x);
+    for(i=0; i<possible_sol_arr_size; i++){
+        printf("Value: %d, Probability: %f\n", possible_sol_arr[i]->val, possible_sol_arr[i]->probability);
+    }
+}
 
 void printBoard(SudokuCell*** board, int total_size, int row, int column) {
     int i, j, cell;
@@ -114,8 +123,7 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
                     stringFromCommand(command), total_size);
         }
         else if(command==GUESS){
-            printf("Error: The command 'guess' gets a parameter in the range 0-%d\n",
-                    total_size);
+            printf("Error: The command 'guess' gets a parameter in the range 0-1");
         }
         else if(command==GENERATE){
             printf("Error: The first parameter for the command 'generate' should be in the range 0-%d\n",
@@ -339,6 +347,29 @@ void printSameValueCell(){
     printf("Notice: your chosen cell has the same value that you chose to set\n");
 }
 
+
+float stringToFloat(char* str){
+    int hasPoint=0;
+    unsigned long i;
+    char* ptr;
+    float val = strtod(str, &ptr);
+    if (val == 0.0){
+        for (i=0; i<strlen(str); i++){
+            if (str[i] != 48){ /* if not '0' */
+                if (str[i] == 46){
+                    if (hasPoint){
+                        return -1;
+                    }
+                    hasPoint = 1;
+                }
+                else{
+                    return -1;
+                }
+            }
+        }
+    }
+    return val;
+}
 
 int stringToInt(char* str){
     char* ptr;

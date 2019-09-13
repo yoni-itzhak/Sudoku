@@ -7,6 +7,36 @@
 
 
 
+int _validate_hint(Sudoku* sudoku, int x, int y){
+    if(isErroneous(sudoku)==1){
+        printErroneousBoard();
+        return 0;
+    }
+    else if (isFixed(sudoku->currentState,x,y)==1){
+        printFixed();
+        return 0;
+    }
+    else if(isContainsValue(sudoku,x,y)==1){
+        printContainsValue();
+        return 0;
+    }
+    return 1;
+}
+
+int _validate_gurobi(int isSolvable){
+    if ( isSolvable != 1 ){
+        if (isSolvable == 0){
+            printUnsolvableBoard();
+            return 0;
+        }
+        else if (isSolvable == -1){
+            printGurobiFailed();
+            return 0;
+        }
+    }
+    return 1;
+}
+
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /*loading files*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
@@ -908,10 +938,6 @@ void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku){
  *       3. take care of erroneous in general (when changing cells for example)*/
 
 
-void printAllLegalValues(){
-
-}
-
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Mark errors*/
@@ -1005,13 +1031,15 @@ void validate(Sudoku* sudoku){
 /* Guess*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void guess(Sudoku* sudoku, float x){
+    int isSolvable;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
         printErroneousBoard();
     }
     else{
-        is_solvable = LP_Validation(sudoku, )
-        fillCellsWithScoreX();
-        print_board(sudoku);
+        isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS, -1, -1, x);
+        if (_validate_gurobi(isSolvable)){
+            print_board(sudoku);
+        }
     }
 }
 
@@ -1192,34 +1220,16 @@ void save(Sudoku* sudoku, char* X) {
     saveBoardInFile(sudoku,X);
 }
 
+
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Hint */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void hint(Sudoku* sudoku, int x, int y){
     int isSolvable, dig;
-    if(isErroneous(sudoku)==1){
-        printErroneousBoard();
-    }
-    else if (isFixed(sudoku->currentState,x,y)==1){
-        printFixed();
-    }
-    else if(isContainsValue(sudoku,x,y)==1){
-        printContainsValue();
-    }
-    else{ /*in Solve mode AND all valid*/
+    if (_validate_hint(sudoku, x, y)){ /*in Solve mode AND all valid*/
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);
-        if ( isSolvable != 1 ){
-            if (isSolvable == 0){
-                printUnsolvableBoard();
-            }
-            else if (isSolvable == -1){
-                printGurobiFailed();
-            }
-            return;
-        }
-        else{ /*board is solvable*/
-            printHint(x+1,y+1,dig);
-            /*print the value of cell <X,Y> found by the ILP solution*/
+        if (_validate_gurobi(isSolvable)){ /*board is solvable*/
+            printHint(x+1,y+1,dig);/*prints the value of cell <X,Y> found by the ILP solution*/
         }
     }
 }
@@ -1229,22 +1239,10 @@ void hint(Sudoku* sudoku, int x, int y){
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 void guess_hint(Sudoku* sudoku, int x, int y){
-    int isSolvable = 0;
-    if (sudoku->mode!=SOLVE){
-        /*print appropriate massage*/
-    }
-    else if (isErroneous(sudoku)==1 || isFixed(sudoku->currentState,x,y)==1 || isContainsValue(sudoku,x,y)==1){ /*board is erroneous OR cell is fixed OR contains a value*/
-        /*print an error message and the command is not executed*/
-    }
-    else{ /*in Solve mode AND all valid*/
-        isSolvable = LP_Validation();
-        if (isSolvable == 0 ){ /*board is unsolvable*/
-            printUnsolvableBoard();
-        }
-        else{ /*board is solvable*/
-            printAllLegalValues();
-            /*print all the legal values of cell <X,Y> and their scores (score greater then 0)*/
-        }
+    int isSolvable;
+    if(_validate_hint(sudoku, x, y)){
+        isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS_HINT, x, y, -1.0);
+        _validate_gurobi(isSolvable);
     }
 }
 
