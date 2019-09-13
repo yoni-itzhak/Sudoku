@@ -7,7 +7,7 @@
 
 void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_size, int x, int y){
     int i;
-    printf("The cell <%d, %d> possible legal values are:\n", y, x);
+    printf("The cell <%d, %d> possible legal values are:\n", ++y, ++x);
     for(i=0; i<possible_sol_arr_size; i++){
         printf("Value: %d, Probability: %f\n", possible_sol_arr[i]->val, possible_sol_arr[i]->probability);
     }
@@ -120,11 +120,11 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
             printf("Error: The command 'mark_errors' can only get 0 or 1 as arguments\n");
         }
         else if(command==SET){/*TODO: figure out the error for HINT and GUESS_HINT */
-            printf("Error: The first parameter for the command '%s' should be in the range 0-%d\n",
+            printf("Error: The first parameter for the command '%s' should be in the range 1-%d\n",
                     stringFromCommand(command), total_size);
         }
         else if(command==GUESS){
-            printf("Error: The command 'guess' gets a parameter in the range 0-1");
+            printf("Error: The command 'guess' gets a parameter in the range 0-1\n");
         }
         else if(command==GENERATE){
             printf("Error: The first parameter for the command 'generate' should be in the range 0-%d\n",
@@ -133,16 +133,16 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
     }
     else if(err == INVALID_PARAM_Y){
         if(command==SET || command==HINT || command==GUESS_HINT){
-            printf("Error: The second parameter for the command '%s' should be in the range 0-%d\n",
+            printf("Error: The second parameter for the command '%s' should be in the range 1-%d\n",
                    stringFromCommand(command), total_size);
         }
         else if(command==GENERATE){
-            printf("Error: The second parameter for the command 'generate' should be in the range 0-%d\n",
+            printf("Error: The second parameter for the command 'generate' should be in the range 1-%d\n",
                     total_cells);
         }
     }
     else if(err==INVALID_PARAM_Z){
-        printf("Error: The third parameter for the command 'set' should be in the range 0-%d\n",
+        printf("Error: The third parameter for the command 'set' should be in the range 1-%d\n",
                total_size);
     }
 }

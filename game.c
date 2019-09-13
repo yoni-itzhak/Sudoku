@@ -1026,6 +1026,10 @@ void guess(Sudoku* sudoku, float x){
     else{
         isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS, -1, -1, x);
         if (_validate_gurobi(isSolvable)){
+            if(sudoku->cntFilledCell == ((sudoku->total_size)*(sudoku->total_size))){
+                printSolved();
+                sudoku->mode=INIT;
+            }
             print_board(sudoku);
         }
     }

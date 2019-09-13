@@ -222,7 +222,7 @@ State readCommand(Sudoku* sudoku, char* input){
             exitProgram();
             _freeCase(cmd, path, errorsInParams);
             return STATE_EXIT;
-        default: /*invalid command*/
+        default: /*invalid command or only spaces were given*/
             _freeCase(cmd, path, errorsInParams);
             return STATE_LOOP;
     }
