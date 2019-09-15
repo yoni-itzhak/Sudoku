@@ -76,7 +76,6 @@ void MallocAndFindPossibleSolArr(WeightedCell*** possible_sol_arr, int* possible
     }
     for (v = 0; v < total_size; v++) {
         cell_probability = sol[x * total_size * total_size + y * total_size + v];
-        printf("val: %d, prob: %f\n", v, cell_probability);
         if (cell_probability > 0 && cell_probability >= threshold &&
             isNumInArr(v+1, board[x][y]->optionalDigits, board[x][y]->numOfOptionalDigits)) {
             (*possible_sol_arr)[(*possible_sol_arr_size)]->val = v + 1;
@@ -150,7 +149,7 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
                         if (isNumInArr((v+1), board[i][j]->optionalDigits, board[i][j]->numOfOptionalDigits)){
                             lb[i * total_size * total_size + j * total_size +v] = 0;
                             ub[i * total_size * total_size + j * total_size + v] = 1;
-                            obj[i * total_size * total_size + j * total_size + v] = rand() % (board[i][j]->numOfOptionalDigits);
+                            obj[i * total_size * total_size + j * total_size + v] = (rand() % (board[i][j]->numOfOptionalDigits))+1;
                             cnt++;
                         } else {
                             lb[i * total_size * total_size + j * total_size + v] = 0;
@@ -233,7 +232,6 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
         return -1;
     }
 
-
     /*/first constraint type - each cell gets a value/*/
 
     for (i = 0; i < total_size; i++) {
@@ -252,6 +250,7 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
             }
         }
     }
+
 
     /*/ second constraint type - each value must appear once in each column /*/
 
@@ -319,6 +318,7 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
         }
     }
 
+
     /*/ Optimize model /*/
 
     error = GRBoptimize(model);
@@ -353,7 +353,7 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
     /*/ 3-- number of variables, the size of "sol" should match /*/
     error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0, total_size * total_size * total_size, sol);
     if (error) {
-        /*printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));*/
+        printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));
         freeGurobi(env, model);
         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
         return -1;
@@ -361,12 +361,9 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
 
 
     /*/ print results /*/
-    printf("\nOptimization complete\n");
-    printf("%d\n", optimstatus == GRB_OPTIMAL);
     /*/ solution found /*/
     if (optimstatus == GRB_OPTIMAL) {
         isSolvable = 1;
-        printf("Optimal objective: %.4e\n", objval);
         if (command == GUESS_HINT) {
             MallocAndFindPossibleSolArr(&possible_sol_arr, &possible_sol_arr_size, sol, sudoku, x, y, threshold);
             if(possible_sol_arr_size == 0){
@@ -400,6 +397,7 @@ int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, i
             addArrMoveToList(sudoku, arrMove, numOfMoves);
         }
     }
+
 
         /*/ no solution found /*/
     else if (optimstatus == GRB_INFEASIBLE || optimstatus == GRB_UNBOUNDED || optimstatus == GRB_INF_OR_UNBD) {

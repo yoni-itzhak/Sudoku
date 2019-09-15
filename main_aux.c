@@ -89,7 +89,24 @@ void _printAllowedCommands(Mode mode){
             }
         }
     }
-    printf("\n");
+    printf(".\n");
+}
+
+void _printModesAllowingCommand(Command command){
+    int i, isFirst=1;
+    for(i=0; i<3; i++){
+        if(isModeAllowingCommand(command, i)){
+            if(isFirst) {
+                printf("%s", stringFromMode(i));
+                isFirst = 0;
+            }
+            else{
+                printf(", %s", stringFromMode(i));
+            }
+        }
+    }
+    printf(".\n");
+
 }
 
 void handleInputError(Command command, Error err, Mode mode, int total_size, int total_cells){
@@ -101,6 +118,8 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
         printf("Error: The command %s is not available in the current mode, "
                "Please choose from: ", stringFromCommand(command));
         _printAllowedCommands(mode);
+        printf("The command %s is available in the modes: ", stringFromCommand(command));
+        _printModesAllowingCommand(command);
     }
     else if(err == TOO_MANY_PARAMS){
         printf("Error: Too many parameters were entered, "
