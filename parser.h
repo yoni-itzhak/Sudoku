@@ -80,6 +80,7 @@ int _commandGuess(int*, char*, int*, float*, Mode, int*);
 int _commandGenerate(int*, char*, int*, Mode, int, int*);
 int _commandHint(int*, char*, int*, Mode, int, int*);
 void _freeCase(int *, char* , int *);
+State _finish_and_return_loop(int*, char*, int*);
 void _parseCommand(char*, int*, float*, char*, Mode, int*, Sudoku*, int*);
 
 State readCommand(Sudoku*, char*);

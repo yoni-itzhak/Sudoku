@@ -13,40 +13,6 @@ void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_s
     }
 }
 
-void printBoard(SudokuCell*** board, int total_size, int row, int column) {
-    int i, j, cell;
-    for (i = 0; i < total_size; i++) {
-        if (i % row == 0) {
-            printSeparatorRow(total_size, column);
-        }
-        for (j = 0; j < total_size; j++) {
-            if (j % column == 0) {
-                printf("|");
-            }
-            printf(" ");
-            cell = board[i][j]->digit;
-            if (cell == 0) { /*cell is empty*/
-                printf("   ");
-            }
-            else { /*cell isn't empty*/
-                if (board[i][j]->is_fixed==1){ /*cell is fixed*/
-                    printf("%2d.", cell);
-                }
-                else if (board[i][j]->cnt_erroneous>0){ /*cell is erroneous*/
-                    printf("%2d*", cell);
-                }
-                else{
-                    printf("%2d ", cell);
-                }
-            }
-            if (j == total_size-1) {
-                printf("|\n");
-            }
-        }
-    }
-    printSeparatorRow(total_size, column);
-}
-
 void printNoMovesToUndo(){
     printf("Error: No moves to undo\n");
 }
@@ -93,7 +59,24 @@ void _printAllowedCommands(Mode mode){
             }
         }
     }
-    printf("\n");
+    printf(".\n");
+}
+
+void _printModesAllowingCommand(Command command){
+    int i, isFirst=1;
+    for(i=0; i<3; i++){
+        if(isModeAllowingCommand(command, i)){
+            if(isFirst) {
+                printf("%s", stringFromMode(i));
+                isFirst = 0;
+            }
+            else{
+                printf(", %s", stringFromMode(i));
+            }
+        }
+    }
+    printf(".\n");
+
 }
 
 void handleInputError(Command command, Error err, Mode mode, int total_size, int total_cells){
@@ -105,15 +88,17 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
         printf("Error: The command %s is not available in the current mode, "
                "Please choose from: ", stringFromCommand(command));
         _printAllowedCommands(mode);
+        printf("The command %s is available in the modes: ", stringFromCommand(command));
+        _printModesAllowingCommand(command);
     }
     else if(err == TOO_MANY_PARAMS){
         printf("Error: Too many parameters were entered, "
-               "the command '%s' gets exactly '%s' arguments\n",
+               "the command '%s' gets exactly %s arguments\n",
                 stringFromCommand(command), commandNumParams(command));
     }
     else if(err == NOT_ENOUGH_PARAMS){
         printf("Error: Not enough parameters were entered, "
-               "the command '%s' gets exactly '%s' arguments\n",
+               "the command '%s' gets exactly %s arguments\n",
                stringFromCommand(command), commandNumParams(command));
     }
     else if(err == INVALID_PARAM_X){
@@ -123,7 +108,7 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
         else if(command==MARK_ERRORS){
             printf("Error: The command 'mark_errors' can only get 0 or 1 as arguments\n");
         }
-        else if(command==SET){/*TODO: figure out the error for HINT and GUESS_HINT */
+        else if(command==SET || command == HINT || command == GUESS_HINT){
             printf("Error: The first parameter for the command '%s' should be in the range 1-%d\n",
                     stringFromCommand(command), total_size);
         }
@@ -141,12 +126,12 @@ void handleInputError(Command command, Error err, Mode mode, int total_size, int
                    stringFromCommand(command), total_size);
         }
         else if(command==GENERATE){
-            printf("Error: The second parameter for the command 'generate' should be in the range 1-%d\n",
+            printf("Error: The second parameter for the command 'generate' should be in the range 0-%d\n",
                     total_cells);
         }
     }
     else if(err==INVALID_PARAM_Z){
-        printf("Error: The third parameter for the command 'set' should be in the range 1-%d\n",
+        printf("Error: The third parameter for the command 'set' should be in the range 0-%d\n",
                total_size);
     }
 }
@@ -168,7 +153,7 @@ void printGurobiFailed(){
 }
 
 void printChangeInBoard(Cell* cell, int from, int to){
-    printf("The value of cell <%d,%d> has changed from %d to %d\n", (cell->x)+1, (cell->y)+1, from, to);
+    printf("The value of cell <%d,%d> has changed from %d to %d\n", (cell->y)+1, (cell->x)+1, from, to);
 }
 
 void printSolutionIsErroneous(){
@@ -198,7 +183,7 @@ void printContainsValue(){
  * The function prints the hint for the required cell.
  */
 void printHint(int x, int y, int value){
-    printf("Hint: set cell <%d,%d> to %d\n",x,y,value);
+    printf("Hint: set cell <%d,%d> to %d\n",y,x,value);
 }
 /*
  * The function prints that the board is solvable.
@@ -212,13 +197,7 @@ void printSolvableBoard(){
 void printUnsolvableBoard(){
     printf("Validation failed: board is unsolvable\n");
 }
-/*
- * The function prints that the program is exiting, and exit.
- */
-/*void printExiting(){
-    printf("Exiting...\n");
-    exit(0);
-}*/
+
 /*
  * The function prints the separator row for the board printing format.
  */
@@ -230,6 +209,7 @@ void printSeparatorRow(int N, int m){
     }
     printf("\n");
 }
+
 /*
  * The function prints the board printing format.
  */
@@ -269,16 +249,6 @@ void printSudoku(Sudoku *sudoku) {
     }
     printSeparatorRow(total_size, column);
 }
-
-
-/*
- * The function checks for EOF. if so, calling "printExiting".
- */
-/*void checkNoInput(){
-    if(feof(stdin)){
-        printExiting();
-    }
-}*/
 
 /*
  * The function gets called when memory allocation from malloc was failed and prints appropriate message.
@@ -330,25 +300,19 @@ void printLoadedFileNotSolvable(char* path) {
     printf("Error: The board in file %s is not solvable. When loading a board in SOLVE mode, its fixed cells can't be erroneous.\n",path);
 }
 
-void printSolveFileFailed(char* path){
-    printf("Error: The board in file %s is not valid\n", path);
-}
-
-void printEditFileFailed(char* path){
-    printf("Error: The board in file %s is not valid\n", path);
-}
-
-
-
-/*
- * The function prints that the command is invalid.
- */
-/*void printInvalidCommand(){
-    printf("Error: invalid command\n");
-}*/
-
 void printSameValueCell(){
     printf("Notice: your chosen cell has the same value that you chose to set\n");
+}
+
+
+int isOnlyDigits(char* str){
+    unsigned long i;
+    for (i=0; i < strlen(str); i++){
+        if(str[i] > 57 || str[i] < 48){
+            return 0;
+        }
+    }
+    return 1;
 }
 
 
@@ -377,8 +341,12 @@ float stringToFloat(char* str){
 
 int stringToInt(char* str){
     char* ptr;
-    int val = strtol(str, &ptr, 10);
-    return val;
+    if(isOnlyDigits(str)){
+        return strtol(str, &ptr, 10);
+    }
+    else{
+        return -1;
+    }
 }
 
 int isNumInArr(int num, int *arr, int arr_size){

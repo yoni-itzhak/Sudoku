@@ -5,8 +5,6 @@
 #include "game.h"
 #include "main_aux.h"
 
-
-
 int _validate_hint(Sudoku* sudoku, int x, int y){
     if(isErroneous(sudoku)==1){
         printErroneousBoard();
@@ -836,11 +834,13 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
     }
     freeBoard(tmpBoard, sudoku->total_size);
     /*TODO: message for Yoni from xaim - I think that in EDIT mode (note: this command is only available in EDIT), even if the board is "solved" we shouldn't move to INIT (and also according to the some students in the whatsapp group). update me with your decision*/
-    if(y==total_cells && isValid){
-        printSolved();
-        sudoku->mode=INIT;
+    if(isValid){
+        if(y==total_cells){
+            printSolved();
+            sudoku->mode=INIT;
+        }
+        print_board(sudoku);
     }
-    print_board(sudoku);
 }
 
 void createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
