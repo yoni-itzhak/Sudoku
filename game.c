@@ -805,7 +805,8 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
                 backToOriginalState(sudoku->currentState, tmpBoard, sudoku->total_size);
                 continue;
             }
-            isSolvable = ILP_Validation(tmpBoard, sudoku->row, sudoku->column, GENERATE, -1, -1, NULL);/* should fill out the board */
+            isSolvable = GRSolver(NULL,tmpBoard,0, sudoku->row, sudoku->column, GENERATE, -1, -1, -1.0, NULL);
+            /* should fill out the board */
             if (isSolvable != 1 ){
                 if (isSolvable == -1){
                     printGurobiFailed();
@@ -1003,7 +1004,7 @@ void validate(Sudoku* sudoku){
         printErroneousBoard();
     }
     else{ /*in Solve/Edit mode AND not erroneous*/
-        isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, VALIDATE, -1, -1, NULL);
+        isSolvable = GRSolver(sudoku, sudoku->currentState,0, sudoku->row, sudoku->column, VALIDATE, -1, -1, -1.0, NULL);
         if (isSolvable != 1 ){
             if (isSolvable == 0){
                 printUnsolvableBoard();
@@ -1028,7 +1029,8 @@ void guess(Sudoku* sudoku, float x){
         printErroneousBoard();
     }
     else{
-        isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS, -1, -1, x);
+        isSolvable = GRSolver(sudoku, sudoku->currentState,1, sudoku->row, sudoku->column, GUESS, -1, -1, x, NULL);
+        /*isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS, -1, -1, x);*/
         if (_validate_gurobi(isSolvable)){
             if(sudoku->cntFilledCell == ((sudoku->total_size)*(sudoku->total_size))){
                 printSolved();
@@ -1238,7 +1240,8 @@ void save(Sudoku* sudoku, char* X) {
 void hint(Sudoku* sudoku, int x, int y){
     int isSolvable, dig;
     if (_validate_hint(sudoku, x, y)){ /*in Solve mode AND all valid*/
-        isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);
+        isSolvable = GRSolver(sudoku, sudoku->currentState,0, sudoku->row, sudoku->column, HINT, x, y, -1.0, &dig);
+        /*isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);*/
         if (_validate_gurobi(isSolvable)){ /*board is solvable*/
             printHint(x+1,y+1,dig);/*prints the value of cell <X,Y> found by the ILP solution*/
         }
@@ -1252,7 +1255,8 @@ void hint(Sudoku* sudoku, int x, int y){
 void guess_hint(Sudoku* sudoku, int x, int y){
     int isSolvable;
     if(_validate_hint(sudoku, x, y)){
-        isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS_HINT, x, y, -1.0);
+        isSolvable = GRSolver(sudoku, sudoku->currentState,1, sudoku->row, sudoku->column, GUESS_HINT, x, y, -1.0, NULL);
+        /*isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS_HINT, x, y, -1.0);*/
         _validate_gurobi(isSolvable);
     }
 }
