@@ -29,59 +29,56 @@
  * printMallocFailed    - gets called when memory allocation from malloc was failed and prints appropriate message
  *
  */
-void printBoard(SudokuCell*** board, int total_size, int row, int column); /*TODO: need to be deleted at the end*/
 
-void printSolveFileFailed(char* path);
-void printEditFileFailed(char* path);
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*auxiliary functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+int stringToInt(char*);
+int isNumInArr(int num, int *arr, int arr_size);
+float stringToFloat(char* str);
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*error messages*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+void printNotEnoughEmptyCells(int, int);
+void handleInputError(Command, Error, Mode, int, int);
+void printOpenFileFailed(char* path);
+void printCloseFileFailed(char* path);
+void printWriteToFileFailed(char* path);
+void printLoadedFileLengthNotValid(char* path);
+void printLoadedFileEOF(char* path);
+void printLoadedFileFirstLineNotValid(char* path);
+void printLoadedFileCellNotValid(char* path);
+void printLoadedFileNotSolvable(char* path);
+void printErroneousBoard(Command);
+void printErrorInPuzzleGenerator();
+void printNoMovesToUndo();
+void printNoMovesToRedo();
+void printMallocFailedAndExit();
+void printGurobiFailed();
+void printSaveErronousBoard();
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*game flow messages*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void printEmptyAutofill();
 void printNoAutoFilledCells();
 void printSameValueCell();
-void printCannotGenerateBoardWithErrors();
-void printNotEnoughEmptyCells(int, int);
 void printChangeInBoard(Cell* cell, int from, int to);
 void printNumOfSolution(int numOfSolution);
 void printSolutionIsErroneous();
 void printExitMessage();
 void printEnterCommand();
 void printCommandTooLong();
-void handleInputError(Command, Error, Mode, int, int);
-int stringToInt(char*);
-void printOpenFileFailed(char* path);
-void printCloseFileFailed(char* path);
-void printWriteToFileFailed(char* path);
-
-void printLoadedFileLengthNotValid(char* path);
-void printLoadedFileEOF(char* path);
-void printLoadedFileFirstLineNotValid(char* path);
-void printLoadedFileCellNotValid(char* path);
-void printLoadedFileNotSolvable(char* path);
-void printErroneousBoard();
-void printErrorInPuzzleGenerator();
-
 void printLoadedFileFilledAndSolved();
-
-void printNoMovesToUndo();
-void printNoMovesToRedo();
-
-void printBoard(SudokuCell*** board, int total_size, int row, int column);
 void printSolved();
 void printFixed();
 void printContainsValue();
-/*void printInvalidValue();*/
 void printSolvableBoard();
 void printUnsolvableBoard();
 void printHint(int x, int y, int value);
 void printSudoku(Sudoku *sudoku);
 void printSeparatorRow(int N, int m);
-/*void printExiting();*/
-/*void printInvalidCommand();*/
-/*void checkNoInput();*/
-void printMallocFailedAndExit();
-void printGurobiFailed();
-
-int isNumInArr(int num, int *arr, int arr_size);
-float stringToFloat(char* str);
 void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_size, int x, int y);
 
 #endif

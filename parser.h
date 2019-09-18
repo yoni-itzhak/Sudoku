@@ -9,17 +9,7 @@
  *
  * A container that takes care of the input from the user.
  * The container supports the following functions:
- *
- * State -              Enum that specifies the game current state: STATE_SOLVED - if the board is solved,
- *                      STATE_RESTART - if the user inserts "restart", STATE_EXIT - if the user inserts exit,
- * STATE_LOOP -         any other case
- * readCommand -        Calls and executes the appropriate command using _whichCommand
- * _whichCommand -      The function interprets the user's input into the required command and values
- *                      (or indicates if the command is invalid)
- * numberOfCells -      reads from the user the number of fixed cells that he wants on the board
- * exitRestartCommand - Called after the board is solved, allows the user to type only "exit" or "restart"
- *
- */
+ **/
 
 typedef enum{
     STATE_EXIT,
@@ -65,11 +55,6 @@ char* stringFromCommand(Command);
 char* stringFromMode(Mode);
 char* commandNumParams(Command);
 int isModeAllowingCommand(Command, Mode);
-
-/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-/*auxiliary functions*/
-/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-
 int _commandName(int*, char*, int*, Mode);
 int _isTooManyParams(int*, int*, int, Mode);
 int _isEnoughParams(int *cmd, int *cnt, int validNumOfParams, Mode mode);
@@ -83,6 +68,9 @@ void _freeCase(int *, char* , int *);
 State _finish_and_return_loop(int*, char*, int*);
 void _parseCommand(char*, int*, float*, char*, Mode, int*, Sudoku*, int*);
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*read the user command and parse it for game*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 State readCommand(Sudoku*, char*);
 
 #endif

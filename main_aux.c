@@ -25,8 +25,12 @@ void printErrorInPuzzleGenerator(){
     printf("Error: An error occurred in the puzzle generator.\n");
 }
 
-void printErroneousBoard(){
-    printf("Error: The board is erroneous.\n");
+void printErroneousBoard(Command command){
+    printf("Error: The function '%s' cannot receive a board with erroneous cells\n", stringFromCommand(command));
+}
+
+void printSaveErronousBoard() {
+    printf("Error: The function 'save' cannot receive a board with erroneous cells in 'edit' mode\n");
 }
 
 void printEmptyAutofill(){
@@ -40,10 +44,6 @@ void printNotEnoughEmptyCells(int x, int numOfEmptyCells){
 
 void printNoAutoFilledCells(){
     printf("Notice: There are no cells to autofill\n");
-}
-
-void printCannotGenerateBoardWithErrors(){ /*TODO: change to a dynamic function */
-    printf("Error: The function 'generate' cannot receive a board with erroneous cells\n");
 }
 
 void _printAllowedCommands(Mode mode){
@@ -304,8 +304,7 @@ void printSameValueCell(){
     printf("Notice: your chosen cell has the same value that you chose to set\n");
 }
 
-
-int isOnlyDigits(char* str){
+int _isOnlyDigits(char* str){
     unsigned long i;
     for (i=0; i < strlen(str); i++){
         if(str[i] > 57 || str[i] < 48){
@@ -341,7 +340,7 @@ float stringToFloat(char* str){
 
 int stringToInt(char* str){
     char* ptr;
-    if(isOnlyDigits(str)){
+    if(_isOnlyDigits(str)){
         return strtol(str, &ptr, 10);
     }
     else{

@@ -5,9 +5,9 @@
 #include "game.h"
 #include "main_aux.h"
 
-int _validate_hint(Sudoku* sudoku, int x, int y){
+int _validate_hint(Sudoku* sudoku, int x, int y, Command command){
     if(isErroneous(sudoku)==1){
-        printErroneousBoard();
+        printErroneousBoard(command);
         return 0;
     }
     else if (isFixed(sudoku->currentState,x,y)==1){
@@ -772,7 +772,7 @@ void createGenerateMovesArr(Move **arrMove, Sudoku *sudoku, SudokuCell ***tmpBoa
     addArrMoveToList(sudoku, arrMove, numOfMoves);
 }
 
-void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
+void generate(Sudoku* sudoku, int x, int y){
     int isSolvable, areXCellsFilled, cntNoSolution=0;
     int isValid=1;
     int total_cells = sudoku->total_size*sudoku->total_size;
@@ -786,7 +786,7 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
         isValid=0;
     }
     else if(isErroneous(sudoku)==1){
-        printCannotGenerateBoardWithErrors();
+        printErroneousBoard(GENERATE);
         isValid=0;
     }
     else{ /*in Edit mode AND there are at least X empty cells AND the board has no errors*/
@@ -805,9 +805,6 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
             }
             isSolvable = ILP_Validation(tmpBoard, sudoku->row, sudoku->column, GENERATE, -1, -1, NULL);/* should fill out the board */
             if (isSolvable != 1 ){
-                if (isSolvable == -1){
-                    printGurobiFailed();
-                }
                 cntNoSolution++;
                 backToOriginalState(sudoku->currentState,tmpBoard, sudoku->total_size);
                 continue;
@@ -833,12 +830,7 @@ void generate(Sudoku* sudoku, int x, int y){/* TODO: narrow function */
         }
     }
     freeBoard(tmpBoard, sudoku->total_size);
-    /*TODO: message for Yoni from xaim - I think that in EDIT mode (note: this command is only available in EDIT), even if the board is "solved" we shouldn't move to INIT (and also according to the some students in the whatsapp group). update me with your decision*/
     if(isValid){
-        if(y==total_cells){
-            printSolved();
-            sudoku->mode=INIT;
-        }
         print_board(sudoku);
     }
 }
@@ -1000,20 +992,11 @@ void print_board(Sudoku* sudoku){
 void validate(Sudoku* sudoku){
     int isSolvable;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        printErroneousBoard();
+        printErroneousBoard(VALIDATE);
     }
-    else{ /*in Solve/Edit mode AND not erroneous*/
+    else{
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, VALIDATE, -1, -1, NULL);
-        if (isSolvable != 1 ){
-            if (isSolvable == 0){
-                printUnsolvableBoard();
-            }
-            else if (isSolvable == -1){
-                printGurobiFailed();
-            }
-            return;
-        }
-        else{ /*board is solvable*/
+        if(_validate_gurobi(isSolvable)){
             printSolvableBoard();
         }
     }
@@ -1025,7 +1008,7 @@ void validate(Sudoku* sudoku){
 void guess(Sudoku* sudoku, float x){
     int isSolvable;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        printErroneousBoard();
+        printErroneousBoard(GUESS);
     }
     else{
         isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS, -1, -1, x);
@@ -1213,17 +1196,11 @@ void save(Sudoku* sudoku, char* X) {
     int isSolvable;
     if (sudoku->mode == EDIT){
         if (isErroneous(sudoku)==1) { /* 1 if board is erroneous*/
-            printErroneousBoard();
+            printSaveErronousBoard();
             return;
         }
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, SAVE , -1, -1, NULL);
-        if (isSolvable != 1 ){
-            if (isSolvable == 0){
-                printUnsolvableBoard();
-            }
-            else if (isSolvable == -1){
-                printGurobiFailed();
-            }
+        if(!_validate_gurobi(isSolvable)){
             return;
         }
     }
@@ -1237,7 +1214,7 @@ void save(Sudoku* sudoku, char* X) {
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void hint(Sudoku* sudoku, int x, int y){
     int isSolvable, dig;
-    if (_validate_hint(sudoku, x, y)){ /*in Solve mode AND all valid*/
+    if (_validate_hint(sudoku, x, y, HINT)){ /*in Solve mode AND all valid*/
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);
         if (_validate_gurobi(isSolvable)){ /*board is solvable*/
             printHint(x+1,y+1,dig);/*prints the value of cell <X,Y> found by the ILP solution*/
@@ -1251,7 +1228,7 @@ void hint(Sudoku* sudoku, int x, int y){
 
 void guess_hint(Sudoku* sudoku, int x, int y){
     int isSolvable;
-    if(_validate_hint(sudoku, x, y)){
+    if(_validate_hint(sudoku, x, y, GUESS_HINT)){
         isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS_HINT, x, y, -1.0);
         _validate_gurobi(isSolvable);
     }
@@ -1265,7 +1242,7 @@ void num_solutions(Sudoku* sudoku){
     Cell* firstEmptyCell;
     SudokuCell*** fixedBoard;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        printErroneousBoard();
+        printErroneousBoard(NUM_SOLUTIONS);
     }
     else{ /*in Solve mode AND not erroneous*/
         firstEmptyCell = (Cell*)malloc(sizeof(Cell));
@@ -1375,7 +1352,7 @@ int fillObviousValues(Sudoku* sudoku, int autoFillBeforeILP){
 void autofill(Sudoku* sudoku){
     int isAutoFilled;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
-        printErroneousBoard();
+        printErroneousBoard(AUTOFILL);
     }
     else{ /*in Solve mode AND not erroneous*/
         isAutoFilled = fillObviousValues(sudoku, 0); /* 0 for regular autoFill */
