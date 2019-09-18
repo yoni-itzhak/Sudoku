@@ -62,5 +62,10 @@ void findNextEmptyCell(SudokuCell*** board,int total_size,Cell* cell, int x,int 
 void currentStateToFixed(Sudoku *sudoku, SudokuCell ***board, int total_size);
 int choose_weighted_rand(WeightedCell** arr, int arr_size);
 
+void freePossibleSolArr(WeightedCell*** possible_sol_arr, int total_size);
+void MallocAndFindPossibleSolArr(WeightedCell*** possible_sol_arr, int* possible_sol_arr_size, double* sol, Sudoku* sudoku, int x, int y, float threshold);
+int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column, Command command, int x, int y, float threshold, int* p_dig);
+
+
 #endif
 
