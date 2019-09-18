@@ -1094,8 +1094,9 @@ void undoMove(Sudoku* sudoku, Command command){
         }
         else{
             printEmptyAutofill();
+            break;
         }
-        if ((currentMove->afterValue != currentMove->beforeValue && command != RESET) || isTrivialSet(currentMove)){ /*print only if the value of the cell was changed*/
+        if ((currentMove->afterValue != currentMove->beforeValue && command != RESET) || (isTrivialSet(currentMove)&& command != RESET)){ /*print only if the value of the cell was changed*/
             printChangeInBoard(currentMove->cell, currentMove->afterValue, currentMove->beforeValue); /*print the change that was made*/
         }
     }
@@ -1285,8 +1286,10 @@ void markSingleLegalValue(Sudoku* sudoku){
     int i,j, total_size = sudoku->total_size;
     for (i=0; i<total_size; i++){
         for (j=0; j<total_size; j++){
-            sudoku->currentState[i][j]->numOfOptionalDigits=sudoku->total_size;
-            findThePossibleArray(sudoku->currentState,sudoku->row,sudoku->column, i, j);
+            if (sudoku->currentState[i][j]->digit == 0){
+                sudoku->currentState[i][j]->numOfOptionalDigits=sudoku->total_size;
+                findThePossibleArray(sudoku->currentState,sudoku->row,sudoku->column, i, j);
+            }
         }
     }
 }
