@@ -58,7 +58,6 @@ typedef enum{
 }Error;
 
 char *stringFromCommand(Command c);
-char* stringFromMode(Mode mode);
 char* commandNumParams(Command com);
 int isModeAllowingCommand(Command command, Mode mode);
 

@@ -23,13 +23,6 @@ char *stringFromCommand(Command c){
     return str_commands[c];
 }
 
-
-char* stringFromMode(Mode mode){
-    char* str_modes[] = {"Init", "Edit", "Solve"};
-    return str_modes[mode];
-}
-
-
 char* commandNumParams(Command com){
     if (com==1 || com==3 || com==7 || com==11){
         return "1";

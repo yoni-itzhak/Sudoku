@@ -34,6 +34,7 @@ void printBoard(SudokuCell*** board, int total_size, int row, int column); /*TOD
 void printSolveFileFailed(char* path);
 void printEditFileFailed(char* path);
 
+void printEmptyAutofill();
 void printNoAutoFilledCells();
 void printSameValueCell();
 void printCannotGenerateBoardWithErrors();

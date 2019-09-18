@@ -178,13 +178,15 @@ int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode
             isValid = isErroneousBetween2FixedCells(tmpSudoku); /*checks for erroneous only between fixed cells*/
             if (isValid == 0){ /* means that there are two fixed cells that make each other erroneous*/
                 printLoadedFileNotSolvable(path);
+                freeBoard(newCurrentState, tmpSudoku->total_size);
                 return 0;
             }
             if (isFilled(tmpSudoku) && !isErroneous(tmpSudoku)){
                 printLoadedFileFilledAndSolved();
-                /*print_board(tmpSudoku);*/
+                print_board(tmpSudoku);
+                freeBoard(newCurrentState, tmpSudoku->total_size);
                 tmpSudoku->mode=INIT;
-                return 1; /*TODO: check if this good */
+                return 0; /*TODO: check if this good */
             }
         }
         else if (tmpSudoku->mode == EDIT){ /* TODO: check if this is necessary - in EDIT mode, the loaded board should be solvable*/
@@ -268,6 +270,7 @@ int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
     /*scan cells and check if all valid and solvable*/
     isValid = scanCells(file, X, board, mode, total_size, &cntFilledCell);
     if (isValid == 0){
+        freeBoard(board,total_size);
         return 0;
     }
     return updateSudoku(sudoku, X, mode, 0, board,row ,column, cntFilledCell);
@@ -398,6 +401,7 @@ void findErroneousCellsForLoadedBoard(SudokuCell ***board, int total_size, int r
         }
     }
     cutErroneousInHalf(board, total_size);
+    (*p_cntErroneousCells) *=2;
 }
 
 /*
@@ -1094,6 +1098,9 @@ void undoMove(Sudoku* sudoku, Command command){
         if (currentMove->cell->x != -1){ /*if this is the case, it was an empty autofill*/
             updateTheBoard(sudoku, currentMove ,UNDO);
         }
+        else{
+            printEmptyAutofill();
+        }
         if ((currentMove->afterValue != currentMove->beforeValue && command != RESET) || isTrivialSet(currentMove)){ /*print only if the value of the cell was changed*/
             printChangeInBoard(currentMove->cell, currentMove->afterValue, currentMove->beforeValue); /*print the change that was made*/
         }
@@ -1122,8 +1129,13 @@ void redoMove(Sudoku* sudoku){
     /*for (i = currentArrSize - 1; i>=0; i--){*/
     for (i=0;i<currentArrSize;i++){
         currentMove = currentArrMove[i];
-        updateTheBoard(sudoku,currentMove,REDO);
-        if (currentMove->afterValue != currentMove->beforeValue){ /*print only if the value of the cell was changed*/
+        if (currentMove->cell->x != -1){ /*if this is the case, it was an empty autofill*/
+            updateTheBoard(sudoku, currentMove ,REDO);
+        }
+        else{
+            printEmptyAutofill();
+        }
+        if ((currentMove->afterValue != currentMove->beforeValue) || isTrivialSet(currentMove)){ /*print only if the value of the cell was changed*/
             printChangeInBoard(currentMove->cell, currentMove->beforeValue, currentMove->afterValue); /*print the change that was made*/
         }
     }
@@ -1134,7 +1146,6 @@ void redo(Sudoku* sudoku){
     }
     else { /*in Solve/Edit mode AND has move to redo*/
         redoMove(sudoku);
-        displayForward(sudoku->list);
         print_board(sudoku);
     }
 }
@@ -1349,7 +1360,7 @@ int fillObviousValues(Sudoku* sudoku, int autoFillBeforeILP){
         }
     }
     if (cntAutoFilled == 0){
-        addMoveToArrMoveAndIncrementSize(arrMove, &arrSize, -1, -1, -1, -2, -1, -2);
+        addMoveToArrMoveAndIncrementSize(arrMove, &arrSize, -1, -1, -1, -1 , -1, -2);
         addArrMoveToList(sudoku, arrMove, arrSize);
         return 0;
     }
