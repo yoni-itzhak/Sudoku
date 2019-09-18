@@ -72,7 +72,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     double *sol, *val, *lb, *ub, *obj; /* TODO: allocate and free 'obj' */
     char *vtype;
     int status, k, random;
-    double objval = 0.0;
     int i, j, v, ig, jg, count, isSolvable, possible_sol_arr_size, chosen_val, numOfMoves = 0;
     int error = 0;
     Move **arrMove;
@@ -92,7 +91,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     if (error) {
         if (command != GENERATE){
             printf(ERRORGUR);
-            printf("1\n");
         }
         freeGurobi(env, model);
         if (isLP){
@@ -110,7 +108,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     if (error) {
         if (command != GENERATE){
             printf(ERRORGUR);
-            printf("2\n");
         }
         freeGurobi(env, model);
         if (isLP){
@@ -169,7 +166,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     if (error) {
         if (command != GENERATE){
             printf(ERRORGUR);
-            printf("3\n");
         }
         freeGurobi(env, model);
         if (isLP){
@@ -187,7 +183,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
         if (error) {
             if (command != GENERATE){
                 printf(ERRORGUR);
-                printf("4\n");
             }
             freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
             return -1;
@@ -210,9 +205,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
             error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
             if (error) {
                 if (command != GENERATE){
-
                     printf(ERRORGUR);
-                    printf("5\n");
                 }
                 freeGurobi(env, model);
                 if (isLP){
@@ -238,7 +231,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
             if (error) {
                 if (command != GENERATE){
                     printf(ERRORGUR);
-                    printf("7\n");
                 }
                 freeGurobi(env, model);
                 if (isLP){
@@ -264,7 +256,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
             if (error) {
                 if (command != GENERATE){
                     printf(ERRORGUR);
-                    printf("6\n");
                 }
                 freeGurobi(env, model);
                 if (isLP){
@@ -294,10 +285,8 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
                 }
                 error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
                 if (error) {
-                    printf("ERROR %d 4th GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
                     if (command != GENERATE) {
                         printf(ERRORGUR);
-                        printf("8\n");
                     }
                     freeGurobi(env, model);
                     if (isLP) {
@@ -317,7 +306,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     if (error) {
         if (command != GENERATE) {
             printf(ERRORGUR);
-            printf("9\n");
         }
         freeGurobi(env, model);
         if (isLP) {
@@ -334,7 +322,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     if (error) {
         if (command != GENERATE) {
             printf(ERRORGUR);
-            printf("10\n");
         }
         freeGurobi(env, model);
         if (isLP) {
@@ -351,7 +338,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     if (error) {
         if (command != GENERATE) {
             printf(ERRORGUR);
-            printf("11\n");
         }
         freeGurobi(env, model);
         if (isLP) {
@@ -361,13 +347,11 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
         }
         return -1;
     }
-    printf("\nOptimization complete\n");
     if(status == GRB_OPTIMAL) {
         error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0,N * N * N, sol);
         if (error) {
             if (command != GENERATE) {
                 printf(ERRORGUR);
-                printf("12\n");
             }
             freeGurobi(env, model);
             if (isLP) {
@@ -377,16 +361,13 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
             }
             return -1;
         }
-        printf("Optimal objective: %.4e\n", objval);
         isSolvable = 1;
     }
     else if ((status == GRB_INF_OR_UNBD) || (status == GRB_INFEASIBLE) || (status == GRB_UNBOUNDED)) {
-        printf("Model is infeasible or unbounded\n");
         isSolvable = 0;
     }
     else {
-        printf("Optimization was stopped early\n");
-        isSolvable = -1;
+        isSolvable = 0;
     }
 
     if (isSolvable){
@@ -657,329 +638,6 @@ int choose_weighted_rand(WeightedCell** arr, int arr_size){
         }
     }
     return 0;
-}
-
-int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, int y, float threshold) {
-
-    GRBenv *env = NULL;
-    GRBmodel *model = NULL;
-
-    int total_size = row * column;
-
-    int *ind;
-    double *sol, *val, *lb, *ub, *obj; /* TODO: allocate and free 'obj' */
-    char *vtype;
-    int optimstatus;
-    double objval = 0.0;
-    int i, j, v, ig, jg, count, dig, cnt, isSolvable, possible_sol_arr_size, chosen_val, numOfMoves = 0;
-    int error = 0;
-    SudokuCell ***board = sudoku->currentState;
-    Move **arrMove;
-    WeightedCell** possible_sol_arr;
-    allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size, &obj, 1);
-
-    objTargetFuncLP(sudoku, obj,total_size*total_size*total_size);
-
-    /* Create an empty model /*/
-    for (i = 0; i < total_size; i++) {
-        for (j = 0; j < total_size; j++) {
-            dig = board[i][j]->digit;
-            if (dig != 0) { /* cell is "fixed" -> 'dig' is the only legal value for this cell */
-                lb[i * total_size * total_size + j * total_size + (dig - 1)] = 1; /* lower bound = 1 for fixed cell */
-                ub[i * total_size * total_size + j * total_size + (dig - 1)] = 1;
-                obj[i * total_size * total_size + j * total_size + (dig - 1)] = 0;
-                for (v = 0; v < total_size; v++) {
-                    if ((v + 1) != dig) {
-                        lb[i * total_size * total_size + j * total_size + v] = 0;
-                        ub[i * total_size * total_size + j * total_size + v] = 0;
-                        obj[i * total_size * total_size + j * total_size + v] = 0;
-                    }
-                    vtype[i * total_size * total_size + j * total_size + v] = GRB_CONTINUOUS;
-                }
-            } else {
-                board[i][j]->numOfOptionalDigits = total_size;
-                findThePossibleArray(board, row, column, i, j);
-
-                if (board[i][j]->numOfOptionalDigits != 0) { /* the cell has some legal values */
-                    cnt = 0;
-                    for (v = 0; v < total_size; v++) {
-                        if (isNumInArr((v+1), board[i][j]->optionalDigits, board[i][j]->numOfOptionalDigits)){
-                            lb[i * total_size * total_size + j * total_size +v] = 0;
-                            ub[i * total_size * total_size + j * total_size + v] = 1;
-                            /*obj[i * total_size * total_size + j * total_size + v] = rand() % (board[i][j]->numOfOptionalDigits);*/
-                            cnt++;
-                        } else {
-                            lb[i * total_size * total_size + j * total_size + v] = 0;
-                            ub[i * total_size * total_size + j * total_size + v] = 0;
-                            obj[i * total_size * total_size + j * total_size + v] = 0;
-                        }
-                        vtype[i * total_size * total_size + j * total_size + v] = GRB_CONTINUOUS;
-                    }
-                }
-                    /*TODO: Maybe should not finish the function in LP_validation - enter zeros at all arrays*/
-                else { /*/numOfOptionalDigits = 0 -> the cell <i,j> has no valid values/*/
-                    for (v = 0; v < total_size; v++) {
-                        lb[i * total_size * total_size + j * total_size + v] = 0;
-                        ub[i * total_size * total_size + j * total_size + v] = 0;
-                        obj[i * total_size * total_size + j * total_size + v] = 0;
-                        vtype[i * total_size * total_size + j * total_size + v] = GRB_CONTINUOUS;
-                    }
-                }
-            }
-        }
-    }
-
-    error = GRBloadenv(&env, "sudoku.log");
-    if (error) {
-        /*printf("ERROR %d GRBloadenv(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    error = GRBsetintparam(env, GRB_INT_PAR_LOGTOCONSOLE, 0);
-    if (error) {
-        /*printf("ERROR %d GRBsetintattr(): %s\n", error, GRBgeterrormsg(env));*/
-        GRBfreeenv(env);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    /*/ Create an empty model named "sudoku" /*/
-
-    error = GRBnewmodel(env, &model, "sudoku", total_size * total_size * total_size, obj, lb, ub, vtype, NULL);
-    if (error) {
-        /*printf("ERROR %d GRBnewmodel(): %s\n", error, GRBgeterrormsg(env));*/
-        GRBfreeenv(env);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    /*find objective function*/
-
-    /* Add variables */
-
-    /* coefficients - for x,y,z (cells 0,1,2 in "obj") */
-
-    /* variable types - for x,y,z (cells 0,1,2 in "vtype") */
-    /* other options: GRB_INTEGER, GRB_CONTINUOUS */
-    /*vtype[0] = GRB_BINARY; vtype[1] = GRB_BINARY; vtype[2] = GRB_BINARY;*/
-
-    /* add variables to model */
-   /*error = GRBaddvars(model, total_size * total_size * total_size, 0, NULL, NULL, NULL, obj, NULL, NULL, vtype, NULL);
-    if (error) {
-        GRBfreeenv(env);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }*/
-
-    /*Change objective sense to maximization*/
-    error = GRBsetintattr(model, GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE);
-    if (error) {
-        GRBfreeenv(env);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }
-
-    /* update the model - to integrate new variables */
-
-    error = GRBupdatemodel(model);
-    if (error) {
-        GRBfreeenv(env);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }
-
-
-    /*/first constraint type - each cell gets a value/*/
-
-    for (i = 0; i < total_size; i++) {
-        for (j = 0; j < total_size; j++) {
-            for (v = 0; v < total_size; v++) {
-                ind[v] = i * total_size * total_size + j * total_size + v;
-                val[v] = 1.0;
-            }
-
-            error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-            if (error) {
-                /*printf("ERROR %d 1st GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                freeGurobi(env, model);
-                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-                return -1;
-            }
-        }
-    }
-
-    /*/ second constraint type - each value must appear once in each column /*/
-
-    for (v = 0; v < total_size; v++) {
-        for (j = 0; j < total_size; j++) {
-            for (i = 0; i < total_size; i++) {
-                ind[i] = i * total_size * total_size + j * total_size + v;
-                val[i] = 1.0;
-            }
-
-            error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-            if (error) {
-                /*printf("ERROR %d 2nd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                freeGurobi(env, model);
-                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-                return -1;
-            }
-        }
-    }
-
-    /*/ third constraint type - each value must appear once in each row /*/
-
-    for (v = 0; v < total_size; v++) {
-        for (i = 0; i < total_size; i++) {
-            for (j = 0; j < total_size; j++) {
-                ind[j] = i * total_size * total_size + j * total_size + v;
-                val[j] = 1.0;
-            }
-
-            error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-            if (error) {
-                /*printf("ERROR %d 3rd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                freeGurobi(env, model);
-                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-                return -1;
-            }
-        }
-    }
-
-    /*/ fourth constraint type - each value must appear once in each subgrid /*/
-
-    /*/@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/*/
-    /*/check row and column (SUBGRID)/*/
-
-    for (v = 0; v < total_size; v++) {
-        for (ig = 0; ig < row; ig++) {
-            for (jg = 0; jg < column; jg++) {
-                count = 0;
-                for (i = ig * row; i < (ig + 1) * row; i++) {
-                    for (j = jg * column; j < (jg + 1) * column; j++) {
-                        ind[count] = i * total_size * total_size + j * total_size + v;
-                        val[count] = 1.0;
-                        count++;
-                    }
-                }
-
-                error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-                if (error) {
-                    /*printf("ERROR %d 4th GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                    freeGurobi(env, model);
-                    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-                    return -1;
-                }
-            }
-        }
-    }
-
-    /*/ Optimize model /*/
-
-    error = GRBoptimize(model);
-    if (error) {
-        /*printf("ERROR %d GRBoptimize(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }
-
-    /*/ Write model to 'sudoku.lp' /*/
-
-    error = GRBwrite(model, "sudoku.lp");
-    if (error) {
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }
-
-    /*/ Capture solution information /*/
-
-    error = GRBgetintattr(model,GRB_INT_ATTR_STATUS, &optimstatus );
-    if (error) {
-        /*printf("ERROR %d GRBgetintattr(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }
-
-
-    /*/ get the solution - the assignment to each variable /*/
-    /*/ 3-- number of variables, the size of "sol" should match /*/
-    error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0, total_size * total_size * total_size, sol);
-    if (error) {
-        /*printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }
-
-
-    /*/ print results /*/
-    printf("\nOptimization complete\n");
-    printf("%d\n", optimstatus == GRB_OPTIMAL);
-    /*/ solution found /*/
-    if (optimstatus == GRB_OPTIMAL) {
-        isSolvable = 1;
-        printf("Optimal objective: %.4e\n", objval);
-        if (command == GUESS_HINT) {
-            MallocAndFindPossibleSolArr(&possible_sol_arr, &possible_sol_arr_size, sol, sudoku, x, y, threshold);
-            if(possible_sol_arr_size == 0){
-                isSolvable = 0;
-            }
-            else{
-                printPossibleSolAar(possible_sol_arr, possible_sol_arr_size, x, y);
-            }
-            freePossibleSolArr(&possible_sol_arr, sudoku->total_size);
-        }
-        else if (command == GUESS) {
-            arrMove = (Move **) malloc((total_size * total_size) * sizeof(Move *));
-            if (arrMove == NULL) {
-                printMallocFailedAndExit();
-            }
-            for (i = 0; i<total_size; i++) {
-                for (j = 0; j<total_size; j++) {
-                    if (board[i][j]->digit == 0) {
-                        MallocAndFindPossibleSolArr(&possible_sol_arr, &possible_sol_arr_size, sol, sudoku, i, j, threshold);
-                        if (possible_sol_arr_size > 0) {
-                            chosen_val = choose_weighted_rand(possible_sol_arr, possible_sol_arr_size);
-                            board[i][j]->digit = chosen_val;
-                            (sudoku->cntFilledCell)++;
-                            addMoveToArrMoveAndIncrementSize(arrMove, &numOfMoves, i, j, 0, chosen_val, 0, 0);
-                        }
-                        freePossibleSolArr(&possible_sol_arr, sudoku->total_size);
-                        possible_sol_arr_size = 0;
-                    }
-                }
-            }
-            addArrMoveToList(sudoku, arrMove, numOfMoves);
-        }
-    }
-
-        /*/ no solution found /*/
-    else if (optimstatus == GRB_INFEASIBLE || optimstatus == GRB_UNBOUNDED || optimstatus == GRB_INF_OR_UNBD) {
-        isSolvable = 0;
-        printf("Model is infeasible or unbounded\n");
-    }
-        /*/ error or calculation stopped /*/
-    else {
-        isSolvable = 0;
-        printf("Optimization was stopped early\n");
-    }
-
-    error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
-    if (error) {
-        /*printf("ERROR %d GRBgettdblattr(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-        return -1;
-    }
-
-    printf("\n");
-    freeGurobi(env, model);
-    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
-    return isSolvable;
 }
 
 int IsBoardErroneous(SudokuCell*** board, int total_size){
