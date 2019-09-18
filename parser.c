@@ -15,11 +15,10 @@ void _freeCase(int *cmd, char *path, int *errorsInParams){
     free(errorsInParams);
 }
 
-char *stringFromCommand(Command c){
+char* stringFromCommand(Command c){
     char *str_commands[] = {"invalid command", "solve", "edit", "mark_errors","print_board",
                             "set", "validate", "guess", "generate", "undo", "redo", "save", "hint",
                             "guess_hint", "num_solutions", "autofill", "reset", "exit"};
-
     return str_commands[c];
 }
 
@@ -66,15 +65,13 @@ int isModeAllowingCommand(Command command, Mode mode){
 /*
  * @params - function receives pointer to the main Sudoku and the string input from the user.
  *
- * The function calls to "_parseCommand" function and according to its result, "readCommand" calls and executes the appropriate command.
+ * The function calls to "_parseCommand" function and according to its result,
+ * "readCommand" calls and executes the appropriate command.
  *
  * @return - The function returns enum that indicates if after the execution of the command :
- * 1. the board is solved (STATE_SOLVED)
- * 2. the board isn't solved yet (STATE_LOOP)
- * 3. the user chose the "restart" command (STATE_RESET)
- * 4. the user chose the "exit" command (STATE_EXIT)
+ * 1. the game continues (STATE_LOOP)
+ * 2. the user chose the "exit" command (STATE_EXIT)
  */
-
 
 State readCommand(Sudoku* sudoku, char* input){
     int current_cmd, x, y, z, cnt=0, i, numErrors, total_cells;

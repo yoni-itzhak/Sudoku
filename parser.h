@@ -57,9 +57,18 @@ typedef enum{
     INVALID_PARAM_Z
 }Error;
 
-char *stringFromCommand(Command c);
-char* commandNumParams(Command com);
-int isModeAllowingCommand(Command command, Mode mode);
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*auxiliary functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+char* stringFromCommand(Command);
+char* stringFromMode(Mode);
+char* commandNumParams(Command);
+int isModeAllowingCommand(Command, Mode);
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*auxiliary functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 int _commandName(int*, char*, int*, Mode);
 int _isTooManyParams(int*, int*, int, Mode);
