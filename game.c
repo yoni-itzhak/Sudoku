@@ -64,12 +64,12 @@ int check_EOF_and_invalid_scan(char* path, int scan, void (*errorFunc)(char*)){
  */
 int scanRowAndColumn(FILE* file, char* path, int* p_row, int* p_column){
     int scan, isValid;
-    scan = fscanf(file,"%d", p_column); /*scanning column*/
+    scan = fscanf(file,"%d", p_row); /*scanning column*/
     isValid = check_EOF_and_invalid_scan(path, scan, printLoadedFileFirstLineNotValid);
     if (isValid == 0){
         return 0;
     }
-    scan = fscanf(file,"%d", p_row); /*scanning row*/
+    scan = fscanf(file,"%d", p_column); /*scanning row*/
     isValid = check_EOF_and_invalid_scan(path, scan, printLoadedFileFirstLineNotValid);
     if (isValid == 0){
         return 0;
@@ -1191,7 +1191,7 @@ void save(Sudoku* sudoku, char* X) {
             printSaveErronousBoard();
             return;
         }
-        isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, SAVE , -1, -1, NULL);
+        isSolvable = GRSolver(sudoku, sudoku->currentState,0, sudoku->row, sudoku->column, SAVE, -1, -1, -1.0, NULL);
         if(!_validate_gurobi(isSolvable, SAVE)){
             return;
         }

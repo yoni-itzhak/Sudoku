@@ -71,8 +71,8 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     int *ind;
     double *sol, *val, *lb, *ub, *obj;
     char *vtype;
-    int status, k, random;
-    int i, j, v, ig, jg, count, isSolvable, possible_sol_arr_size, chosen_val, numOfMoves = 0;
+    int status, k;
+    int i, j, v, ig, jg, count, isSolvable, possible_sol_arr_size=0, chosen_val, numOfMoves = 0;
     int error = 0;
     Move **arrMove;
     WeightedCell** possible_sol_arr;
@@ -83,6 +83,10 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     }
     else{
         allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size, NULL, isLP);
+    }
+
+    for (i=0;i<N*N*N; i++){
+        sol[i]=0.0;
     }
 
     /*create env */
@@ -122,7 +126,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     /*create objective function*/
 
     if (isLP){ /* for ILP */
-        for (i=0;i<N;i++){
+        /*for (i=0;i<N;i++){
             for (j=0;j<N;j++){
                 for (k=1;k<=N;k++){
                     random= (rand()) % (N+1);
@@ -131,7 +135,9 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
                     obj[i*N*N+j*N+k-1]=random;
                 }
             }
-        }
+        }*/
+
+        objTargetFuncLP(sudoku, obj, N*N*N);
     }
 
     /* create model */
@@ -139,19 +145,19 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     for (i=0;i<total_size;i++){
         for (j=0;j<total_size;j++){
             for (k=1;k<=total_size;k++){
-                if (board[i][j]->digit == k){
-                    lb[(j*total_size*total_size) + (i*total_size) + k-1] = 1;
+                if (board[i][j]->digit == k) {
+                    lb[(i*total_size*total_size) + (j*total_size) + k-1] = 1;
                 }
                 else{
-                    lb[(j*total_size*total_size) + (i*total_size) + k-1] = 0;
+                    lb[(i*total_size*total_size) + (j*total_size) + k-1] = 0;
                 }
                 if (!isLP){
-                    vtype[(j*total_size*total_size) + (i*total_size) + k-1] = GRB_BINARY;
+                    vtype[(i*total_size*total_size) + (j*total_size) + k-1] = GRB_BINARY;
                 }
                 else{
-                    vtype[(j*total_size*total_size) + (i*total_size) + k-1] = GRB_CONTINUOUS;
+                    vtype[(i*total_size*total_size) + (j*total_size) + k-1] = GRB_CONTINUOUS;
                 }
-                ub[(j*total_size*total_size) + (i*total_size) + k-1] = 1;
+                ub[(i*total_size*total_size) + (j*total_size) + k-1] = 1;
             }
         }
     }
@@ -199,7 +205,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     for (i = 0; i < N; i++) {
         for (j = 0; j < N; j++) {
             for (k = 0; k < N; k++) {
-                ind[k] = j * N * N + i * N + k;
+                ind[k] = i * N * N + j * N + k;
                 val[k] = 1.0;
             }
             error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
@@ -222,10 +228,10 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     /* third constrain - column */
 
     for (k = 0; k < N; k++) {
-        for (j = 0; j < N; j++) {
-            for (i = 0; i < N; i++) {
-                ind[i] = j * N * N + i * N + k;
-                val[i] = 1.0;
+        for (i = 0; i < N; i++) {
+            for (j = 0; j < N; j++) {
+                ind[j] = i * N * N + j * N + k;
+                val[j] = 1.0;
             }
             error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
             if (error) {
@@ -247,10 +253,10 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     /*second constrain - row*/
 
     for (k = 0; k < N; k++) {
-        for (i = 0; i < N; i++) {
-            for (j = 0; j < N; j++) {
-                ind[j] = j * N * N + i * N + k;
-                val[j] = 1.0;
+        for (j = 0; j < N; j++) {
+            for (i = 0; i < N; i++) {
+                ind[i] = i * N * N + j * N + k;
+                val[i] = 1.0;
             }
             error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
             if (error) {
@@ -273,12 +279,12 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     /* fourth constrain - block */
 
     for (k = 0; k < total_size; k++) {
-        for (ig = 0; ig < row; ig++) {
-            for (jg = 0; jg < column; jg++) {
+        for (jg = 0; jg < row; jg++) {
+            for (ig = 0; ig < column; ig++) {
                 count = 0;
-                for (i = ig*column; i < (ig+1)*column; i++) {
-                    for (j = jg*row; j < (jg+1)*row; j++) {
-                        ind[count] = j * N * N + i * N + k;
+                for (i = ig*row; i < (ig+1)*row; i++) {
+                    for (j = jg*column; j < (jg+1)*column; j++) {
+                        ind[count] = i * N * N + j * N + k;
                         val[count] = 1.0;
                         count++;
                     }
@@ -367,7 +373,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
         isSolvable = 0;
     }
     else {
-        isSolvable = 0;
+        isSolvable = -1;
     }
 
     if (isSolvable){
@@ -411,7 +417,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
             }
             if (command == HINT){
                 for (v=0; v<total_size; v++){
-                    if (sol[y*total_size*total_size + x*total_size + v] == 1.0){
+                    if (sol[x*total_size*total_size + y*total_size + v] == 1.0){
                         *(p_dig) = v+1;
                     }
                 }
@@ -420,7 +426,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
                 for (i=0; i<total_size; i++){
                     for(j=0;j<total_size;j++){
                         for(v=0;v<total_size; v++){
-                            if (sol[j * N * N + i * N + v] == 1.0){
+                            if (sol[i * N * N + j * N + v] == 1.0){
                                 board[i][j]->digit = v+1;
                             }
                         }
@@ -500,14 +506,14 @@ void colCounter(Sudoku* sudoku, int* numInCols){
  *
  */
 void blockCounter(Sudoku* sudoku, int* numInBlocks){
-    int i, j,dig, bi, bj, indBlock=0;
+    if (numInBlocks == NULL || sudoku == NULL){
+
+    }
+    /*int i, j,dig, bi, bj, indBlock=0;
     for (i=0; i<sudoku->total_size; i+=sudoku->row){
         for (j=0; j<sudoku->total_size; j+=sudoku->column){
-            for (bi=i; bi<i+sudoku->row; bi++){
-                for (bj=j; bj<j+sudoku->column; bj++){
-                    /*if (sudoku->currentState[i][j]->numOfOptionalDigits==0){
-                        continue;
-                    }*/
+            for (bi=i; bi<i+sudoku->column; bi++){
+                for (bj=j; bj<j+sudoku->row; bj++){
                     dig = sudoku->currentState[i][j]->digit;
                     if (dig != 0){
                         numInBlocks[indBlock]++;
@@ -516,7 +522,19 @@ void blockCounter(Sudoku* sudoku, int* numInBlocks){
             }
             indBlock++;
         }
-    }
+    }*/
+
+   /* for (k = 0; k < total_size; k++) {
+        for (ig = 0; ig < row; ig++) {
+            for (jg = 0; jg < column; jg++) {
+                count = 0;
+                for (i = ig*column; i < (ig+1)*column; i++) {
+                    for (j = jg*row; j < (jg+1)*row; j++) {
+                        ind[count] = i * N * N + j * N + k;
+                        val[count] = 1.0;
+                        count++;
+                    }
+                }*/
 }
 /*
  *
@@ -543,29 +561,39 @@ void objTargetFuncLP(Sudoku* sudoku, double * obj ,int numberOfVariables){
     colCounter(sudoku, numInCol);
     blockCounter(sudoku, numInBlock);
 
-    for (i=0; i<total_size; i++){
-        printf("%d\n", i);
+    /*for (i=0; i<total_size; i++){
+        printf("%d\n", i+1);
         printf("row %d\n",numInRow[i]);
         printf("column %d\n",numInCol[i]);
         printf("block %d\n",numInBlock[i]);
         printf("counter %d\n",counter[i]);
         printf("\n\n");
-    }
+    }*/
 
     for (i=0; i<sudoku->total_size ; i++){
         for (j=0; j<sudoku->total_size ; j++){
             sudoku->currentState[i][j]->numOfOptionalDigits = total_size;
             findThePossibleArray(sudoku->currentState, sudoku->row, sudoku->column, i, j);
             for (k=0; k<sudoku->total_size ; k++){
-                if(isNumInArr(k+1, sudoku->currentState[i][j]->optionalDigits, sudoku->currentState[i][j]->numOfOptionalDigits)){
-                    ind = i * total_size * total_size + j * total_size +k;
-                    obj[ind] += counter[k];
-                    obj[ind] += numInRow[i];
-                    obj[ind] += numInCol[j];
-                    curRow = i-(i%sudoku->row);
-                    curCol = j-(j%sudoku->column);
-                    obj[ind] += numInBlock[(curRow+(curCol/sudoku->column))];
+                if (k+1 != sudoku->currentState[i][j]->digit){
+                    if(isNumInArr(k+1, sudoku->currentState[i][j]->optionalDigits, sudoku->currentState[i][j]->numOfOptionalDigits)){
+                        ind = i * total_size * total_size + j * total_size +k;
+                        obj[ind] += counter[k];
+                        obj[ind] += numInRow[i];
+                        obj[ind] += numInCol[j];
+
+                        curRow = i-(i%sudoku->row);
+                        curCol = j-(j%sudoku->column);
+                        obj[ind] += numInBlock[(curRow+(curCol/sudoku->column))];
+                    }
+                    else{
+                        obj[ind] = 0;
+                    }
                 }
+                else{
+                    obj[ind] = 0;
+                }
+
             }
         }
     }
@@ -589,7 +617,7 @@ void freePossibleSolArr(WeightedCell*** possible_sol_arr, int total_size){
 }
 
 void MallocAndFindPossibleSolArr(WeightedCell*** possible_sol_arr, int* possible_sol_arr_size, double* sol, Sudoku* sudoku, int x, int y, float threshold){
-    int v, total_size, i;
+    int v=0, total_size, i;
     float cell_probability;
     SudokuCell*** board = sudoku->currentState;
     total_size = sudoku->total_size;
@@ -608,7 +636,7 @@ void MallocAndFindPossibleSolArr(WeightedCell*** possible_sol_arr, int* possible
         (*possible_sol_arr)[i]->probability=0;
     }
     for (v = 0; v < total_size; v++) {
-        cell_probability = sol[y * total_size * total_size + x * total_size + v];
+        cell_probability = sol[x * total_size * total_size + y * total_size + v];
         if (cell_probability > 0 && cell_probability >= threshold &&
             isNumInArr(v+1, board[x][y]->optionalDigits, board[x][y]->numOfOptionalDigits)) {
             (*possible_sol_arr)[(*possible_sol_arr_size)]->val = v + 1;
@@ -649,295 +677,6 @@ int IsBoardErroneous(SudokuCell*** board, int total_size){
     }
     return 0;
 }
-
-int ILP_Validation(SudokuCell*** board, int row, int column, Command command, int x, int y, int* p_dig){
-
-    GRBenv   *env   = NULL;
-    GRBmodel *model = NULL;
-
-    int total_size = row * column;
-
-    int       *ind;
-    double    *sol, *val, *lb, *ub;
-    char      *vtype;
-    int       optimstatus;
-    double    objval = 0.0;
-    int       i, j, v, ig, jg, count, dig, cnt, isSolvable;
-    int       error = 0;
-    int isErroneous;
-
-    isErroneous = IsBoardErroneous(board, row*column);
-    if (isErroneous){
-        /*don't run ILP and exit function*/
-    }
-    /* if valid, run ILP */
-
-    allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size, NULL, 0);
-    /* Create an empty model /*/
-    for (i = 0; i < total_size; i++) {
-        for (j = 0; j < total_size; j++) {
-            dig = board[i][j]->digit;
-            if (dig != 0){
-                lb[i*total_size*total_size+j*total_size+(dig-1)] = 1; /*/ lower bound = 1 for fixed cell /*/
-                ub[i*total_size*total_size+j*total_size+(dig-1)] = 1;
-
-                for (v = 0; v < total_size; v++) {
-                    if ((v+1)!=dig){
-                        lb[i*total_size*total_size+j*total_size+v] = 0;
-                        ub[i*total_size*total_size+j*total_size+v] = 0;
-                    }
-                    vtype[i*total_size*total_size+j*total_size+v] = GRB_BINARY;
-                }
-            }
-            else {
-                board[i][j]->numOfOptionalDigits = total_size;
-                findThePossibleArray(board, row, column, i, j);
-
-                if (board[i][j]->numOfOptionalDigits != 0) {
-                    cnt = 0;
-                    for (v = 0; v < total_size; v++) {
-                        if ((v + 1) == board[i][j]->optionalDigits[cnt]) {
-                            lb[i * total_size * total_size + j * total_size + v] = 0; /*/ lower bound = 1 for fixed cell /*/
-                            ub[i * total_size * total_size + j * total_size + v] = 1;
-                            cnt++;
-                        } else {
-                            lb[i * total_size * total_size + j * total_size + v] = 0;
-                            ub[i * total_size * total_size + j * total_size + v] = 0;
-                        }
-                        vtype[i * total_size * total_size + j * total_size + v] = GRB_BINARY;
-                    }
-                }
-                else { /*/numOfOptionalDigits = 0 -> the cell <i,j> has no valid values/*/
-                    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-                    return 0;
-                }
-            }
-        }
-    }
-
-    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     */
-
-    /*find objective function*/
-
-
-
-
-    /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-     * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     */
-
-
-    /*/ Create environment /*/
-
-    error = GRBloadenv(&env, "sudoku.log");
-    if (error) {
-        /*printf("ERROR %d GRBloadenv(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    error = GRBsetintparam(env, GRB_INT_PAR_LOGTOCONSOLE, 0);
-    if (error) {
-        /*printf("ERROR %d GRBsetintattr(): %s\n", error, GRBgeterrormsg(env));*/
-        GRBfreeenv(env);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    /*/ Create an empty model named "sudoku" /*/
-
-    error = GRBnewmodel(env, &model, "sudoku", total_size*total_size*total_size, NULL, lb, ub, vtype, NULL);
-    if (error) {
-        /*printf("ERROR %d GRBnewmodel(): %s\n", error, GRBgeterrormsg(env));*/
-        GRBfreeenv(env);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    /*/first constraint type - each cell gets a value/*/
-
-    for (i = 0; i < total_size; i++) {
-        for (j = 0; j < total_size; j++) {
-            for (v = 0; v < total_size; v++) {
-                ind[v] = i*total_size*total_size + j*total_size + v;
-                val[v] = 1.0;
-            }
-
-            error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-            if (error) {
-                /*printf("ERROR %d 1st GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                freeGurobi(env, model);
-                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-                return -1;
-            }
-        }
-    }
-
-    /*/ second constraint type - each value must appear once in each column /*/
-
-    for (v = 0; v < total_size; v++) {
-        for (j = 0; j < total_size; j++) {
-            for (i = 0; i < total_size; i++) {
-                ind[i] = i*total_size*total_size + j*total_size + v;
-                val[i] = 1.0;
-            }
-
-            error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-            if (error) {
-                /*printf("ERROR %d 2nd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                freeGurobi(env, model);
-                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-                return -1;
-            }
-        }
-    }
-
-    /*/ third constraint type - each value must appear once in each row /*/
-
-    for (v = 0; v < total_size; v++) {
-        for (i = 0; i < total_size; i++) {
-            for (j = 0; j < total_size; j++) {
-                ind[j] = i*total_size*total_size + j*total_size + v;
-                val[j] = 1.0;
-            }
-
-            error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-            if (error) {
-                /*printf("ERROR %d 3rd GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                freeGurobi(env, model);
-                freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-                return -1;
-            }
-        }
-    }
-
-    /*/ fourth constraint type - each value must appear once in each subgrid /*/
-
-    /*/@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@/*/
-    /*/check row and column (SUBGRID)/*/
-
-    for (v = 0; v < total_size; v++) {
-        for (ig = 0; ig < row; ig++) {
-            for (jg = 0; jg < column; jg++) {
-                count = 0;
-                for (i = ig*row; i < (ig+1)*row; i++) {
-                    for (j = jg*column; j < (jg+1)*column; j++) {
-                        ind[count] = i*total_size*total_size + j*total_size + v;
-                        val[count] = 1.0;
-                        count++;
-                    }
-                }
-
-                error = GRBaddconstr(model, total_size, ind, val, GRB_EQUAL, 1.0, NULL);
-                if (error) {
-                    /*printf("ERROR %d 4th GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));*/
-                    freeGurobi(env, model);
-                    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-                    return -1;
-                }
-            }
-        }
-    }
-
-    /*/ Optimize model /*/
-
-    error = GRBoptimize(model);
-    if (error) {
-        /*printf("ERROR %d GRBoptimize(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    /*/ Write model to 'sudoku.lp' /*/
-
-    error = GRBwrite(model, "sudoku.lp");
-    if (error) {
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    /*/ Capture solution information /*/
-
-    error = GRBgetintattr(model, GRB_INT_ATTR_STATUS, &optimstatus);
-    if (error) {
-        /*printf("ERROR %d GRBgetintattr(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-
-    /*/ get the solution - the assignment to each variable /*/
-    /*/ 3-- number of variables, the size of "sol" should match /*/
-    error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0, total_size*total_size*total_size, sol);
-    if (error) {
-        /*printf("ERROR %d GRBgetdblattrarray(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-
-    /*/ print results /*/
-    printf("\nOptimization complete\n");
-
-    /*/ solution found /*/
-    if (optimstatus == GRB_OPTIMAL){
-        isSolvable = 1;
-        printf("Optimal objective: %.4e\n", objval);
-        if (command == HINT){
-            for (v=0; v<total_size; v++){
-                if (sol[x*total_size*total_size + y*total_size + v] == 1.0){
-                    *(p_dig) = v+1;
-                }
-            }
-        }
-        else if(command == GENERATE){
-            for (i=0; i<total_size; i++){
-                for(j=0;j<total_size;j++){
-                    for(v=0;v<total_size; v++){
-                        if (sol[i*total_size*total_size + j*total_size + v] == 1.0){
-                            board[i][j]->digit = v+1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-        /*/ no solution found /*/
-    else if (optimstatus == GRB_INFEASIBLE || optimstatus == GRB_UNBOUNDED || optimstatus == GRB_INF_OR_UNBD){
-        isSolvable = 0;
-    }
-        /*/ error or calculation stopped /*/
-    else{
-        isSolvable = -1;
-    }
-
-    error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
-    if (error) {
-        /*printf("ERROR %d GRBgettdblattr(): %s\n", error, GRBgeterrormsg(env));*/
-        freeGurobi(env, model);
-        freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-        return -1;
-    }
-
-    printf("\n");
-    freeGurobi(env, model);
-    freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, NULL, 0);
-    return isSolvable;
-}
-
 
 
 int canBacktrack(Stack* stack,int x,int y){
@@ -1044,9 +783,7 @@ int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int 
     updateCurrentEmptyCell(currentEmptyCell,x,y);
     pushToGetToNextCell(sudoku,stack,stackItem,currentEmptyCell,x,y, 1);
     while (canBacktrack(stack,x,y)) { /*while the array of the first empty cell isn't empty*/
-        printf("here1\n");
         while (peek(stack)->board[i][j]->numOfOptionalDigits>0){ /*while the array of the current empty cell isn't empty*/
-            printf("here2\n");
             stackItem=peek(stack);
             updateCellAndOptionalDigits(stackItem, &tmpItemBoard,total_size, i,j);
             findNextEmptyCell(tmpItemBoard, total_size, nextEmptyCell, i, j); /*search for the next empty cell*/
