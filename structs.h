@@ -45,7 +45,6 @@ typedef struct{
 
 typedef struct{
     SudokuCell*** currentState;
-    SudokuCell*** solution;
     int row;
     int column;
     int total_size;

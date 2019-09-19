@@ -194,13 +194,17 @@ void printSolvableBoard(){
 /*
  * The function prints that the board is unsolvable.
  */
-void printUnsolvableBoard(){
-    printf("Validation failed: board is unsolvable\n");
+void printUnsolvableBoard(Command command){
+    printf("The board is unsolvable and therefore the command '%s' cannot be executed\n", stringFromCommand(command));
 }
 
 /*
  * The function prints the separator row for the board printing format.
  */
+
+void printValidationFailed(){
+    printf("Validation failed: the board is unsolvable\n");
+}
 
 void printSeparatorRow(int N, int m){
     int i,dash=4*N+m+1;
@@ -287,8 +291,8 @@ void printLoadedFileFilledAndSolved(){
     printf("Notice: your loaded board is filled and solved successfully. Game mode set to INIT\n");
 }
 
-void printLoadedFileEOF(char* path){
-    printf("Error: file %s has reached EOF\n", path);
+void printErrorInBoardSize(){
+    printf("Error: Please enter valid dimensions\n");
 }
 void printLoadedFileFirstLineNotValid(char* path){
     printf("Error: the first line (row & column) in file %s is not valid\n", path);
@@ -313,7 +317,6 @@ int _isOnlyDigits(char* str){
     }
     return 1;
 }
-
 
 float stringToFloat(char* str){
     int hasPoint=0;

@@ -21,10 +21,10 @@ int _validate_hint(Sudoku* sudoku, int x, int y, Command command){
     return 1;
 }
 
-int _validate_gurobi(int isSolvable){
+int _validate_gurobi(int isSolvable, Command command){
     if ( isSolvable != 1 ){
         if (isSolvable == 0){
-            printUnsolvableBoard();
+            printUnsolvableBoard(command);
             return 0;
         }
         else if (isSolvable == -1){
@@ -47,7 +47,7 @@ int _validate_gurobi(int isSolvable){
  */
 int check_EOF_and_invalid_scan(char* path, int scan, void (*errorFunc)(char*)){
     if (scan == EOF){ /*checkEOF*/
-        printLoadedFileEOF(path);
+        printErrorInBoardSize();
         return 0;
     }
     if (scan!=1){ /*invalid char was scanned*/
@@ -124,7 +124,7 @@ int scanCells(FILE* file, char* path, SudokuCell*** board, Mode mode, int total_
                     fixed = 0;
                 }
                 else{ /*EOF before the last cell*/
-                    printLoadedFileEOF(path);
+                    printErrorInBoardSize();
                     return 0;
                 }
             }
@@ -184,12 +184,8 @@ int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode
                 print_board(tmpSudoku);
                 freeBoard(newCurrentState, tmpSudoku->total_size);
                 tmpSudoku->mode=INIT;
-                return 0; /*TODO: check if this good */
+                return 0;
             }
-        }
-        else if (tmpSudoku->mode == EDIT){ /* TODO: check if this is necessary - in EDIT mode, the loaded board should be solvable*/
-            /* TODO: message from xaim to Yoni - I think that in EDIT mode we should load the board anyway because all of its cells are not fixed - but we should check this*/
-            /* TODO: VALIDATION @@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
         }
     }
     return 1;
@@ -200,7 +196,7 @@ int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode
  *
  * The function update the new parameters in the exists Sudoku struct, in subject to the validation of the board.
  */
-/*TODO: not finished ! */
+
 int updateSudoku(Sudoku* sudoku, char* path, Mode newMode, int editWithoutPath, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell){
 
     int isValid;
@@ -209,7 +205,7 @@ int updateSudoku(Sudoku* sudoku, char* path, Mode newMode, int editWithoutPath, 
         printMallocFailedAndExit();
     }
     isValid = check_validation_of_loaded_board(tmpSudoku, path, newMode, editWithoutPath, newCurrentState, newRow,
-                                               newColumn, newCntFilledCell); /*check if the new parameters are valid*/ /* TODO: need to work on this function */
+                                               newColumn, newCntFilledCell); /*check if the new parameters are valid*/
     if (isValid == 0){ /* the loaded board is not valid. we return to the previous state*/
         free(tmpSudoku);
         return 0;
@@ -217,7 +213,6 @@ int updateSudoku(Sudoku* sudoku, char* path, Mode newMode, int editWithoutPath, 
 
     /*now we are free to update the new Sudoku's parameters*/
     if (sudoku->justStarted == 0){
-        /*TODO: check what to do if we are in INIT mode -> we dont have a board to free*/
         freeBoard(sudoku->currentState, sudoku->total_size);
         freeList(sudoku->list);
     }
@@ -250,7 +245,6 @@ int updateSudoku(Sudoku* sudoku, char* path, Mode newMode, int editWithoutPath, 
 int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode){
     int total_size, row, column, cntFilledCell=0, isValid;
     SudokuCell*** board;
-    /* TODO: check that the old board doesn't disappear if the scan was failed*/
     isValid = scanRowAndColumn(file, X, &row, &column); /*find m & n*/
     if (isValid == 0){
         return 0;
@@ -296,7 +290,6 @@ int loadBoardFromPath(Sudoku *sudoku, char *X, Mode mode){
     return isValid;
 }
 
-/*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
 /*
  * @params - function receives a Sudoku pointer, a path to a file.
  *
@@ -310,7 +303,6 @@ void solve(Sudoku* sudoku, char* X){
     }
 }
 
-/*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
 /*
  * @params - function receives a Sudoku pointer, a path to a file.
  *
@@ -327,7 +319,6 @@ void editWithPath(Sudoku* sudoku, char* X){
     }*/
 }
 
-/*TODO: check about clause d. in this command - what should we do with the unsaved current game board*/
 /*
  * @params - function receives a Sudoku pointer.
  *
@@ -495,7 +486,6 @@ void cutErroneousInHalf(SudokuCell*** board, int total_size){
 */
 void erroneousAmongNeighbors(SudokuCell ***board, int x, int y, int i, int j, int dig, Move **arrMove, int *p_arrSize, NeighborsType neighborsType, int *p_cntTotalErroneousCells, int *p_cntNeighborsErroneous){
     int beforeErroneous, afterErroneous;
-    /*TODO: check why it had a !isFixed(board, i, j)*/
     if (neighborsType != NEIGHBORS_POSSIBLE_ARRAY) { /*cell isn't fixed -> should be mark as erroneous */
         if ( isFixed(board, i, j) && isFixed(board, x, y) && neighborsType == NEIGHBORS_LOAD_FILE ) {
             board[i][j]->cnt_erroneous++;
@@ -913,15 +903,8 @@ void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku){
         --num_of_available_cells;
     }
     resetCells(tmpBoard, all_available_cells, num_of_available_cells);
-    freeCellsArray(all_available_cells, num_of_available_cells);
+    freeCellsArray(all_available_cells, ((sudoku->total_size)*(sudoku->total_size)));
 }
-
-
-/* TODO: 1. take care of erroneous cells when adding a move to undo\redo list (if the cell has changed and became erroneous - and vice versa)
- *       2. take care of undo\redo list with "generate" or "guess"
- *       3. take care of erroneous in general (when changing cells for example)*/
-
-
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Mark errors*/
@@ -960,7 +943,6 @@ void set(Sudoku* sudoku, int x, int y, int z){
         printMallocFailedAndExit();
     }
     fixed = isFixed(sudoku->currentState,x,y);
-    /*TODO: think if the condition 'sudoku->mode==SOLVE' can be remove*/
     if (fixed && sudoku->mode==SOLVE){ /*in Solve mode fixed cells can't be updated (unlike in Edit mode) @@@@@@@@@@@@@@@@@@@@@@@@@@@@ check if we should make all cells in EDIT non-fixed*/
         printFixed();
         return;
@@ -999,7 +981,7 @@ void validate(Sudoku* sudoku){
         isSolvable = GRSolver(sudoku, sudoku->currentState,0, sudoku->row, sudoku->column, VALIDATE, -1, -1, -1.0, NULL);
         if (isSolvable != 1 ){
             if (isSolvable == 0){
-                printUnsolvableBoard();
+                printValidationFailed();
             }
             else if (isSolvable == -1){
                 printGurobiFailed();
@@ -1023,7 +1005,7 @@ void guess(Sudoku* sudoku, float x){
     else{
         isSolvable = GRSolver(sudoku, sudoku->currentState,1, sudoku->row, sudoku->column, GUESS, -1, -1, x, NULL);
         /*isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS, -1, -1, x);*/
-        if (_validate_gurobi(isSolvable)){
+        if (_validate_gurobi(isSolvable, GUESS)){
             if(sudoku->cntFilledCell == ((sudoku->total_size)*(sudoku->total_size))){
                 printSolved();
                 sudoku->mode=INIT;
@@ -1037,14 +1019,14 @@ void guess(Sudoku* sudoku, float x){
 /* Redo\Undo */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
-int hasMoveToUndo(Sudoku* sudoku){/*TODO: CREATE DUMMY FUNCTION!*/
+int hasMoveToUndo(Sudoku* sudoku){
     /*return hasPrev(sudoku->list);*/
     if (isDummyNode(sudoku->list)){ /*-1 for dummy node*/
         return 0;
     }
     return 1;
 }
-int hasMoveToRedo(Sudoku* sudoku){ /*TODO: CHECK THIS*/
+int hasMoveToRedo(Sudoku* sudoku){
     /*return sudoku->list->current->arrSize == -1 || hasNext(sudoku->list);*/
     return hasNext(sudoku->list);
 }
@@ -1120,8 +1102,6 @@ void redoMove(Sudoku* sudoku){
     setPointerToNextMove(sudoku);
     currentArrMove = getCurrentMove(sudoku->list)->arrMove;
     currentArrSize = getCurrentMove(sudoku->list)->arrSize;
-    /*TODO: A reminder for Ron */
-    /*for (i = currentArrSize - 1; i>=0; i--){*/
     for (i=0;i<currentArrSize;i++){
         currentMove = currentArrMove[i];
         if (currentMove->cell->x != -1){ /*if this is the case, it was an empty autofill*/
@@ -1212,7 +1192,7 @@ void save(Sudoku* sudoku, char* X) {
             return;
         }
         isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, SAVE , -1, -1, NULL);
-        if(!_validate_gurobi(isSolvable)){
+        if(!_validate_gurobi(isSolvable, SAVE)){
             return;
         }
     }
@@ -1229,7 +1209,7 @@ void hint(Sudoku* sudoku, int x, int y){
     if (_validate_hint(sudoku, x, y, HINT)){ /*in Solve mode AND all valid*/
         isSolvable = GRSolver(sudoku, sudoku->currentState,0, sudoku->row, sudoku->column, HINT, x, y, -1.0, &dig);
         /*isSolvable = ILP_Validation(sudoku->currentState, sudoku->row, sudoku->column, HINT, x, y, &dig);*/
-        if (_validate_gurobi(isSolvable)){ /*board is solvable*/
+        if (_validate_gurobi(isSolvable, HINT)){ /*board is solvable*/
             printHint(x+1,y+1,dig);/*prints the value of cell <X,Y> found by the ILP solution*/
         }
     }
@@ -1244,7 +1224,7 @@ void guess_hint(Sudoku* sudoku, int x, int y){
     if(_validate_hint(sudoku, x, y, GUESS_HINT)){
         isSolvable = GRSolver(sudoku, sudoku->currentState,1, sudoku->row, sudoku->column, GUESS_HINT, x, y, -1.0, NULL);
         /*isSolvable = LP_Validation(sudoku, sudoku->row, sudoku->column, GUESS_HINT, x, y, -1.0);*/
-        _validate_gurobi(isSolvable);
+        _validate_gurobi(isSolvable, GUESS_HINT);
     }
 }
 
@@ -1260,7 +1240,7 @@ void num_solutions(Sudoku* sudoku){
     }
     else{ /*in Solve mode AND not erroneous*/
         firstEmptyCell = (Cell*)malloc(sizeof(Cell));
-        fixedBoard = (SudokuCell***)malloc(total_size*sizeof(SudokuCell**));/*TODO: allocating memory */
+        fixedBoard = (SudokuCell***)malloc(total_size*sizeof(SudokuCell**));
         if(firstEmptyCell == NULL || fixedBoard == NULL){
             printMallocFailedAndExit();
         }
@@ -1302,28 +1282,6 @@ int hasSingleLegalValue(Sudoku* sudoku, int i, int j){
     return 0;
 }
 
-
-/*void updateObviousCell(Sudoku* sudoku, int i, int j, Move** arrMove, int arrSize){
-    int dig = sudoku->currentState[i][j]->optionalDigits[0];
-
-    setCell(sudoku, i, j, dig, arrMove, &arrSize);
-
-    deleteDigitFromArr(sudoku->currentState, i,j, dig);
-    sudoku->currentState[i][j]->hasSingleLegalValue=0;
-}*/
-
-/*void addOneMoveToList(Sudoku *sudoku, int x, int y, int value, int z){
-    Move* newMove = getNewMove(x,y,value,z);
-    Move** arrMove = (Move**)malloc(sizeof(Move*));
-    if (arrMove == NULL){
-        printMallocFailedAndExit();
-    }
-    arrMove[0]=newMove;
-    insertAtTail(sudoku->list, newMove,1);
-}*/
-
-
-/*TODO: need to deal with situation that 2 obvious cells become erroneous*/
 int fillObviousValues(Sudoku* sudoku, int autoFillBeforeILP){
     int arrSize=0, dig, i, j, total_size = sudoku->total_size, cntAutoFilled=0;
     int total_cells = sudoku->total_size*sudoku->total_size;

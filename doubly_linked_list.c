@@ -51,7 +51,7 @@ void addDummyNode(List* list){
 }
 /*Creates a new List and returns pointer to it.*/
 List* getNewList(){
-    List* newList = (List*)malloc(sizeof(List)); /*TODO: check what should be the size of the allocated memory*/
+    List* newList = (List*)malloc(sizeof(List));
     if (newList==NULL){
         printMallocFailedAndExit();
     }

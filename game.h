@@ -1,8 +1,5 @@
-
-
 #ifndef HW4_GAME_H
 #define HW4_GAME_H
-
 
 #include "structs.h"
 #include "parser.h"
@@ -45,10 +42,8 @@ int check_EOF_and_invalid_scan(char* path, int scan, void (*errorFunc)(char*));
 int scanRowAndColumn(FILE* file, char* path, int* p_row, int* p_column);
 int areOnlyWhitespacesLeft(FILE* file);
 int scanCells(FILE* file, char* path, SudokuCell*** board, Mode mode, int total_size, int* p_cntFilledCell);
-/* TODO: not finished! */ int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode,
-                                                               int editWithoutPath, SudokuCell ***newCurrentState,
-                                                               int newRow, int newColumn, int newCntFilledCell);
-/* TODO: not finished! */ int updateSudoku(Sudoku* sudoku, char* path, Mode newMode, int editWithoutPath, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode, int editWithoutPath, SudokuCell ***newCurrentState, int newRow, int newColumn, int newCntFilledCell);
+int updateSudoku(Sudoku* sudoku, char* path, Mode newMode, int editWithoutPath, SudokuCell*** newCurrentState, int newRow, int newColumn, int newCntFilledCell);
 int fileToSudoku(Sudoku* sudoku, FILE* file, char* X, Mode mode);
 int loadBoardFromPath(Sudoku *sudoku, char *X, Mode mode);
 void solve(Sudoku* sudoku, char* X);
@@ -120,13 +115,6 @@ int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmp
 void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells);
 
 void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku);
-
-
-/* TODO: 1. take care of erroneous cells when adding a move to undo\redo list (if the cell has changed and became erroneous - and vice versa)
- *       2. take care of undo\redo list with "generate" or "guess"
- *       3. take care of erroneous in general (when changing cells for example)*/
-
-
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Mark errors*/
@@ -222,4 +210,3 @@ void exitProgram();
 
 
 #endif
-

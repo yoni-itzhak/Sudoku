@@ -9,6 +9,7 @@
 #include "main_aux.h"
 #include "SPBufferset.h"
 
+
 void _freeCase(int *cmd, char *path, int *errorsInParams){
     free(cmd);
     free(path);
@@ -175,6 +176,7 @@ int _commandSet(int* cmd, char* token, int* cnt, Mode mode, int total_size, int*
     (*cnt) = (*cnt)+1;
     return 1;
 }
+
 int _commandGuess(int* cmd, char* token, int* cnt, float* guess_param, Mode mode, int* errArr){
     float val;
     if (_isTooManyParams(cmd, cnt, 1, mode)){

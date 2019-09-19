@@ -40,7 +40,7 @@ void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, do
     }
 }
 
-void freeGurobi(GRBenv   *env, GRBmodel *model) {
+void freeGurobi(GRBenv *env, GRBmodel *model) {
     if (model != NULL) {
         GRBfreemodel(model); /* Free model */
     }
@@ -69,7 +69,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     int total_size = row * column;
     int N = total_size;
     int *ind;
-    double *sol, *val, *lb, *ub, *obj; /* TODO: allocate and free 'obj' */
+    double *sol, *val, *lb, *ub, *obj;
     char *vtype;
     int status, k, random;
     int i, j, v, ig, jg, count, isSolvable, possible_sol_arr_size, chosen_val, numOfMoves = 0;
@@ -81,7 +81,7 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     if (isLP){
         allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size, &obj, isLP);
     }
-    else{ /*TODO: we can remove the else and do it together*/
+    else{
         allocateGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, total_size, NULL, isLP);
     }
 
@@ -139,8 +139,8 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
     for (i=0;i<total_size;i++){
         for (j=0;j<total_size;j++){
             for (k=1;k<=total_size;k++){
-                if (board[i][j]->digit == k) /*@@@@@@@@@@*/{
-                    lb[(j*total_size*total_size) + (i*total_size) + k-1] = 1; /*TODO: change i to j*/
+                if (board[i][j]->digit == k){
+                    lb[(j*total_size*total_size) + (i*total_size) + k-1] = 1;
                 }
                 else{
                     lb[(j*total_size*total_size) + (i*total_size) + k-1] = 0;
@@ -403,7 +403,6 @@ int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column,
                     printPossibleSolAar(possible_sol_arr, possible_sol_arr_size, x, y);
                 }
                 freePossibleSolArr(&possible_sol_arr, sudoku->total_size);
-
             }
         }
         else if (isLP == 0){
@@ -609,8 +608,7 @@ void MallocAndFindPossibleSolArr(WeightedCell*** possible_sol_arr, int* possible
         (*possible_sol_arr)[i]->probability=0;
     }
     for (v = 0; v < total_size; v++) {
-        cell_probability = sol[x * total_size * total_size + y * total_size + v];
-        /*printf("val: %d, prob: %f\n", v, cell_probability);*/
+        cell_probability = sol[y * total_size * total_size + x * total_size + v];
         if (cell_probability > 0 && cell_probability >= threshold &&
             isNumInArr(v+1, board[x][y]->optionalDigits, board[x][y]->numOfOptionalDigits)) {
             (*possible_sol_arr)[(*possible_sol_arr_size)]->val = v + 1;
@@ -920,12 +918,10 @@ int ILP_Validation(SudokuCell*** board, int row, int column, Command command, in
         /*/ no solution found /*/
     else if (optimstatus == GRB_INFEASIBLE || optimstatus == GRB_UNBOUNDED || optimstatus == GRB_INF_OR_UNBD){
         isSolvable = 0;
-        printf("Model is infeasible or unbounded\n");
     }
         /*/ error or calculation stopped /*/
     else{
-        isSolvable = 0;
-        printf("Optimization was stopped early\n");
+        isSolvable = -1;
     }
 
     error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
@@ -1030,7 +1026,7 @@ void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell**** tmpItemBoar
     deleteDigitFromArr((*tmpItemBoard), i, j, dig); /*delete the number from the array*/
     (*tmpItemBoard)[i][j]->digit = dig; /*update the board with the chosen digit*/
 }
-/*TODO: ask Yoni to make separate function that allocate the memory*/
+
 /*assuming that receiving <X,Y> who the first empty cell*/
 int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int y){
     int total_size = sudoku->total_size,i=x,j=y, cntSolution=0;
@@ -1057,12 +1053,12 @@ int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int 
             if (nextEmptyCell->x == -1 && nextEmptyCell->y == -1) { /* -1 if there are no more empty cells = board is full*/
                 cntSolution++;
                 tmpItemBoard[i][j]->digit=0;
-                freeBoard(stackItem->board, total_size); /*TODO: remove the asterisk*/
+                freeBoard(stackItem->board, total_size);
                 stackItem->board=tmpItemBoard;
                 continue; /* "increase" the value of cell <i,j>*/
             }
             else{ /*the board isn't full*/
-                currentEmptyCell = (Cell*)malloc(sizeof(Cell)); /*TODO: check if get free at the end*/
+                currentEmptyCell = (Cell*)malloc(sizeof(Cell));
                 if (currentEmptyCell == NULL) {
                     printMallocFailedAndExit();
                 }
@@ -1070,7 +1066,7 @@ int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int 
                 j=nextEmptyCell->y;
                 updateCurrentEmptyCell(currentEmptyCell,i,j);
             }
-            stackItem = (StackItem*)malloc(sizeof(StackItem)); /*TODO: check if get free at the end*/
+            stackItem = (StackItem*)malloc(sizeof(StackItem));
             if (stackItem == NULL) {
                 printMallocFailedAndExit();
             }

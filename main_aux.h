@@ -12,22 +12,7 @@
  * main_aux summary
  *
  * A container that prints messages to the screen.
- * The container supports the following functions:
- *
- * printSolved          - prints that the puzzle is solved successfully
- * printFixed           - prints error when the cell is fixed
- * printInvalidValue    - prints error when the value given is invalid
- * printSolvable        - prints the board is solvable if the validation is true
- * printUnsolvable      - prints the board is unsolvable if the validation is false
- * printHint            - prints a hint to the user
- * printBoard           - prints the current board
- * printSeparatorRow    - prints the separator row for the board printing format
- * printExiting         - prints that the program is exiting, and exit
- * printInvalidCommand  - prints that the command is invalid
- * numberOfCells        - reads from the user the number of fixed cells
- * checkNoInput         - checks for EOF. if so, calling "printExiting"
- * printMallocFailed    - gets called when memory allocation from malloc was failed and prints appropriate message
- *
+ * The container supports the following functions: *
  */
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
@@ -36,6 +21,7 @@
 int stringToInt(char*);
 int isNumInArr(int num, int *arr, int arr_size);
 float stringToFloat(char* str);
+int _isOnlyDigits(char* str);
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /*error messages*/
@@ -46,7 +32,7 @@ void printOpenFileFailed(char* path);
 void printCloseFileFailed(char* path);
 void printWriteToFileFailed(char* path);
 void printLoadedFileLengthNotValid(char* path);
-void printLoadedFileEOF(char* path);
+void printErrorInBoardSize();
 void printLoadedFileFirstLineNotValid(char* path);
 void printLoadedFileCellNotValid(char* path);
 void printLoadedFileNotSolvable(char* path);
@@ -75,11 +61,20 @@ void printSolved();
 void printFixed();
 void printContainsValue();
 void printSolvableBoard();
-void printUnsolvableBoard();
+void printUnsolvableBoard(Command);
+void printValidationFailed();
 void printHint(int x, int y, int value);
 void printSudoku(Sudoku *sudoku);
 void printSeparatorRow(int N, int m);
 void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_size, int x, int y);
+
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*auxiliary printing functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+void _printAllowedCommands(Mode);
+void _printModesAllowingCommand(Command);
+
 
 #endif
 
