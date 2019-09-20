@@ -35,37 +35,40 @@
  * pickRandomNumberFromTheArray - Picks random index from the array
  */
 
-
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Gurobi & co.*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 void allocateGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype, int total_size, double** obj, int isLP);
+void freeGurobi(GRBenv *env, GRBmodel *model);
 void freeGurobiArrays(int** ind, double** sol, double** val, double** lb, double** ub, char** vtype,double** obj, int isLP);
+int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column, Command command, int x, int y, float threshold, int *p_dig);
+void freePossibleSolArr(WeightedCell*** possible_sol_arr, int total_size);
+void MallocAndFindPossibleSolArr(WeightedCell*** possible_sol_arr, int* possible_sol_arr_size, double* sol, Sudoku* sudoku, int x, int y, float threshold);
+int choose_weighted_rand(WeightedCell** arr, int arr_size);
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Exhaustive backtracking*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 int canBacktrack(Stack* stack,int x,int y);
 void popToGetToPreviousCell(Stack* stack, int* p_i, int* p_j, int total_size);
 void pushToGetToNextCell(Sudoku* sudoku,Stack* stack,StackItem* stackItem,Cell* currentEmptyCell,int i,int j, int firstTime);
 void updateCurrentEmptyCell(Cell* currentEmptyCell,int i, int j);
-void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size, int copyFixedCellsOnly);
-SudokuCell*** copyBoard(SudokuCell*** board, int total_size, int copyFixedCellsOnly);
 void updateCellAndOptionalDigits(StackItem* stackItem,SudokuCell**** tmpItemBoard, int total_size, int i,int j);
 int exhaustiveBacktracking(Sudoku* sudoku, SudokuCell*** fixedBoard, int x, int y);
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Board functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+void copyOptionalDigitsArray(int* fromArray, int* toArray, int length);
+void copyBoardValues(SudokuCell*** fromBoard, SudokuCell*** toBoard, int total_size, int copyFixedCellsOnly);
+SudokuCell*** copyBoard(SudokuCell*** board, int total_size, int copyFixedCellsOnly);
 void deleteDigitFromArr(SudokuCell*** board, int x, int y, int dig);
 void findThePossibleArray(SudokuCell*** board,int row, int column, int x, int y);
-
-
-int ILP_Validation(SudokuCell*** tmpBoard, int row, int column, Command command, int x, int y, int* p_dig);
-int LP_Validation(Sudoku* sudoku, int row, int column, Command command, int x, int y, float threshold);
-
 void findNextEmptyCell(SudokuCell*** board,int total_size,Cell* cell, int x,int y);
+void currentStateToFixed(Sudoku* sudoku, SudokuCell*** board, int total_size);
 
-void currentStateToFixed(Sudoku *sudoku, SudokuCell ***board, int total_size);
-int choose_weighted_rand(WeightedCell** arr, int arr_size);
-
-void freePossibleSolArr(WeightedCell*** possible_sol_arr, int total_size);
-void MallocAndFindPossibleSolArr(WeightedCell*** possible_sol_arr, int* possible_sol_arr_size, double* sol, Sudoku* sudoku, int x, int y, float threshold);
-int GRSolver(Sudoku* sudoku, SudokuCell*** board, int isLP, int row, int column, Command command, int x, int y, float threshold, int* p_dig);
-
-void objTargetFuncLP(Sudoku* sudoku, double * obj ,int numberOfVariables);
 #endif
 

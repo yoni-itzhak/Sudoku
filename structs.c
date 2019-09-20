@@ -34,12 +34,10 @@ void createEmptyBoard(SudokuCell*** board, int total_size){
     }
 }
 
-
-
+/*frees the Sudoku allocated memory*/
 void freeSudokuMemory(Sudoku *sudoku){
     if (sudoku->justStarted != 1){
         freeBoard (sudoku->currentState, sudoku->total_size);
-        /*freeBoard (sudoku->solution, sudoku->total_size);*/
         freeList(sudoku->list);
     }
     free(sudoku);
@@ -63,6 +61,11 @@ void freeBoard(SudokuCell*** board, int total_size){
     free(board);
 }
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Cell function*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*frees the Cells array allocated memory*/
 void freeCellsArray(Cell **arr, int arr_size){
     int i;
     for(i=0;i<arr_size;++i){
@@ -71,12 +74,18 @@ void freeCellsArray(Cell **arr, int arr_size){
     free(arr);
 }
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Stack functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*frees the StackItem allocated memory*/
 void freeStackItem(StackItem* stackItem, int total_size){
     freeBoard(stackItem->board, total_size);
     free(stackItem->currentEmptyCell);
     free(stackItem);
 }
 
+/*frees the Stack allocated memory*/
 void freeStack(Stack* stack, int total_size){
     while(size(stack)>0){
         pop(stack, total_size);
@@ -85,6 +94,11 @@ void freeStack(Stack* stack, int total_size){
     free(stack);
 }
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Linked list functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*frees the array of Moves allocated memory*/
 void freeArrMove(struct Node* node){
     int i;
     for (i=0; i< node->arrSize; i++){
@@ -94,11 +108,13 @@ void freeArrMove(struct Node* node){
     free(node->arrMove);
 }
 
+/*frees the Node allocated memory*/
 void freeNode(struct Node* node){
     freeArrMove(node);
     free(node);
 }
 
+/*frees the List allocated memory*/
 void freeList(List *list){
     while (!isListEmpty(list)){
         deleteLast(list);

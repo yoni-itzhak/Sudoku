@@ -35,6 +35,12 @@ typedef enum{
 }NeighborsType;
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*Gurobi validation*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+int _validate_gurobi(int isSolvable, Command command);
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /*loading files*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
@@ -103,17 +109,11 @@ void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize);
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 void createGenerateMovesArr(Move **arrMove, Sudoku *sudoku, SudokuCell ***tmpBoard);
-
 void generate(Sudoku* sudoku, int x, int y);
-
 void createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr);
-
 void swapArrayCells(Cell** cellsArr, int index_1, int index_2);
-
 int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmptyCells, int row, int column);
-
 void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells);
-
 void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku);
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
@@ -173,6 +173,7 @@ void save(Sudoku* sudoku, char* X);
 /* Hint */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+int _validate_hint(Sudoku* sudoku, int x, int y, Command command);
 void hint(Sudoku* sudoku, int x, int y);
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/

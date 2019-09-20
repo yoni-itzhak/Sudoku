@@ -4,41 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-void printMove(Move* move){
-    /*if (move==NULL){
-        return;
-    }
-    return;*/
-    printf("(x: %d, y: %d, b_value: %d, a_value: %d, b_err: %d, a_err: %d) ", move->cell->x, move->cell->y, move->beforeValue,move->afterValue, move->beforeErroneous, move->afterErroneous);
-}
-
-void displayForward(List* list) {
-    /*if (list==NULL){
-        return;
-    }
-    return;
-*/
-    int i, cnt=0;
-    struct Node *ptr = list->head;
-
-
-
-    while (ptr != NULL) {
-        if (cnt == 0){
-            printf("DUMMY NODE\n");
-        }
-        for (i=0; i<ptr->arrSize; i++){
-            printMove(ptr->arrMove[i]);
-        }
-        printf("\n--------------------------------\n");
-        ptr = ptr->next;
-        cnt++;
-    }
-
-
-}
-
+/*checks if current node is dummy node*/
 int isDummyNode(List* list){
     if (list->current->arrSize == -1){
         return 1;
@@ -46,9 +12,11 @@ int isDummyNode(List* list){
     return 0;
 }
 
+/*adds a dummy node to the list*/
 void addDummyNode(List* list){
     insertAtTail(list, NULL, -1);
 }
+
 /*Creates a new List and returns pointer to it.*/
 List* getNewList(){
     List* newList = (List*)malloc(sizeof(List));
@@ -61,6 +29,7 @@ List* getNewList(){
     addDummyNode(newList);
     return newList;
 }
+
 /*Creates a new Node and returns pointer to it.*/
 struct Node* getNewNode(Move** arrMove, int arrSize) {
     struct Node* newNode = (struct Node*) malloc(sizeof(struct Node));
@@ -90,7 +59,7 @@ Move* getNewMove(int x, int y, int beforeValue, int afterValue, int beforeErrone
     return newMove;
 }
 
-/*is list empty*/
+/*checks if the list is empty*/
 int isListEmpty(List* list) {
     if(list->head == NULL){
         return 1;
@@ -112,16 +81,19 @@ void insertAtTail(List* list, Move** arrMove, int arrSize) {
     list->current = newNode; /*point current to new last node*/
 }
 
-/*assume there is next node*/
+/*moves 'current' pointer to the next node*/
 void moveToNext(List* list){
+    /*assumes there is next node*/
     list->current=list->current->next;
 }
 
-/*assume there is previous node*/
+/*moves 'current' pointer to the previous node*/
 void moveToPrev(List* list){
+    /*assumes there is previous node*/
     list->current=list->current->prev;
 }
 
+/*checks if the list has another node after 'current'*/
 int hasNext(List* list){
     if (list->current==list->last){
         return 0;
@@ -129,20 +101,14 @@ int hasNext(List* list){
     return 1;
 }
 
-int hasPrev(List* list){
-    if (list->current==list->head){
-        return 0;
-    }
-    return 1;
-}
-
+/*deletes all the nodes from 'current' to the end off the list*/
 void deleteFromCurrent(List* list){
     while (list->last != list->current){
         deleteLast(list);
     }
 }
 
-/*delete the node at the last location*/
+/*deletes the node at the last location*/
 void deleteLast(List* list) {
     struct Node *tmp = list->last; /*save reference to last link*/
     if(list->head->next == NULL) { /*if only one node*/
@@ -152,10 +118,10 @@ void deleteLast(List* list) {
         list->last->prev->next = NULL;
     }
     list->last = list->last->prev;
-    freeNode(tmp); /*free the allocated memory of the deleted node*/
+    freeNode(tmp); /*frees the allocated memory of the deleted node*/
 }
 
-
+/*gets the current move */
 struct Node* getCurrentMove(List* list){
     return list->current;
 }

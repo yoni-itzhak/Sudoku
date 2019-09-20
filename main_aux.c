@@ -224,7 +224,7 @@ void printSudoku(Sudoku *sudoku) {
     int column = sudoku->column;
     for (i = 0; i < total_size; i++) {
         if (i % row == 0) {
-            printSeparatorRow(total_size, column);
+            printSeparatorRow(total_size, row);
         }
         for (j = 0; j < total_size; j++) {
             if (j % column == 0) {
@@ -251,7 +251,7 @@ void printSudoku(Sudoku *sudoku) {
             }
         }
     }
-    printSeparatorRow(total_size, column);
+    printSeparatorRow(total_size, row);
 }
 
 /*

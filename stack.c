@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* creates new Stack*/
 Stack* newStack(int capacity){
     Stack *stack = (Stack*)malloc(sizeof(Stack));
     if (stack == NULL){
@@ -19,33 +20,28 @@ Stack* newStack(int capacity){
     return stack;
 }
 
+/*returns the size of the Stack*/
 int size(Stack *stack){
     return stack->top + 1;
 }
 
+/*checks if the Stack is empty*/
 int isStackEmpty(Stack *stack){
-    return stack->top == -1;	/*or return size(pt) == 0;*/
+    return stack->top == -1;
 }
 
-int isFull(Stack *stack){
-    return stack->top == stack->maxsize - 1;	/* or return size(pt) == pt->maxsize;*/
-}
-
+/* adds a StackItem at the top of the Stack*/
 void push(Stack *stack, StackItem* stackItem){
     stack->items[++stack->top] = stackItem; /*add an element and increments the top index*/
 }
 
+/* gets a StackItem at the top of the Stack*/
 StackItem* peek(Stack *stack){
-    if (!isStackEmpty(stack)) /*check for empty stack*/
-        return stack->items[stack->top];
-    else{
-        return NULL;
-    }
+    return stack->items[stack->top];
 }
 
+/*pop the top element from the stack*/
 void pop(Stack *stack, int total_size){
-    if (isStackEmpty(stack)){ /*check for stack underflow*/
-    }
     freeStackItem(stack->items[stack->top], total_size);
     stack->top--;
     /* decrement stack size by 1 and (optionally) return the popped element*/

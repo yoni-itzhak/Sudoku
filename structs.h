@@ -36,10 +36,9 @@ typedef struct{
 typedef struct{
     int digit;
     int is_fixed;
-    int cnt_erroneous; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+    int cnt_erroneous;
     int* optionalDigits;
     int numOfOptionalDigits; /*initialized to total_size and will save the length of the "optionalDigits" array*/
-    /*int hasSingleLegalValue; only for "autofill" command. initialized to 0. will be 1 if the cell has only single legal value*/
 }SudokuCell;
 
 
@@ -49,10 +48,10 @@ typedef struct{
     int column;
     int total_size;
     int cntFilledCell;
-    int cntErroneousCells; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    List* list; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    int markErrors; /*remember to take care of this field @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-    Mode mode; /*remember to take care of this field. maybe should be a separate parameter @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+    int cntErroneousCells;
+    List* list;
+    int markErrors;
+    Mode mode;
     int justStarted; /* 1 if this the first game*/
 }Sudoku;
 
@@ -74,15 +73,28 @@ typedef struct{
     float probability;
 }WeightedCell;
 
-
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Sudoku and SudokuCell functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void createEmptyBoard(SudokuCell*** board, int total_size);
-
-void freeBoard(SudokuCell*** board, int total_size);
 void freeSudokuMemory(Sudoku *sudoku);
+void freeBoard(SudokuCell*** board, int total_size);
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Cell function*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void freeCellsArray(Cell **arr, int arr_size);
 
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Stack functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 void freeStackItem(StackItem* stackItem, int total_size); /*free the allocated memory of StackItem*/
 void freeStack(Stack* stack, int total_size); /*free the allocated memory of Stack*/
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/* Linked list functions*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+void freeArrMove(struct Node* node);
 void freeNode(struct Node* node);
 void freeList(List *list);
 
