@@ -25,11 +25,6 @@ int size(Stack *stack){
     return stack->top + 1;
 }
 
-/*checks if the Stack is empty*/
-int isStackEmpty(Stack *stack){
-    return stack->top == -1;
-}
-
 /* adds a StackItem at the top of the Stack*/
 void push(Stack *stack, StackItem* stackItem){
     stack->items[++stack->top] = stackItem; /*add an element and increments the top index*/

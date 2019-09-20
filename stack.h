@@ -12,7 +12,6 @@ Stack* newStack(int capacity); /*initialize stack*/
 int size(Stack *stack); /*return the size of the stack*/
 Stack* newStack(int capacity);
 int size(Stack *stack);
-int isStackEmpty(Stack *stack); /*check if the stack is empty or not*/
 void push(Stack *stack, StackItem* stackItem); /*add an element x in the stack*/
 StackItem* peek(Stack *stack); /*return top element in a stack*/
 void pop(Stack *stack, int total_size); /*pop top element from the stack*/

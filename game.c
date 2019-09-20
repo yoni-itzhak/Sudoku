@@ -358,11 +358,6 @@ int isErroneous(Sudoku* sudoku){
         }
     }
     return 0;
-    /*TODO:
-    if (sudoku->cntErroneousCells==0){
-        return 0;
-    }
-    return 1;*/
 }
 
 /*
@@ -930,7 +925,7 @@ void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize
 }
 
 void set(Sudoku* sudoku, int x, int y, int z){
-    int fixed, dig, i,j;
+    int fixed, dig;
     int arrSize=0, total_cells = sudoku->total_size*sudoku->total_size;
     Move** arrMove = (Move**)malloc(total_cells*(sizeof(Move*)));
     if (arrMove == NULL){
@@ -953,13 +948,6 @@ void set(Sudoku* sudoku, int x, int y, int z){
         addArrMoveToList(sudoku, arrMove, arrSize);
         printSameValueCell();
     }
-    /*TODO:*/
-    for (i=0;i<sudoku->total_size;i++){
-        for(j=0;j<sudoku->total_size;j++){
-            printf("%d %d with %d\n", i,j,sudoku->currentState[i][j]->cnt_erroneous);
-        }
-    }
-    printf("%d\n", sudoku->cntErroneousCells);
     print_board(sudoku);
 }
 
@@ -1042,7 +1030,6 @@ void setPointerToNextMove(Sudoku* sudoku){
 void updateTheBoard(Sudoku* sudoku, Move* move, Command command) {
     int dig;
     dig = sudoku->currentState[move->cell->x][move->cell->y]->digit;
-    /*TODO: updateSudokuCntErroneousCells(&sudoku->cntErroneousCells, move->beforeErroneous, move->afterErroneous);*/
     if (command == UNDO) { /*undo the move*/
         updateSudokuCntErroneousCells(&sudoku->cntErroneousCells, move->afterErroneous, move->beforeErroneous);
         updateSudokuCntFilledCells(&sudoku->cntFilledCell, dig, move->beforeValue);
@@ -1085,24 +1072,11 @@ void undoMove(Sudoku* sudoku, Command command){
     setPointerToPreviousMove(sudoku);
 }
 void undo(Sudoku* sudoku){
-    int i,j;
     if (hasMoveToUndo(sudoku)==0){ /*there are no moves to undo*/
         printNoMovesToUndo();
     }
     else { /*has move to undo*/
-        for (i=0;i<sudoku->total_size;i++){
-            for(j=0;j<sudoku->total_size;j++){
-                printf("%d %d with %d\n", i,j,sudoku->currentState[i][j]->cnt_erroneous);
-            }
-        }
-        printf("%d\n", sudoku->cntErroneousCells);
         undoMove(sudoku, UNDO);
-        for (i=0;i<sudoku->total_size;i++){
-            for(j=0;j<sudoku->total_size;j++){
-                printf("%d %d with %d\n", i,j,sudoku->currentState[i][j]->cnt_erroneous);
-            }
-        }
-        printf("%d\n", sudoku->cntErroneousCells);
         print_board(sudoku);
     }
 }
@@ -1136,12 +1110,6 @@ void redo(Sudoku* sudoku){
     else { /*in Solve/Edit mode AND has move to redo*/
 
         redoMove(sudoku);
-        for (i=0;i<sudoku->total_size;i++){
-            for(j=0;j<sudoku->total_size;j++){
-                printf("%d %d with %d\n", i,j,sudoku->currentState[i][j]->cnt_erroneous);
-            }
-        }
-        printf("%d\n", sudoku->cntErroneousCells);
         print_board(sudoku);
     }
 }

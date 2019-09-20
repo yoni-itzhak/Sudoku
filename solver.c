@@ -19,7 +19,7 @@
 #include "gurobi_c.h"
 #include "structs.h"
 
-#define ERRORGUR "Error: Gurobi optimizer has failed\n"
+#define ERRORGUR ""
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Gurobi & co.*/
@@ -138,7 +138,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
             if (dig!=0){
                 lb[i*total_size*total_size+j*total_size+(dig-1)] = 1; /* lower bound = 1 for fixed cell */
                 ub[i*total_size*total_size+j*total_size+(dig-1)] = 1;
-                /*TODO: */
                 if (isLP){
                     obj[i * total_size * total_size + j * total_size + (dig - 1)] = 0;
                 }
@@ -147,7 +146,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
                     if ((v+1)!=dig){
                         lb[i*total_size*total_size+j*total_size+v] = 0;
                         ub[i*total_size*total_size+j*total_size+v] = 0;
-                        /*TODO: */
                         if (isLP){
                             obj[i * total_size * total_size + j * total_size + v] = 0;
                         }
@@ -169,7 +167,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
                         if (isNumInArr((v+1), board[i][j]->optionalDigits, board[i][j]->numOfOptionalDigits)){
                             lb[i * total_size * total_size + j * total_size + v] = 0; /*/ lower bound = 1 for fixed cell /*/
                             ub[i * total_size * total_size + j * total_size + v] = 1;
-                            /*TODO:*/
                             if (isLP){
                                 random = rand() % (board[i][j]->numOfOptionalDigits+1);
                                 if (random == 0){
@@ -180,7 +177,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
                         } else {
                             lb[i * total_size * total_size + j * total_size + v] = 0;
                             ub[i * total_size * total_size + j * total_size + v] = 0;
-                            /*TODO: */
                             if (isLP){
                                 obj[i * total_size * total_size + j * total_size + v] = 0;
                             }
