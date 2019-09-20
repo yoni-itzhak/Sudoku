@@ -149,7 +149,7 @@ int scanCells(FILE* file, char* path, SudokuCell*** board, Mode mode, int total_
  */
 
 int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode, int editWithoutPath, SudokuCell ***newCurrentState, int newRow, int newColumn, int newCntFilledCell){
-    int isValid, i, j;
+    int isValid;
     tmpSudoku->mode=newMode;
     tmpSudoku->currentState=newCurrentState;
     tmpSudoku->row=newRow;
@@ -162,12 +162,6 @@ int check_validation_of_loaded_board(Sudoku *tmpSudoku, char *path, Mode newMode
         findErroneousCellsForLoadedBoard(tmpSudoku->currentState, tmpSudoku->total_size, tmpSudoku->row,tmpSudoku->column, &tmpSudoku->cntErroneousCells);
 
         if (tmpSudoku->mode == SOLVE){
-            for (i=0;i<tmpSudoku->total_size;i++){
-                for(j=0;j<tmpSudoku->total_size;j++){
-                    printf("%d %d with %d\n", i,j,tmpSudoku->currentState[i][j]->cnt_erroneous);
-                }
-            }
-            printf("%d\n", tmpSudoku->cntErroneousCells);
             isValid = isErroneousBetween2FixedCells(tmpSudoku); /*checks for erroneous only between fixed cells*/
             if (isValid == 0){ /* means that there are two fixed cells that make each other erroneous*/
                 printLoadedFileNotSolvable(path);
@@ -1103,7 +1097,6 @@ void redoMove(Sudoku* sudoku){
     }
 }
 void redo(Sudoku* sudoku){
-    int i,j;
     if (hasMoveToRedo(sudoku)==0){ /*there are no moves to redo*/
         printNoMovesToRedo();
     }
@@ -1275,7 +1268,7 @@ void markSingleLegalValue(Sudoku* sudoku){
 }
 
 int hasSingleLegalValue(Sudoku* sudoku, int i, int j){
-    if (sudoku->currentState[i][j]->numOfOptionalDigits == 1){
+    if (sudoku->currentState[i][j]->numOfOptionalDigits == 1 && sudoku->currentState[i][j]->digit==0){
         return 1;
     }
     return 0;

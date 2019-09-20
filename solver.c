@@ -19,8 +19,6 @@
 #include "gurobi_c.h"
 #include "structs.h"
 
-#define ERRORGUR ""
-
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Gurobi & co.*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
@@ -100,9 +98,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
 
     error = GRBloadenv(&env, "sudoku.log");
     if (error) {
-        if (command != GENERATE){
-            printf(ERRORGUR);
-        }
         freeGurobi(env, model);
         if (isLP){
             freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
@@ -117,9 +112,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
 
     error = GRBsetintparam(env, GRB_INT_PAR_LOGTOCONSOLE, 0);
     if (error) {
-        if (command != GENERATE){
-            printf(ERRORGUR);
-        }
         freeGurobi(env, model);
         if (isLP){
             freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
@@ -215,9 +207,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
         error = GRBnewmodel(env, &model, "sudoku", N * N * N, NULL, lb, ub, vtype, NULL );
     }
     if (error) {
-        if (command != GENERATE){
-            printf(ERRORGUR);
-        }
         freeGurobi(env, model);
         if (isLP){
             freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
@@ -232,9 +221,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
         /*set objective max*/
         error = GRBsetintattr(model, GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE);
         if (error) {
-            if (command != GENERATE){
-                printf(ERRORGUR);
-            }
             freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
             return -1;
         }
@@ -252,9 +238,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
             }
             error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
             if (error) {
-                if (command != GENERATE){
-                    printf(ERRORGUR);
-                }
                 freeGurobi(env, model);
                 if (isLP){
                     freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
@@ -277,9 +260,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
             }
             error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
             if (error) {
-                if (command != GENERATE){
-                    printf(ERRORGUR);
-                }
                 freeGurobi(env, model);
                 if (isLP){
                     freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
@@ -302,9 +282,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
             }
             error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
             if (error) {
-                if (command != GENERATE){
-                    printf(ERRORGUR);
-                }
                 freeGurobi(env, model);
                 if (isLP){
                     freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype,&obj, 1);
@@ -333,9 +310,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
                 }
                 error = GRBaddconstr(model, N, ind, val, GRB_EQUAL, 1.0, NULL );
                 if (error) {
-                    if (command != GENERATE) {
-                        printf(ERRORGUR);
-                    }
                     freeGurobi(env, model);
                     if (isLP) {
                         freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
@@ -352,9 +326,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
 
     error = GRBoptimize(model);
     if (error) {
-        if (command != GENERATE) {
-            printf(ERRORGUR);
-        }
         freeGurobi(env, model);
         if (isLP) {
             freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
@@ -368,9 +339,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
 
     error = GRBgetintattr(model, GRB_INT_ATTR_STATUS, &status);
     if (error) {
-        if (command != GENERATE) {
-            printf(ERRORGUR);
-        }
         freeGurobi(env, model);
         if (isLP) {
             freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
@@ -382,9 +350,6 @@ int GRBSolver(Sudoku *sudoku, SudokuCell ***board, int isLP, int row, int column
     if(status == GRB_OPTIMAL) {
         error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0,N * N * N, sol);
         if (error) {
-            if (command != GENERATE) {
-                printf(ERRORGUR);
-            }
             freeGurobi(env, model);
             if (isLP) {
                 freeGurobiArrays(&ind, &sol, &val, &lb, &ub, &vtype, &obj, 1);
