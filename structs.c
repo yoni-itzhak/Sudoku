@@ -1,9 +1,15 @@
-
 #include "structs.h"
 #include "stack.h"
 #include "doubly_linked_list.h"
 #include "main_aux.h"
 #include <stdlib.h>
+
+/**
+ * structs summary
+ *
+ * A container that takes care of the different commonly structs and enums in the program
+ *
+ */
 
 /*
  * @params - function receives SudokuCell*** board and the Sudoku size.

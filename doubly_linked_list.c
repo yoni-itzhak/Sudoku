@@ -1,8 +1,14 @@
-
 #include "doubly_linked_list.h"
 #include "main_aux.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+/**
+ * doubly_linked_list summary
+ *
+ * A container that takes care of the doubly linked list data structure
+ *
+ */
 
 /*checks if current node is dummy node*/
 int isDummyNode(List* list){

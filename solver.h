@@ -8,31 +8,10 @@
 /**
  * solver summary
  *
- * A container that takes care of the creation of the board, validation and solving.
- * The container supports the following functions:
+ * A container that takes care of two main parts of the code:
+ * 1. The Gurobi functions: LP and ILP
+ * 2. Exhaustive backtracking: The main algorithm for num_solutions
  *
- * SudokuCell                   - A struct that defines a cell in the sudoku table
- * HasSolution                  - Enum to define if a board has a solution or not
- * Sudoku                       - A struct that holds the sudoku board - current and solution
- * Cell                         - A struct that defines a temporary sudoku cell in the DeterSudoku
- * DeterSudoku                  - A struct that is used temporarily during the deterministic function
- * deleteDigitFromArr           - Deletes the given digit from the array.
- * findThePossibleArray         - Finds all the digits that are valid for a specific cell and stores
- *                                them in the "optionalDigits" array
- * makeSolutionBoardFix         - Turns all the cells from the temporary board to fixed
- * findNextEmptyCell            - Searches the next empty cell in the board
- * freeBoard                    - Frees all board's allocated memory
- * createEmptyBoard             - Creates an empty board, malloc all board's required memory
- * NonEmptyToFixed              - Copies all the cells from sudoku's currentState to the board
- * Backtracking                 - The function visits all empty cells from left to right, then top to bottom,
- *                                filling in digits sequentially, or backtracking when the number is
- *                                found to be not valid.
- * boardSolver                  - The function calls deterministicBacktracking to solve the current board
- *                                and update the solution if needed
- * createSudoku                 - Creates the Sudoku fields and fills them with appropriate values
- * generateBoard                - Calls to "boardSolver" with isRandom=1 for the random backtracking
- * randomDeletingCells          - picks each time a randomized X,Y to be fixed in the board
- * pickRandomNumberFromTheArray - Picks random index from the array
  */
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/

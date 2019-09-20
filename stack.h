@@ -1,12 +1,15 @@
-
-
 #ifndef HW4_STACK_H
 #define HW4_STACK_H
 
 #include "solver.h"
 #include "structs.h"
 
-/*Data structure for stack : */
+/**
+ * stack summary
+ *
+ * A container that takes care of the stack data structure
+ *
+ */
 
 Stack* newStack(int capacity); /*initialize stack*/
 int size(Stack *stack); /*return the size of the stack*/

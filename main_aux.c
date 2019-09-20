@@ -5,6 +5,13 @@
 #include "main_aux.h"
 #include "parser.h"
 
+/**
+ * main_aux summary
+ *
+ * A container that takes care of auxiliary functions and printing game flow messages.
+ *
+ */
+
 void printPossibleSolAar(WeightedCell** possible_sol_arr, int possible_sol_arr_size, int x, int y){
     int i;
     printf("The cell <%d, %d> possible legal values are:\n", ++y, ++x);

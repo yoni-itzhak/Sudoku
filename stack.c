@@ -1,9 +1,15 @@
-
 #include "stack.h"
 #include "solver.h"
 #include "main_aux.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+/**
+ * stack summary
+ *
+ * A container that takes care of the stack data structure
+ *
+ */
 
 /* creates new Stack*/
 Stack* newStack(int capacity){

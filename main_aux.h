@@ -11,8 +11,8 @@
 /**
  * main_aux summary
  *
- * A container that prints messages to the screen.
- * The container supports the following functions: *
+ * A container that takes care of auxiliary functions and printing game flow messages.
+ *
  */
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/

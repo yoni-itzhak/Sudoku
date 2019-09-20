@@ -11,21 +11,12 @@
 /**
  * game summary:
  *
- * A container that supports the "move" functions:
+ * A container that supports the logic of the game commands.
+ * flow:
+ * 1. Each command gets valid values from the readCommand module in parser.c
+ * 2. The command is executed according to the instructions
  *
- * isFixed          - checks if the cell is fixed.
- * findHeadBlock    - finds the top-left cell in the block of cell[X][Y].
- * isZValid         - checks if the value Z can be set in cell[X][Y].
- * isSolved         - checks if the board is solved.
- * isRowValid       - checks if the value Z appears in the required row.
- * isColumnValid    - checks if the value Z appears in the required column.
- * isBlockValid     - checks if the value Z appears in the required block.
- * resetCell        - resets the cell[X][Y].
- * setCell          - sets the cell[X][Y] with value Z.
- * hint             - gives a hint to cell[X][Y].
- * validate         - checks if the current board is valid.
  */
-
 
 typedef enum{
     NEIGHBORS_FROM_DIG,

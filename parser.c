@@ -9,18 +9,32 @@
 #include "main_aux.h"
 #include "SPBufferset.h"
 
+/**
+ * parser summary
+ *
+ * A container that takes care of the user input.
+ * flow:
+ * 1. The user input reaches the function readCommand.
+ * 2. The input is moved to _parseCommand where the input is separated to its arguments.
+ * 3. The arguments are validated for the relevant command.
+ * 4. If the number of arguments is right and there no errors, they are passed to the relevant function in game.c
+ *
+ **/
 
+/* freeing the allocated arrays */
 void _freeCase(int *cmd, char *path, int *errorsInParams){
     free(cmd);
     free(path);
     free(errorsInParams);
 }
 
+/* returns STATE_LOOP and free the allocated arrays */
 State _finish_and_return_loop(int *cmd, char *path, int *errorsInParams){
     _freeCase(cmd, path, errorsInParams);
     return STATE_LOOP;
 }
 
+/* turn a Command enum to an equivalent string */
 char* stringFromCommand(Command c){
     char *str_commands[] = {"invalid command", "solve", "edit", "mark_errors","print_board",
                             "set", "validate", "guess", "generate", "undo", "redo", "save", "hint",
@@ -28,11 +42,13 @@ char* stringFromCommand(Command c){
     return str_commands[c];
 }
 
+/* turn a Mode enum to an equivalent string */
 char* stringFromMode(Mode mode){
     char* str_modes[] = {"Init", "Edit", "Solve"};
     return str_modes[mode];
 }
 
+/* returns the right number of parameters for each command */
 char* commandNumParams(Command com){
     if (com==1 || com==3 || com==7 || com==11){
         return "1";
@@ -51,6 +67,7 @@ char* commandNumParams(Command com){
     }
 }
 
+/* checks if the current mode is allows the command */
 int isModeAllowingCommand(Command command, Mode mode){
     if (mode == SOLVE){
         if (command == GENERATE) {
@@ -73,6 +90,7 @@ int isModeAllowingCommand(Command command, Mode mode){
     }
 }
 
+/* validates if the given token is a legal command */
 int _commandName(int* cmd, char* token, int* cnt, Mode mode){
     if (strcmp(token, "solve") == 0) {
         cmd[0] = 1;
@@ -118,6 +136,7 @@ int _commandName(int* cmd, char* token, int* cnt, Mode mode){
     return 1;
 }
 
+/* checks if too many parameters are given */
 int _isTooManyParams(int* cmd, int* cnt, int validNumOfParams, Mode mode){
     if(*cnt > validNumOfParams){
         handleInputError(cmd[0], TOO_MANY_PARAMS, mode, -1, -1);
@@ -127,6 +146,7 @@ int _isTooManyParams(int* cmd, int* cnt, int validNumOfParams, Mode mode){
     return 0;
 }
 
+/* checks if enough parameters are given */
 int _isEnoughParams(int *cmd, int *cnt, int validNumOfParams, Mode mode){
     if((*cnt)-1 < validNumOfParams){
         handleInputError(cmd[0], NOT_ENOUGH_PARAMS, mode, -1, -1);
@@ -135,6 +155,7 @@ int _isEnoughParams(int *cmd, int *cnt, int validNumOfParams, Mode mode){
     return 1;
 }
 
+/* takes care of the solve, edit and save commands */
 int _commandWithPath(int* cmd, char* token, int* cnt, char* path, Mode mode){
     if (_isTooManyParams(cmd, cnt, 1, mode)){
         return 0;
@@ -144,6 +165,7 @@ int _commandWithPath(int* cmd, char* token, int* cnt, char* path, Mode mode){
     return 1;
 }
 
+/* takes care of the mark errors command */
 int _commandMarkErrors(int* cmd, char* token, int *cnt, Mode mode, int* errorsArr){
     if(_isTooManyParams(cmd, cnt, 1, mode)){
         return 0;
@@ -158,6 +180,7 @@ int _commandMarkErrors(int* cmd, char* token, int *cnt, Mode mode, int* errorsAr
     return 1;
 }
 
+/* takes care of the set command */
 int _commandSet(int* cmd, char* token, int* cnt, Mode mode, int total_size, int* errArr){
     int val;
     if (_isTooManyParams(cmd, cnt, 3, mode)){
@@ -177,6 +200,7 @@ int _commandSet(int* cmd, char* token, int* cnt, Mode mode, int total_size, int*
     return 1;
 }
 
+/* takes care of the guess command */
 int _commandGuess(int* cmd, char* token, int* cnt, float* guess_param, Mode mode, int* errArr){
     float val;
     if (_isTooManyParams(cmd, cnt, 1, mode)){
@@ -193,6 +217,7 @@ int _commandGuess(int* cmd, char* token, int* cnt, float* guess_param, Mode mode
     return 1;
 }
 
+/* takes care of the generate command */
 int _commandGenerate(int* cmd, char* token, int* cnt, Mode mode, int total_cells, int* errArr){
     int val;
     if (_isTooManyParams(cmd, cnt, 2, mode)){
@@ -209,6 +234,7 @@ int _commandGenerate(int* cmd, char* token, int* cnt, Mode mode, int total_cells
     return 1;
 }
 
+/* takes care of the hint command */
 int _commandHint(int* cmd, char* token, int* cnt, Mode mode, int total_size, int* errArr){/* hint and guess_hint */
     int val = stringToInt(token);
     if (_isTooManyParams(cmd, cnt, 2, mode)){
@@ -224,6 +250,7 @@ int _commandHint(int* cmd, char* token, int* cnt, Mode mode, int total_size, int
     return 1;
 }
 
+/* parsing the user input and separating it its different arguments */ 
 void _parseCommand(char* input, int* cmd, float* guess_param, char* path, Mode mode, int* cnt, Sudoku* sudoku, int* errorsInParams) {
     char s[] = " \t\r\n";
     char* token;

@@ -5,6 +5,15 @@
 #include "game.h"
 #include "main_aux.h"
 
+/**
+ * game summary:
+ *
+ * A container that supports the logic of the game commands.
+ * flow:
+ * 1. Each command gets valid values from the readCommand module in parser.c
+ * 2. The command is executed according to the instructions
+ *
+ */
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /*Gurobi validation*/

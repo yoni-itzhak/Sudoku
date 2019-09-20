@@ -19,6 +19,15 @@
 #include "gurobi_c.h"
 #include "structs.h"
 
+/**
+ * solver summary
+ *
+ * A container that takes care of two main parts of the code:
+ * 1. The Gurobi functions: LP and ILP
+ * 2. Exhaustive backtracking: The main algorithm for num_solutions
+ *
+ */
+
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Gurobi & co.*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/

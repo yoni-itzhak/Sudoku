@@ -1,6 +1,13 @@
 #ifndef SUDOKU_STRUCTS_H
 #define SUDOKU_STRUCTS_H
 
+/**
+ * structs summary
+ *
+ * A container that takes care of the different commonly structs and enums in the program
+ *
+ */
+
 typedef enum{
     INIT,
     EDIT,

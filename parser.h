@@ -7,8 +7,13 @@
 /**
  * parser summary
  *
- * A container that takes care of the input from the user.
- * The container supports the following functions:
+ * A container that takes care of the user input.
+ * flow:
+ * 1. The user input reaches the function readCommand.
+ * 2. The input is moved to _parseCommand where the input is separated to its arguments.
+ * 3. The arguments are validated for the relevant command.
+ * 4. If the number of arguments is right and there no errors, they are passed to the relevant function in game.c
+ *
  **/
 
 typedef enum{

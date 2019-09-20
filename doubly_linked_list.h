@@ -1,8 +1,14 @@
-
 #ifndef HW4_DOUBLY_LINKED_LIST_H
 #define HW4_DOUBLY_LINKED_LIST_H
 
 #include "structs.h"
+
+/**
+ * doubly_linked_list summary
+ *
+ * A container that takes care of the doubly linked list data structure
+ *
+ */
 
 int isDummyNode(List* list);
 void addDummyNode(List* list);
