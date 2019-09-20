@@ -10,6 +10,7 @@
 /*Gurobi validation*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+/*gets the result from Gurobi and prints appropriate message*/
 int _validate_gurobi(int isSolvable, Command command){
     if ( isSolvable != 1 ){
         if (isSolvable == 0){
@@ -718,6 +719,7 @@ void updateSudokuCntFilledCells(int* p_cntFilledCell, int fromValue, int toValue
 /* Moves array*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+/*adds new Move to the array of Moves and increments its size*/
 void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int y, int beforeValue, int afterValue, int beforeErroneous, int afterErroneous){
     Move* newMove;
     newMove = getNewMove(x, y, beforeValue, afterValue, beforeErroneous, afterErroneous);
@@ -725,6 +727,7 @@ void addMoveToArrMoveAndIncrementSize(Move **arrMove, int *p_arrSize, int x, int
     (*p_arrSize)++;
 }
 
+/*adds the array of Moves to the redo\undo linked list*/
 void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize){
     deleteFromCurrent(sudoku->list);
     insertAtTail(sudoku->list, arrMove, arrSize);
@@ -734,6 +737,7 @@ void addArrMoveToList(Sudoku *sudoku, Move** arrMove, int arrSize){
 /* Generate*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+/*creates the array of moves for the Generate command*/
 void createGenerateMovesArr(Move **arrMove, Sudoku *sudoku, SudokuCell ***tmpBoard){
     int numOfMoves=0;
     int i, j;
@@ -747,6 +751,7 @@ void createGenerateMovesArr(Move **arrMove, Sudoku *sudoku, SudokuCell ***tmpBoa
     addArrMoveToList(sudoku, arrMove, numOfMoves);
 }
 
+/*The Generate command*/
 void generate(Sudoku* sudoku, int x, int y){
     int isSolvable, areXCellsFilled, cntNoSolution=0;
     int isValid=1;
@@ -811,6 +816,7 @@ void generate(Sudoku* sudoku, int x, int y){
     }
 }
 
+/*creates an empty cells array for the Generate command*/
 void createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
     int  i, j, index=0;
     for(i=0;i<sudoku->total_size; ++i){
@@ -828,6 +834,7 @@ void createEmptyCellsArr(Sudoku *sudoku, Cell** emptyCellsArr){
     }
 }
 
+/*swaps 2 cells location in the array, according to the 2 indexes that given*/
 void swapArrayCells(Cell** cellsArr, int index_1, int index_2){
     Cell* tmp;
     tmp = cellsArr[index_1];
@@ -835,6 +842,7 @@ void swapArrayCells(Cell** cellsArr, int index_1, int index_2){
     cellsArr[index_2] = tmp;
 }
 
+/*fills randomly X empty cells in the board*/
 int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmptyCells, int row, int column){
     int empty_cell_index, rand_dig_index, num_of_optional_digits;
     Cell* empty_cell_coordinates;
@@ -857,6 +865,7 @@ int fillXCells(SudokuCell*** tmpBoard, int x, Cell** emptyCellsArr, int numOfEmp
     return 1;
 }
 
+/*resets all the cells that in the given array of Cells*/
 void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells){
     int i;
     for(i=0;i<numOfCells;++i){
@@ -864,6 +873,7 @@ void resetCells(SudokuCell*** board, Cell** cellsArr, int numOfCells){
     }
 }
 
+/*keeps randomly filled Y cells, and resets the others*/
 void keepYCells(SudokuCell*** tmpBoard, int y, Sudoku* sudoku){
     int i=0, row_index, column_index, num_of_available_cells = sudoku->total_size*sudoku->total_size, chosen_cell_index;
     Cell** all_available_cells = (Cell**)malloc(sizeof(Cell*)*num_of_available_cells);
@@ -900,6 +910,8 @@ void mark_errors(Sudoku* sudoku,int x){
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Set*/
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*sets the <X,Y> cell with value z, and update the erroneousness of the change*/
 void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize){
     int beforeErroneous, afterErroneous;
     int dig = sudoku->currentState[x][y]->digit;
@@ -918,6 +930,7 @@ void setCell(Sudoku* sudoku, int x, int y, int z, Move** arrMove, int* p_arrSize
     addMoveToArrMoveAndIncrementSize(arrMove, p_arrSize, x, y, dig, z, beforeErroneous, afterErroneous);
 }
 
+/*sets the <X,Y> cell with value z, if possible*/
 void set(Sudoku* sudoku, int x, int y, int z){
     int fixed, dig;
     int arrSize=0, total_cells = sudoku->total_size*sudoku->total_size;
@@ -1001,26 +1014,33 @@ void guess(Sudoku* sudoku, float x){
 /* Redo\Undo */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+/*checks if there are moves to undo*/
 int hasMoveToUndo(Sudoku* sudoku){
     if (isDummyNode(sudoku->list)){ /*-1 for dummy node*/
         return 0;
     }
     return 1;
 }
+
+/*checks if there are moves to undo*/
 int hasMoveToRedo(Sudoku* sudoku){
     return hasNext(sudoku->list);
 }
 
+/*sets the current pointer to the previous move*/
 void setPointerToPreviousMove(Sudoku* sudoku){
     moveToPrev(sudoku->list);
 }
 
+/*sets the current pointer to the next move*/
 void setPointerToNextMove(Sudoku* sudoku){
     moveToNext(sudoku->list);
 }
 
 /* command=UNDO if we want to redo the move.
  * command=REDO if we want to undo the move*/
+
+/*updates the move's changes in the board*/
 void updateTheBoard(Sudoku* sudoku, Move* move, Command command) {
     int dig;
     dig = sudoku->currentState[move->cell->x][move->cell->y]->digit;
@@ -1038,6 +1058,7 @@ void updateTheBoard(Sudoku* sudoku, Move* move, Command command) {
     }
 }
 
+/*checks if the set was trivial*/
 int isTrivialSet(Move* currentMove){
     if (currentMove->beforeValue == currentMove->afterValue && currentMove->afterErroneous == currentMove->beforeErroneous){
         return 1;
@@ -1045,6 +1066,7 @@ int isTrivialSet(Move* currentMove){
     return 0;
 }
 
+/*undo the current move*/
 void undoMove(Sudoku* sudoku, Command command){
     int i;
     Move** currentArrMove = getCurrentMove(sudoku->list)->arrMove;
@@ -1065,6 +1087,8 @@ void undoMove(Sudoku* sudoku, Command command){
     }
     setPointerToPreviousMove(sudoku);
 }
+
+/*The Undo command*/
 void undo(Sudoku* sudoku){
     if (hasMoveToUndo(sudoku)==0){ /*there are no moves to undo*/
         printNoMovesToUndo();
@@ -1075,6 +1099,7 @@ void undo(Sudoku* sudoku){
     }
 }
 
+/*redo the current move*/
 void redoMove(Sudoku* sudoku){
     int i;
     Move** currentArrMove;
@@ -1096,6 +1121,8 @@ void redoMove(Sudoku* sudoku){
         }
     }
 }
+
+/*The Redo command*/
 void redo(Sudoku* sudoku){
     if (hasMoveToRedo(sudoku)==0){ /*there are no moves to redo*/
         printNoMovesToRedo();
@@ -1111,6 +1138,7 @@ void redo(Sudoku* sudoku){
 /* Save */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+/*checks if the write to the file has failed*/
 int checkIfWriteFailed(char *X, int isWrite){
     if (isWrite < 0){
         printWriteToFileFailed(X);
@@ -1119,6 +1147,7 @@ int checkIfWriteFailed(char *X, int isWrite){
     return 1;
 }
 
+/*saves the the board in file with path X*/
 void saveBoardInFile(Sudoku* sudoku, char* X){
     FILE* file;
     int isValid, isClosed, i, j, dig, fixed, total_size = sudoku->total_size;
@@ -1162,6 +1191,8 @@ void saveBoardInFile(Sudoku* sudoku, char* X){
         return;
     }
 }
+
+/*The Save command*/
 void save(Sudoku* sudoku, char* X) {
     int isSolvable;
     if (sudoku->mode == EDIT){
@@ -1183,6 +1214,7 @@ void save(Sudoku* sudoku, char* X) {
 /* Hint */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+/*checks the characteristic of the board before calling the Hint function, and prints appropriate message if necessary*/
 int _validate_hint(Sudoku* sudoku, int x, int y, Command command){
     if(isErroneous(sudoku)==1){
         printErroneousBoard(command);
@@ -1199,6 +1231,7 @@ int _validate_hint(Sudoku* sudoku, int x, int y, Command command){
     return 1;
 }
 
+/*The Hint command */
 void hint(Sudoku* sudoku, int x, int y){
     int isSolvable, dig;
     if (_validate_hint(sudoku, x, y, HINT)){ /*in Solve mode AND all valid*/
@@ -1224,6 +1257,8 @@ void guess_hint(Sudoku* sudoku, int x, int y){
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Num solutions */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*The Num solutions command - calls the exhaustive backtracking algorithm*/
 void num_solutions(Sudoku* sudoku){
     int numOfSolution, total_size = sudoku->total_size;
     Cell* firstEmptyCell;
@@ -1255,6 +1290,8 @@ void num_solutions(Sudoku* sudoku){
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Autofill */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*'marks' all the cells that have only one legal value - by calculate the cell's possible array*/
 void markSingleLegalValue(Sudoku* sudoku){
     int i,j, total_size = sudoku->total_size;
     for (i=0; i<total_size; i++){
@@ -1267,6 +1304,7 @@ void markSingleLegalValue(Sudoku* sudoku){
     }
 }
 
+/*checks if the cell has only one legal value*/
 int hasSingleLegalValue(Sudoku* sudoku, int i, int j){
     if (sudoku->currentState[i][j]->numOfOptionalDigits == 1 && sudoku->currentState[i][j]->digit==0){
         return 1;
@@ -1274,6 +1312,7 @@ int hasSingleLegalValue(Sudoku* sudoku, int i, int j){
     return 0;
 }
 
+/*fills all the 'obvious' cells in the board - the cells that have only one legal value*/
 int fillObviousValues(Sudoku* sudoku, int autoFillBeforeILP){
     int arrSize=0, dig, i, j, total_size = sudoku->total_size, cntAutoFilled=0;
     int total_cells = sudoku->total_size*sudoku->total_size;
@@ -1309,6 +1348,7 @@ int fillObviousValues(Sudoku* sudoku, int autoFillBeforeILP){
 
 }
 
+/*The Autofill command*/
 void autofill(Sudoku* sudoku){
     int isAutoFilled;
     if (isErroneous(sudoku)==1){ /*board is erroneous*/
@@ -1334,12 +1374,15 @@ void autofill(Sudoku* sudoku){
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Reset */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*undo all the moves in the redo\undo linked list*/
 void undoAllMoves(Sudoku* sudoku){
     while (hasMoveToUndo(sudoku)==1){
         undoMove(sudoku, RESET);
     }
 }
 
+/*The Reset program*/
 void reset(Sudoku* sudoku){
     undoAllMoves(sudoku);
     print_board(sudoku);
@@ -1349,6 +1392,8 @@ void reset(Sudoku* sudoku){
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 /* Exit program */
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+/*The Exit program*/
 void exitProgram(){
     printExitMessage();
 }
